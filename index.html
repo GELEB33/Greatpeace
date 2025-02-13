@@ -73,6 +73,7 @@
       justify-content: center;
       align-items: center;
       font-size: 20px;
+      cursor: pointer;
     }
 
     .tile.river {
@@ -87,69 +88,119 @@
       background-color: #388E3C; /* Леса */
     }
 
-    /* Стрелки для перемещения */
-    .arrow {
+    .tile.city {
+      background-color: #FFD700; /* Цвет города */
+      position: relative;
+    }
+
+    .tile.city::after {
+      content: '🏰'; /* Эмодзи замка */
+      font-size: 24px;
+    }
+
+    .city-name {
       position: absolute;
-      font-size: 40px;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
       color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 2px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .tile.captured {
+      border: 3px solid; /* Рамка захваченной клетки */
+    }
+
+    /* Окно управления поселением */
+    .settlement-window {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .settlement-window h2 {
+      margin-top: 0;
+    }
+
+    .settlement-window label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    .settlement-window input {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    .settlement-window button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-      user-select: none;
-      background-color: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      padding: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
-    .arrow.up {
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
+    .settlement-window button:hover {
+      background-color: #45a049;
     }
 
-    .arrow.down {
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      height: 60px; /* Увеличиваем область нажатия */
-    }
-
-    .arrow.left {
-      top: 50%;
-      left: 10px;
-      transform: translateY(-50%);
-    }
-
-    .arrow.right {
-      top: 50%;
-      right: 10px;
-      transform: translateY(-50%);
-    }
-
-    /* Управление зумом */
-    .zoom-controls {
+    /* Кнопки управления */
+    .controls {
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 100px; /* Раздвигаем кнопки в стороны */
+      gap: 20px;
     }
 
-    .zoom-controls button {
+    .controls button {
+      padding: 15px;
+      font-size: 24px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+    }
+
+    .controls button:hover {
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    /* Кнопка захвата */
+    .capture-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       padding: 10px 20px;
-      font-size: 20px;
-      background-color: rgba(0, 0, 0, 0.5);
+      font-size: 16px;
+      background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .zoom-controls button:hover {
-      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 1001;
     }
   </style>
 </head>
@@ -165,16 +216,32 @@
   <!-- Игровая карта -->
   <div class="game-container" id="game-container">
     <div class="map" id="map"></div>
-    <!-- Стрелки для перемещения -->
-    <div class="arrow up" id="arrow-up">↑</div>
-    <div class="arrow down" id="arrow-down">↓</div>
-    <div class="arrow left" id="arrow-left">←</div>
-    <div class="arrow right" id="arrow-right">→</div>
-    <!-- Управление зумом -->
-    <div class="zoom-controls">
+    <!-- Кнопки управления -->
+    <div class="controls">
       <button id="zoom-in">+</button>
       <button id="zoom-out">-</button>
+      <button id="arrow-up">↑</button>
+      <button id="arrow-down">↓</button>
+      <button id="arrow-left">←</button>
+      <button id="arrow-right">→</button>
     </div>
+    <!-- Окно управления поселением -->
+    <div class="settlement-window" id="settlement-window">
+      <h2>Управление поселением</h2>
+      <label for="city-name">Название города:</label>
+      <input type="text" id="city-name" placeholder="Введите название">
+      <label for="city-color">Цвет государства:</label>
+      <input type="color" id="city-color" value="#FFD700">
+      <p>Жители: <span id="city-population">0</span></p>
+      <p>Вода: <span id="city-water">0</span></p>
+      <p>Еда: <span id="city-food">0</span></p>
+      <p>Дерево: <span id="city-wood">0</span></p>
+      <p>Минералы: <span id="city-minerals">0</span></p>
+      <button id="add-population">Добавить жителя (10 еды и воды)</button>
+      <button id="close-settlement-window">Закрыть</button>
+    </div>
+    <!-- Кнопка захвата -->
+    <button class="capture-button" id="capture-button" style="display: none;">Захватить</button>
   </div>
 
   <script>
@@ -183,12 +250,23 @@
     const gameContainer = document.getElementById('game-container');
     const map = document.getElementById('map');
     const playButton = document.getElementById('play-button');
+    const zoomIn = document.getElementById('zoom-in');
+    const zoomOut = document.getElementById('zoom-out');
     const arrowUp = document.getElementById('arrow-up');
     const arrowDown = document.getElementById('arrow-down');
     const arrowLeft = document.getElementById('arrow-left');
     const arrowRight = document.getElementById('arrow-right');
-    const zoomIn = document.getElementById('zoom-in');
-    const zoomOut = document.getElementById('zoom-out');
+    const settlementWindow = document.getElementById('settlement-window');
+    const cityNameInput = document.getElementById('city-name');
+    const cityColorInput = document.getElementById('city-color');
+    const cityPopulation = document.getElementById('city-population');
+    const cityWater = document.getElementById('city-water');
+    const cityFood = document.getElementById('city-food');
+    const cityWood = document.getElementById('city-wood');
+    const cityMinerals = document.getElementById('city-minerals');
+    const addPopulationButton = document.getElementById('add-population');
+    const closeSettlementWindow = document.getElementById('close-settlement-window');
+    const captureButton = document.getElementById('capture-button');
 
     // Переменные для управления картой
     let offsetX = 0;
@@ -198,6 +276,18 @@
     let isMoving = false;
     let moveInterval;
 
+    // Переменные для поселения
+    let cityTile = null;
+    let cityResources = {
+      population: 0,
+      water: 0,
+      food: 0,
+      wood: 0,
+      minerals: 0,
+    };
+    let capturedTiles = new Set(); // Захваченные клетки
+    let selectedTile = null; // Выбранная клетка для захвата
+
     // Генерация карты
     function generateMap() {
       // Сначала заполняем всю карту равнинами
@@ -205,6 +295,7 @@
         for (let x = 0; x < 50; x++) {
           const tile = document.createElement('div');
           tile.classList.add('tile');
+          tile.addEventListener('click', () => handleTileClick(tile, x, y));
           map.appendChild(tile);
         }
       }
@@ -263,6 +354,101 @@
       }
     }
 
+    // Обработка клика по клетке
+    function handleTileClick(tile, x, y) {
+      if (cityTile) {
+        if (tile === cityTile.tile) {
+          // Открыть окно управления городом
+          settlementWindow.style.display = 'block';
+        } else if (Math.abs(cityTile.x - x) <= 1 && Math.abs(cityTile.y - y) <= 1) {
+          // Выбор соседней клетки для захвата
+          selectedTile = { tile, x, y };
+          captureButton.style.display = 'block';
+          captureButton.style.left = `${tile.offsetLeft + 20}px`;
+          captureButton.style.top = `${tile.offsetTop + 20}px`;
+        }
+      } else if (tile.classList.contains('tile') && !tile.classList.contains('city')) {
+        // Основание города
+        cityTile = { tile, x, y };
+        tile.classList.add('city');
+        const cityName = document.createElement('div');
+        cityName.classList.add('city-name');
+        cityName.textContent = 'Новый город';
+        tile.appendChild(cityName);
+        settlementWindow.style.display = 'block';
+      }
+    }
+
+    // Захват клетки
+    function captureTile() {
+      if (!selectedTile) return;
+      const { tile, x, y } = selectedTile;
+      if (capturedTiles.has(`${x},${y}`)) return; // Клетка уже захвачена
+      capturedTiles.add(`${x},${y}`);
+
+      // Установка цвета государства
+      tile.style.borderColor = cityColorInput.value;
+      tile.classList.add('captured');
+
+      // Добавление ресурсов
+      if (tile.classList.contains('river')) {
+        cityResources.water += 1;
+        setInterval(() => {
+          cityResources.water += 1;
+          updateResources();
+        }, 10000); // +1 вода каждые 10 секунд
+      } else if (tile.classList.contains('forest')) {
+        cityResources.wood += 1;
+        setTimeout(() => {
+          tile.classList.remove('forest');
+          tile.classList.add('tile');
+          tile.textContent = '';
+          cityResources.wood -= 1;
+          updateResources();
+        }, 300000); // Лес исчезает через 5 минут
+      } else if (tile.classList.contains('mountain')) {
+        cityResources.minerals += 1;
+        setTimeout(() => {
+          tile.classList.remove('mountain');
+          tile.classList.add('tile');
+          tile.textContent = '';
+          cityResources.minerals -= 1;
+          updateResources();
+        }, 300000); // Горы исчезают через 5 минут
+      } else if (tile.classList.contains('tile')) {
+        cityResources.food += 1;
+        setInterval(() => {
+          cityResources.food += 1;
+          updateResources();
+        }, 10000); // +1 еда каждые 10 секунд
+      }
+
+      updateResources();
+      captureButton.style.display = 'none';
+      selectedTile = null;
+    }
+
+    // Обновление ресурсов в окне управления
+    function updateResources() {
+      cityPopulation.textContent = cityResources.population;
+      cityWater.textContent = cityResources.water;
+      cityFood.textContent = cityResources.food;
+      cityWood.textContent = cityResources.wood;
+      cityMinerals.textContent = cityResources.minerals;
+    }
+
+    // Добавление населения
+    function addPopulation() {
+      if (cityResources.food >= 10 && cityResources.water >= 10) {
+        cityResources.population += 1;
+        cityResources.food -= 10;
+        cityResources.water -= 10;
+        updateResources();
+      } else {
+        alert('Недостаточно еды и воды!');
+      }
+    }
+
     // Переход в игру
     playButton.addEventListener('click', () => {
       mainMenu.style.display = 'none';
@@ -298,10 +484,15 @@
     arrowLeft.addEventListener('mouseup', stopMoving);
     arrowRight.addEventListener('mouseup', stopMoving);
 
-    arrowUp.addEventListener('mouseleave', stopMoving);
-    arrowDown.addEventListener('mouseleave', stopMoving);
-    arrowLeft.addEventListener('mouseleave', stopMoving);
-    arrowRight.addEventListener('mouseleave', stopMoving);
+    arrowUp.addEventListener('touchstart', () => startMoving('up'));
+    arrowDown.addEventListener('touchstart', () => startMoving('down'));
+    arrowLeft.addEventListener('touchstart', () => startMoving('left'));
+    arrowRight.addEventListener('touchstart', () => startMoving('right'));
+
+    arrowUp.addEventListener('touchend', stopMoving);
+    arrowDown.addEventListener('touchend', stopMoving);
+    arrowLeft.addEventListener('touchend', stopMoving);
+    arrowRight.addEventListener('touchend', stopMoving);
 
     // Управление зумом
     zoomIn.addEventListener('click', () => {
@@ -318,6 +509,25 @@
     function updateMapTransform() {
       map.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
     }
+
+    // Закрытие окна управления поселением
+    closeSettlementWindow.addEventListener('click', () => {
+      settlementWindow.style.display = 'none';
+    });
+
+    // Название города
+    cityNameInput.addEventListener('input', () => {
+      if (cityTile) {
+        const cityName = cityTile.tile.querySelector('.city-name');
+        if (cityName) cityName.textContent = cityNameInput.value;
+      }
+    });
+
+    // Захват клетки
+    captureButton.addEventListener('click', captureTile);
+
+    // Добавление населения
+    addPopulationButton.addEventListener('click', addPopulation);
   </script>
 </body>
 </html>
