@@ -1,533 +1,390 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Игра: Мир Приключений</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      user-select: none; /* Запрет выделения текста и эмодзи */
-    }
-
-    /* Главное меню */
-    .main-menu {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #2c3e50, #3498db);
-      color: white;
-      text-align: center;
-    }
-
-    .main-menu button {
-      padding: 15px 30px;
-      font-size: 20px;
-      background-color: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .main-menu button:hover {
-      background-color: #c0392b;
-    }
-
-    /* Игровая карта */
-    .game-container {
-      display: none;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-      background-color: #87CEEB; /* Нежно-синий фон, как море */
-    }
-
-    .map {
-      display: grid;
-      grid-template-columns: repeat(50, 40px);
-      grid-template-rows: repeat(50, 40px);
-      gap: 2px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      touch-action: none;
-      background-color: #4CAF50; /* Цвет равнин */
-      border: 5px solid #1E90FF; /* Граница карты, как берег моря */
-    }
-
-    .tile {
-      width: 40px;
-      height: 40px;
-      background-color: #4CAF50; /* Равнины */
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .tile.river {
-      background-color: #2196F3; /* Реки */
-    }
-
-    .tile.mountain {
-      background-color: #808080; /* Горы (серые) */
-    }
-
-    .tile.forest {
-      background-color: #388E3C; /* Леса */
-    }
-
-    .tile.city {
-      background-color: #FFD700; /* Цвет города */
-      position: relative;
-    }
-
-    .tile.city::after {
-      content: '🏰'; /* Эмодзи замка */
-      font-size: 24px;
-    }
-
-    .city-name {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 12px;
-      color: white;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 2px 5px;
-      border-radius: 3px;
-      white-space: nowrap;
-    }
-
-    .tile.captured {
-      border: 3px solid; /* Рамка захваченной клетки */
-    }
-
-    /* Окно управления поселением */
-    .settlement-window {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-    }
-
-    .settlement-window h2 {
-      margin-top: 0;
-    }
-
-    .settlement-window label {
-      display: block;
-      margin: 10px 0 5px;
-    }
-
-    .settlement-window input {
-      width: 100%;
-      padding: 5px;
-      margin-bottom: 10px;
-    }
-
-    .settlement-window button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .settlement-window button:hover {
-      background-color: #45a049;
-    }
-
-    /* Кнопки управления */
-    .controls {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 20px;
-    }
-
-    .controls button {
-      padding: 15px;
-      font-size: 24px;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 50px;
-      height: 50px;
-    }
-
-    .controls button:hover {
-      background-color: rgba(0, 0, 0, 0.9);
-    }
-
-    /* Кнопка захвата */
-    .capture-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      z-index: 1001;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Нейронная Граница</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            font-family: Arial, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0ff;
+            user-select: none;
+        }
+        #gameCanvas {
+            display: block;
+            background: #0f0f1a;
+        }
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 16px;
+            z-index: 100;
+        }
+        #chargeBar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 150px;
+            height: 20px;
+            background: rgba(50, 50, 80, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #chargeFill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #6a00ff, #00d4ff);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        #score {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: #fff;
+        }
+        #gameOver {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            display: none;
+        }
+        #gameOver h1 {
+            color: #ff5555;
+            font-size: 24px;
+        }
+        #restartBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #6a00ff, #00d4ff);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <!-- Главное меню -->
-  <div class="main-menu" id="main-menu">
-    <div>
-      <h1>Мир Приключений</h1>
-      <button id="play-button">Играть</button>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">
+        <div id="chargeBar">
+            <div id="chargeFill"></div>
+        </div>
     </div>
-  </div>
-
-  <!-- Игровая карта -->
-  <div class="game-container" id="game-container">
-    <div class="map" id="map"></div>
-    <!-- Кнопки управления -->
-    <div class="controls">
-      <button id="zoom-in">+</button>
-      <button id="zoom-out">-</button>
-      <button id="arrow-up">↑</button>
-      <button id="arrow-down">↓</button>
-      <button id="arrow-left">←</button>
-      <button id="arrow-right">→</button>
+    <div id="score">IQ: 0</div>
+    <div id="gameOver">
+        <h1>Нейрон погас!</h1>
+        <p id="finalScore">IQ: 0</p>
+        <p id="highScore">Рекорд: 0</p>
+        <button id="restartBtn">Перезапустить</button>
     </div>
-    <!-- Окно управления поселением -->
-    <div class="settlement-window" id="settlement-window">
-      <h2>Управление поселением</h2>
-      <label for="city-name">Название города:</label>
-      <input type="text" id="city-name" placeholder="Введите название">
-      <label for="city-color">Цвет государства:</label>
-      <input type="color" id="city-color" value="#FFD700">
-      <p>Жители: <span id="city-population">0</span></p>
-      <p>Вода: <span id="city-water">0</span></p>
-      <p>Еда: <span id="city-food">0</span></p>
-      <p>Дерево: <span id="city-wood">0</span></p>
-      <p>Минералы: <span id="city-minerals">0</span></p>
-      <button id="add-population">Добавить жителя (10 еды и воды)</button>
-      <button id="close-settlement-window">Закрыть</button>
-    </div>
-    <!-- Кнопка захвата -->
-    <button class="capture-button" id="capture-button" style="display: none;">Захватить</button>
-  </div>
 
-  <script>
-    // Элементы
-    const mainMenu = document.getElementById('main-menu');
-    const gameContainer = document.getElementById('game-container');
-    const map = document.getElementById('map');
-    const playButton = document.getElementById('play-button');
-    const zoomIn = document.getElementById('zoom-in');
-    const zoomOut = document.getElementById('zoom-out');
-    const arrowUp = document.getElementById('arrow-up');
-    const arrowDown = document.getElementById('arrow-down');
-    const arrowLeft = document.getElementById('arrow-left');
-    const arrowRight = document.getElementById('arrow-right');
-    const settlementWindow = document.getElementById('settlement-window');
-    const cityNameInput = document.getElementById('city-name');
-    const cityColorInput = document.getElementById('city-color');
-    const cityPopulation = document.getElementById('city-population');
-    const cityWater = document.getElementById('city-water');
-    const cityFood = document.getElementById('city-food');
-    const cityWood = document.getElementById('city-wood');
-    const cityMinerals = document.getElementById('city-minerals');
-    const addPopulationButton = document.getElementById('add-population');
-    const closeSettlementWindow = document.getElementById('close-settlement-window');
-    const captureButton = document.getElementById('capture-button');
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const chargeFill = document.getElementById('chargeFill');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const highScoreDisplay = document.getElementById('highScore');
+        const restartBtn = document.getElementById('restartBtn');
 
-    // Переменные для управления картой
-    let offsetX = 0;
-    let offsetY = 0;
-    const moveSpeed = 20;
-    let scale = 1;
-    let isMoving = false;
-    let moveInterval;
+        // Настройки игры
+        const CELL_SIZE = 40;
+        const NEURON_RADIUS = 15;
+        const CHARGE_DRAIN = 0.2; // Скорость расхода заряда
+        const CHARGE_GAIN = 25; // Сколько даёт подпитка
+        const IQ_GAIN = 10; // Сколько даёт IQ
 
-    // Переменные для поселения
-    let cityTile = null;
-    let cityResources = {
-      population: 0,
-      water: 0,
-      food: 0,
-      wood: 0,
-      minerals: 0,
-    };
-    let capturedTiles = new Set(); // Захваченные клетки
-    let selectedTile = null; // Выбранная клетка для захвата
-
-    // Генерация карты
-    function generateMap() {
-      // Сначала заполняем всю карту равнинами
-      for (let y = 0; y < 50; y++) {
-        for (let x = 0; x < 50; x++) {
-          const tile = document.createElement('div');
-          tile.classList.add('tile');
-          tile.addEventListener('click', () => handleTileClick(tile, x, y));
-          map.appendChild(tile);
+        // Размеры холста
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-      }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-      // Генерация рек (минимум 4 клетки)
-      generateTerrain('river', 4, 0.02);
+        // Игровые переменные
+        let neuron = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            dx: 0,
+            dy: 0,
+            speed: 3,
+            charge: 100,
+            isAlive: true
+        };
 
-      // Генерация гор (кучками, минимум 6 клеток)
-      generateTerrain('mountain', 6, 0.01, true); // Горы теперь генерируются кучками
+        let chargePacks = [];
+        let iqPoints = [];
+        let walls = [];
+        let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
 
-      // Генерация лесов (минимум 2 клетки)
-      generateTerrain('forest', 2, 0.1);
-    }
+        // Генерация лабиринта
+        function generateMaze() {
+            walls = [];
+            const cols = Math.floor(canvas.width / CELL_SIZE) + 2;
+            const rows = Math.floor(canvas.height / CELL_SIZE) + 2;
 
-    // Генерация групп клеток для определённого типа местности
-    function generateTerrain(type, minSize, spawnChance, isCluster = false) {
-      for (let y = 0; y < 50; y++) {
-        for (let x = 0; x < 50; x++) {
-          if (Math.random() < spawnChance) {
-            const size = Math.floor(Math.random() * 3) + minSize; // Размер группы
-            if (isCluster) {
-              // Генерация гор кучками
-              generateCluster(x, y, size, type);
-            } else {
-              // Генерация рек и лесов полосками
-              const direction = Math.random() < 0.5 ? 'horizontal' : 'vertical'; // Направление
-              for (let i = 0; i < size; i++) {
-                const tileX = direction === 'horizontal' ? x + i : x;
-                const tileY = direction === 'vertical' ? y + i : y;
-                if (tileX < 50 && tileY < 50) {
-                  const tile = map.children[tileY * 50 + tileX];
-                  if (!tile.classList.contains('river') && !tile.classList.contains('mountain') && !tile.classList.contains('forest')) {
-                    tile.classList.add(type);
-                    if (type === 'forest') tile.textContent = ['🌳', '🌲', '🌴'][Math.floor(Math.random() * 3)];
-                  }
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if (Math.random() < 0.2 && 
+                        !(i === Math.floor(cols / 2) && j === Math.floor(rows / 2))) {
+                        walls.push({
+                            x: i * CELL_SIZE,
+                            y: j * CELL_SIZE,
+                            width: CELL_SIZE,
+                            height: CELL_SIZE
+                        });
+                    }
                 }
-              }
             }
-          }
         }
-      }
-    }
 
-    // Генерация кучки (для гор)
-    function generateCluster(startX, startY, size, type) {
-      for (let i = 0; i < size; i++) {
-        const tileX = startX + Math.floor(Math.random() * 3) - 1; // Случайное смещение по X
-        const tileY = startY + Math.floor(Math.random() * 3) - 1; // Случайное смещение по Y
-        if (tileX >= 0 && tileX < 50 && tileY >= 0 && tileY < 50) {
-          const tile = map.children[tileY * 50 + tileX];
-          if (!tile.classList.contains('river') && !tile.classList.contains('mountain') && !tile.classList.contains('forest')) {
-            tile.classList.add(type);
-            tile.textContent = '🗻'; // Эмодзи для гор
-          }
+        // Генерация подпитки и IQ
+        function spawnItems() {
+            if (Math.random() < 0.02) {
+                chargePacks.push({
+                    x: Math.random() * (canvas.width - 30) + 15,
+                    y: Math.random() * (canvas.height - 30) + 15,
+                    radius: 10
+                });
+            }
+
+            if (Math.random() < 0.01) {
+                iqPoints.push({
+                    x: Math.random() * (canvas.width - 30) + 15,
+                    y: Math.random() * (canvas.height - 30) + 15,
+                    radius: 8,
+                    value: IQ_GAIN
+                });
+            }
         }
-      }
-    }
 
-    // Обработка клика по клетке
-    function handleTileClick(tile, x, y) {
-      if (cityTile) {
-        if (tile === cityTile.tile) {
-          // Открыть окно управления городом
-          settlementWindow.style.display = 'block';
-        } else if (Math.abs(cityTile.x - x) <= 1 && Math.abs(cityTile.y - y) <= 1) {
-          // Выбор соседней клетки для захвата
-          selectedTile = { tile, x, y };
-          captureButton.style.display = 'block';
-          captureButton.style.left = `${tile.offsetLeft + 20}px`;
-          captureButton.style.top = `${tile.offsetTop + 20}px`;
+        // Управление свайпом
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!neuron.isAlive) return;
+
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+
+            const dx = touchX - touchStartX;
+            const dy = touchY - touchStartY;
+
+            // Нормализация направления
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 10) {
+                neuron.dx = (dx / distance) * neuron.speed;
+                neuron.dy = (dy / distance) * neuron.speed;
+            }
+
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('touchend', () => {
+            neuron.dx = 0;
+            neuron.dy = 0;
+        });
+
+        // Отрисовка нейрона (состоит из мелких кружков)
+        function drawNeuron() {
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = neuron.charge > 30 ? 'rgba(100, 200, 255, 0.8)' : 'rgba(255, 50, 50, 0.8)';
+
+            // Основное тело нейрона
+            ctx.beginPath();
+            ctx.arc(neuron.x, neuron.y, NEURON_RADIUS, 0, Math.PI * 2);
+            ctx.fillStyle = neuron.charge > 30 ? '#6a00ff' : '#ff5555';
+            ctx.fill();
+
+            // Мелкие кружки (имитация нейрона)
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = NEURON_RADIUS + 5;
+                const x = neuron.x + Math.cos(angle) * distance;
+                const y = neuron.y + Math.sin(angle) * distance;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = neuron.charge > 30 ? '#00d4ff' : '#ff9999';
+                ctx.fill();
+            }
+
+            ctx.restore();
         }
-      } else if (tile.classList.contains('tile') && !tile.classList.contains('city')) {
-        // Основание города
-        cityTile = { tile, x, y };
-        tile.classList.add('city');
-        const cityName = document.createElement('div');
-        cityName.classList.add('city-name');
-        cityName.textContent = 'Новый город';
-        tile.appendChild(cityName);
-        settlementWindow.style.display = 'block';
-      }
-    }
 
-    // Захват клетки
-    function captureTile() {
-      if (!selectedTile) return;
-      const { tile, x, y } = selectedTile;
-      if (capturedTiles.has(`${x},${y}`)) return; // Клетка уже захвачена
-      capturedTiles.add(`${x},${y}`);
+        // Отрисовка лабиринта и предметов
+        function drawEnvironment() {
+            // Стены
+            ctx.fillStyle = '#303050';
+            walls.forEach(wall => {
+                ctx.fillRect(wall.x, wall.y, wall.width, wall.height);
+            });
 
-      // Установка цвета государства
-      tile.style.borderColor = cityColorInput.value;
-      tile.classList.add('captured');
+            // Подпитка
+            ctx.fillStyle = '#00ffaa';
+            chargePacks.forEach(pack => {
+                ctx.beginPath();
+                ctx.arc(pack.x, pack.y, pack.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
-      // Добавление ресурсов
-      if (tile.classList.contains('river')) {
-        cityResources.water += 1;
-        setInterval(() => {
-          cityResources.water += 1;
-          updateResources();
-        }, 10000); // +1 вода каждые 10 секунд
-      } else if (tile.classList.contains('forest')) {
-        cityResources.wood += 1;
-        setTimeout(() => {
-          tile.classList.remove('forest');
-          tile.classList.add('tile');
-          tile.textContent = '';
-          cityResources.wood -= 1;
-          updateResources();
-        }, 300000); // Лес исчезает через 5 минут
-      } else if (tile.classList.contains('mountain')) {
-        cityResources.minerals += 1;
-        setTimeout(() => {
-          tile.classList.remove('mountain');
-          tile.classList.add('tile');
-          tile.textContent = '';
-          cityResources.minerals -= 1;
-          updateResources();
-        }, 300000); // Горы исчезают через 5 минут
-      } else if (tile.classList.contains('tile')) {
-        cityResources.food += 1;
-        setInterval(() => {
-          cityResources.food += 1;
-          updateResources();
-        }, 10000); // +1 еда каждые 10 секунд
-      }
+            // IQ-очки
+            ctx.fillStyle = '#ffff00';
+            iqPoints.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText('IQ', point.x - 5, point.y + 3);
+            });
+        }
 
-      updateResources();
-      captureButton.style.display = 'none';
-      selectedTile = null;
-    }
+        // Проверка столкновений
+        function checkCollisions() {
+            // Со стенами
+            walls.forEach(wall => {
+                if (
+                    neuron.x + NEURON_RADIUS > wall.x &&
+                    neuron.x - NEURON_RADIUS < wall.x + wall.width &&
+                    neuron.y + NEURON_RADIUS > wall.y &&
+                    neuron.y - NEURON_RADIUS < wall.y + wall.height
+                ) {
+                    // Отталкивание от стен
+                    if (neuron.x < wall.x || neuron.x > wall.x + wall.width) {
+                        neuron.dx *= -0.5;
+                    }
+                    if (neuron.y < wall.y || neuron.y > wall.y + wall.height) {
+                        neuron.dy *= -0.5;
+                    }
+                }
+            });
 
-    // Обновление ресурсов в окне управления
-    function updateResources() {
-      cityPopulation.textContent = cityResources.population;
-      cityWater.textContent = cityResources.water;
-      cityFood.textContent = cityResources.food;
-      cityWood.textContent = cityResources.wood;
-      cityMinerals.textContent = cityResources.minerals;
-    }
+            // С подпиткой
+            chargePacks.forEach((pack, index) => {
+                const distance = Math.sqrt(
+                    Math.pow(neuron.x - pack.x, 2) + 
+                    Math.pow(neuron.y - pack.y, 2)
+                );
+                if (distance < NEURON_RADIUS + pack.radius) {
+                    neuron.charge = Math.min(100, neuron.charge + CHARGE_GAIN);
+                    chargePacks.splice(index, 1);
+                }
+            });
 
-    // Добавление населения
-    function addPopulation() {
-      if (cityResources.food >= 10 && cityResources.water >= 10) {
-        cityResources.population += 1;
-        cityResources.food -= 10;
-        cityResources.water -= 10;
-        updateResources();
-      } else {
-        alert('Недостаточно еды и воды!');
-      }
-    }
+            // С IQ
+            iqPoints.forEach((point, index) => {
+                const distance = Math.sqrt(
+                    Math.pow(neuron.x - point.x, 2) + 
+                    Math.pow(neuron.y - point.y, 2)
+                );
+                if (distance < NEURON_RADIUS + point.radius) {
+                    score += point.value;
+                    scoreDisplay.textContent = `IQ: ${score}`;
+                    iqPoints.splice(index, 1);
+                }
+            });
+        }
 
-    // Переход в игру
-    playButton.addEventListener('click', () => {
-      mainMenu.style.display = 'none';
-      gameContainer.style.display = 'block';
-      generateMap();
-    });
+        // Игровой цикл
+        function gameLoop() {
+            if (!neuron.isAlive) return;
 
-    // Управление картой с помощью стрелок (зажатие)
-    function startMoving(direction) {
-      if (isMoving) return;
-      isMoving = true;
-      moveInterval = setInterval(() => {
-        if (direction === 'up') offsetY += moveSpeed;
-        else if (direction === 'down') offsetY -= moveSpeed;
-        else if (direction === 'left') offsetX += moveSpeed;
-        else if (direction === 'right') offsetX -= moveSpeed;
-        updateMapTransform();
-      }, 50);
-    }
+            // Очистка экрана
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function stopMoving() {
-      isMoving = false;
-      clearInterval(moveInterval);
-    }
+            // Обновление позиции нейрона
+            neuron.x += neuron.dx;
+            neuron.y += neuron.dy;
 
-    arrowUp.addEventListener('mousedown', () => startMoving('up'));
-    arrowDown.addEventListener('mousedown', () => startMoving('down'));
-    arrowLeft.addEventListener('mousedown', () => startMoving('left'));
-    arrowRight.addEventListener('mousedown', () => startMoving('right'));
+            // Границы экрана
+            neuron.x = Math.max(NEURON_RADIUS, Math.min(canvas.width - NEURON_RADIUS, neuron.x));
+            neuron.y = Math.max(NEURON_RADIUS, Math.min(canvas.height - NEURON_RADIUS, neuron.y));
 
-    arrowUp.addEventListener('mouseup', stopMoving);
-    arrowDown.addEventListener('mouseup', stopMoving);
-    arrowLeft.addEventListener('mouseup', stopMoving);
-    arrowRight.addEventListener('mouseup', stopMoving);
+            // Расход заряда
+            neuron.charge -= CHARGE_DRAIN;
+            chargeFill.style.width = `${neuron.charge}%`;
 
-    arrowUp.addEventListener('touchstart', () => startMoving('up'));
-    arrowDown.addEventListener('touchstart', () => startMoving('down'));
-    arrowLeft.addEventListener('touchstart', () => startMoving('left'));
-    arrowRight.addEventListener('touchstart', () => startMoving('right'));
+            if (neuron.charge <= 0) {
+                neuron.isAlive = false;
+                gameOver();
+            }
 
-    arrowUp.addEventListener('touchend', stopMoving);
-    arrowDown.addEventListener('touchend', stopMoving);
-    arrowLeft.addEventListener('touchend', stopMoving);
-    arrowRight.addEventListener('touchend', stopMoving);
+            // Генерация новых элементов
+            spawnItems();
 
-    // Управление зумом
-    zoomIn.addEventListener('click', () => {
-      scale *= 1.1;
-      updateMapTransform();
-    });
+            // Проверка столкновений
+            checkCollisions();
 
-    zoomOut.addEventListener('click', () => {
-      scale /= 1.1;
-      updateMapTransform();
-    });
+            // Отрисовка
+            drawEnvironment();
+            drawNeuron();
 
-    // Обновление трансформации карты
-    function updateMapTransform() {
-      map.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-    }
+            requestAnimationFrame(gameLoop);
+        }
 
-    // Закрытие окна управления поселением
-    closeSettlementWindow.addEventListener('click', () => {
-      settlementWindow.style.display = 'none';
-    });
+        // Конец игры
+        function gameOver() {
+            finalScoreDisplay.textContent = `IQ: ${score}`;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+            }
+            highScoreDisplay.textContent = `Рекорд: ${highScore}`;
+            gameOverScreen.style.display = 'flex';
+        }
 
-    // Название города
-    cityNameInput.addEventListener('input', () => {
-      if (cityTile) {
-        const cityName = cityTile.tile.querySelector('.city-name');
-        if (cityName) cityName.textContent = cityNameInput.value;
-      }
-    });
+        // Перезапуск игры
+        restartBtn.addEventListener('click', () => {
+            neuron = {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                dx: 0,
+                dy: 0,
+                speed: 3,
+                charge: 100,
+                isAlive: true
+            };
+            chargePacks = [];
+            iqPoints = [];
+            score = 0;
+            scoreDisplay.textContent = 'IQ: 0';
+            gameOverScreen.style.display = 'none';
+            generateMaze();
+            gameLoop();
+        });
 
-    // Захват клетки
-    captureButton.addEventListener('click', captureTile);
-
-    // Добавление населения
-    addPopulationButton.addEventListener('click', addPopulation);
-  </script>
+        // Запуск игры
+        generateMaze();
+        gameLoop();
+    </script>
 </body>
 </html>
