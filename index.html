@@ -3,52 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Нейронная Граница 2.0</title>
+    <title>Нейронная Граница 3.0</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
             touch-action: none;
-            font-family: Arial, sans-serif;
-            background: #0f0f1a;
+            font-family: 'Arial', sans-serif;
+            background: #0a0a12;
             color: #e0e0ff;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
         #gameCanvas {
             display: block;
-            background: #0f0f1a;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a12 100%);
         }
         #ui {
             position: fixed;
-            top: 10px;
-            left: 10px;
-            font-size: 16px;
+            top: 15px;
+            left: 15px;
             z-index: 100;
+            pointer-events: none;
+        }
+        #chargeContainer {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
         #chargeBar {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
             width: 150px;
-            height: 20px;
-            background: rgba(50, 50, 80, 0.5);
-            border-radius: 10px;
+            height: 12px;
+            background: rgba(30, 30, 60, 0.7);
+            border-radius: 6px;
             overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
         #chargeFill {
             height: 100%;
             width: 100%;
             background: linear-gradient(90deg, #6a00ff, #00d4ff);
-            border-radius: 10px;
-            transition: width 0.3s;
+            border-radius: 6px;
+            transition: width 0.2s ease-out;
+            box-shadow: 0 0 10px rgba(106, 0, 255, 0.5);
+        }
+        #chargeText {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #00d4ff;
+            text-shadow: 0 0 5px rgba(0, 212, 255, 0.7);
         }
         #score {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             font-size: 18px;
             color: #fff;
+            text-shadow: 0 0 10px #ffff00;
+            font-weight: bold;
+            pointer-events: none;
         }
         #gameOver {
             position: fixed;
@@ -56,61 +70,119 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 200;
             display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #gameOver.show {
+            opacity: 1;
+            display: flex;
         }
         #gameOver h1 {
             color: #ff5555;
-            font-size: 24px;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+        }
+        .score-display {
+            font-size: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        #finalScore {
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.7);
+        }
+        #highScore {
+            color: #ffff00;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.7);
         }
         #restartBtn {
-            margin-top: 20px;
-            padding: 10px 20px;
+            margin-top: 30px;
+            padding: 12px 30px;
             background: linear-gradient(90deg, #6a00ff, #00d4ff);
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 0 20px rgba(106, 0, 255, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #restartBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(106, 0, 255, 0.7);
+        }
+        #restartBtn:active {
+            transform: scale(0.98);
+        }
+        #instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            transition: opacity 2s ease;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <div id="ui">
-        <div id="chargeBar">
-            <div id="chargeFill"></div>
+        <div id="chargeContainer">
+            <div id="chargeBar">
+                <div id="chargeFill"></div>
+            </div>
+            <div id="chargeText">100%</div>
         </div>
     </div>
     <div id="score">IQ: 0</div>
     <div id="gameOver">
         <h1>Нейрон погас!</h1>
-        <p id="finalScore">IQ: 0</p>
-        <p id="highScore">Рекорд: 0</p>
+        <div class="score-display" id="finalScore">IQ: 0</div>
+        <div class="score-display" id="highScore">Рекорд: 0</div>
         <button id="restartBtn">Перезапустить</button>
     </div>
+    <div id="instructions">Свайпайте, чтобы двигать нейрон</div>
 
     <script>
+        // Основные элементы
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const chargeFill = document.getElementById('chargeFill');
+        const chargeText = document.getElementById('chargeText');
         const scoreDisplay = document.getElementById('score');
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreDisplay = document.getElementById('finalScore');
         const highScoreDisplay = document.getElementById('highScore');
         const restartBtn = document.getElementById('restartBtn');
+        const instructions = document.getElementById('instructions');
 
         // Настройки игры
         const CELL_SIZE = 60;
-        const NEURON_RADIUS = 20;
-        const CHARGE_DRAIN = 0.15;
+        const NEURON_RADIUS = 22;
+        const CHARGE_DRAIN = 0.1;
         const CHARGE_GAIN = 25;
         const IQ_GAIN = 10;
+        const WALL_SPAWN_CHANCE = 0.15;
+        const MAX_PARTICLES = 50;
+        const NEURON_SPEED = 3.5;
+        const TENTACLE_COUNT = 8;
 
         // Размеры холста
         function resizeCanvas() {
@@ -126,88 +198,185 @@
             y: 0,
             dx: 0,
             dy: 0,
-            speed: 3,
+            speed: NEURON_SPEED,
             charge: 100,
             isAlive: true,
-            tentacles: []
+            tentacles: [],
+            lastAngle: 0
         };
-
-        // Инициализация усиков
-        for (let i = 0; i < 6; i++) {
-            neuron.tentacles.push({
-                length: 15 + Math.random() * 10,
-                angle: (i / 6) * Math.PI * 2,
-                currentAngle: (i / 6) * Math.PI * 2,
-                speed: 0.05 + Math.random() * 0.1
-            });
-        }
 
         let chargePacks = [];
         let iqPoints = [];
         let walls = [];
+        let particles = [];
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
-        let cameraOffset = { x: 0, y: 0 };
+        let gameTime = 0;
+        let difficulty = 1;
+        let isFirstGame = true;
 
-        // Генерация лабиринта (бесконечного)
+        // Инициализация усиков
+        function initTentacles() {
+            neuron.tentacles = [];
+            for (let i = 0; i < TENTACLE_COUNT; i++) {
+                neuron.tentacles.push({
+                    length: 15 + Math.random() * 15,
+                    angle: (i / TENTACLE_COUNT) * Math.PI * 2,
+                    currentAngle: (i / TENTACLE_COUNT) * Math.PI * 2,
+                    speed: 0.05 + Math.random() * 0.15,
+                    baseLength: 15 + Math.random() * 15
+                });
+            }
+        }
+
+        // Генерация лабиринта (оптимизированная)
         function generateMazeAround(x, y) {
             const gridX = Math.floor(x / CELL_SIZE);
             const gridY = Math.floor(y / CELL_SIZE);
 
-            for (let i = -2; i <= 2; i++) {
-                for (let j = -2; j <= 2; j++) {
-                    const cellX = (gridX + i) * CELL_SIZE;
-                    const cellY = (gridY + j) * CELL_SIZE;
+            // Проверяем только клетки в радиусе 3, но с меньшим шансом генерации
+            for (let i = -3; i <= 3; i++) {
+                for (let j = -3; j <= 3; j++) {
+                    // Уменьшаем шанс генерации стен по мере удаления от центра
+                    const distance = Math.sqrt(i*i + j*j);
+                    const spawnChance = WALL_SPAWN_CHANCE * Math.max(0, 1 - distance/5);
+                    
+                    if (Math.random() < spawnChance) {
+                        const cellX = (gridX + i) * CELL_SIZE;
+                        const cellY = (gridY + j) * CELL_SIZE;
 
-                    // Проверяем, не существует ли уже стена здесь
-                    const exists = walls.some(wall => 
-                        wall.x === cellX && wall.y === cellY
-                    );
+                        // Проверяем, не существует ли уже стена здесь
+                        const exists = walls.some(wall => 
+                            wall.x === cellX && wall.y === cellY
+                        );
 
-                    if (!exists && Math.random() < 0.15) {
-                        walls.push({
-                            x: cellX,
-                            y: cellY,
-                            width: CELL_SIZE,
-                            height: CELL_SIZE
-                        });
+                        if (!exists) {
+                            walls.push({
+                                x: cellX,
+                                y: cellY,
+                                width: CELL_SIZE,
+                                height: CELL_SIZE
+                            });
+                        }
                     }
                 }
             }
         }
 
-        // Генерация подпитки и IQ
+        // Генерация подпитки и IQ (оптимизированная)
         function spawnItems() {
-            if (Math.random() < 0.02) {
+            // Частота появления зависит от сложности
+            const chargeSpawnRate = 0.02 * difficulty;
+            const iqSpawnRate = 0.01 * difficulty;
+            
+            if (Math.random() < chargeSpawnRate) {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * Math.min(canvas.width, canvas.height) * 0.7;
+                
                 chargePacks.push({
-                    x: neuron.x + (Math.random() - 0.5) * canvas.width * 1.5,
-                    y: neuron.y + (Math.random() - 0.5) * canvas.height * 1.5,
-                    radius: 12
+                    x: neuron.x + Math.cos(angle) * distance,
+                    y: neuron.y + Math.sin(angle) * distance,
+                    radius: 12,
+                    life: 0,
+                    maxLife: 300 + Math.random() * 200 // Время жизни в кадрах
                 });
             }
 
-            if (Math.random() < 0.01) {
+            if (Math.random() < iqSpawnRate) {
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 150 + Math.random() * Math.min(canvas.width, canvas.height) * 0.8;
+                
                 iqPoints.push({
-                    x: neuron.x + (Math.random() - 0.5) * canvas.width * 1.5,
-                    y: neuron.y + (Math.random() - 0.5) * canvas.height * 1.5,
+                    x: neuron.x + Math.cos(angle) * distance,
+                    y: neuron.y + Math.sin(angle) * distance,
                     radius: 10,
-                    value: IQ_GAIN
+                    value: IQ_GAIN,
+                    life: 0,
+                    maxLife: 400 + Math.random() * 200 // Время жизни в кадрах
                 });
             }
         }
 
-        // Управление свайпом
+        // Создание частиц
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                if (particles.length >= MAX_PARTICLES) break;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 0.5 + Math.random() * 2;
+                const size = 2 + Math.random() * 4;
+                const lifetime = 30 + Math.random() * 50;
+                
+                particles.push({
+                    x: x,
+                    y: y,
+                    dx: Math.cos(angle) * speed,
+                    dy: Math.sin(angle) * speed,
+                    size: size,
+                    color: color,
+                    life: 0,
+                    maxLife: lifetime,
+                    alpha: 1
+                });
+            }
+        }
+
+        // Обновление частиц
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.dx;
+                p.y += p.dy;
+                p.dy += 0.05; // Гравитация
+                p.life++;
+                p.alpha = 1 - (p.life / p.maxLife);
+                
+                if (p.life >= p.maxLife) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        // Отрисовка частиц
+        function drawParticles() {
+            ctx.save();
+            particles.forEach(p => {
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(
+                    p.x - neuron.x + canvas.width / 2,
+                    p.y - neuron.y + canvas.height / 2,
+                    p.size, 0, Math.PI * 2
+                );
+                ctx.fill();
+            });
+            ctx.restore();
+        }
+
+        // Управление (улучшенное)
         let touchStartX = 0;
         let touchStartY = 0;
+        let isTouching = false;
 
         canvas.addEventListener('touchstart', (e) => {
+            if (!neuron.isAlive) return;
+            
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
+            isTouching = true;
+            
+            // Скрываем инструкцию после первого касания
+            if (isFirstGame) {
+                instructions.style.opacity = '0';
+                isFirstGame = false;
+            }
+            
             e.preventDefault();
-        });
+        }, { passive: false });
 
         canvas.addEventListener('touchmove', (e) => {
-            if (!neuron.isAlive) return;
+            if (!neuron.isAlive || !isTouching) return;
 
             const touchX = e.touches[0].clientX;
             const touchY = e.touches[0].clientY;
@@ -217,67 +386,176 @@
 
             const distance = Math.sqrt(dx * dx + dy * dy);
             if (distance > 5) {
-                neuron.dx = (dx / distance) * neuron.speed;
-                neuron.dy = (dy / distance) * neuron.speed;
+                const angle = Math.atan2(dy, dx);
+                neuron.dx = Math.cos(angle) * neuron.speed;
+                neuron.dy = Math.sin(angle) * neuron.speed;
+                neuron.lastAngle = angle;
             }
-
+            
             e.preventDefault();
-        });
+        }, { passive: false });
 
         canvas.addEventListener('touchend', () => {
-            neuron.dx *= 0.5;
-            neuron.dy *= 0.5;
+            isTouching = false;
+            // Полная остановка при отпускании
+            neuron.dx = 0;
+            neuron.dy = 0;
         });
 
-        // Отрисовка нейрона с усиками
+        // Поддержка мыши для десктопов
+        canvas.addEventListener('mousedown', (e) => {
+            if (!neuron.isAlive) return;
+            
+            touchStartX = e.clientX;
+            touchStartY = e.clientY;
+            isTouching = true;
+            
+            if (isFirstGame) {
+                instructions.style.opacity = '0';
+                isFirstGame = false;
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!neuron.isAlive || !isTouching) return;
+
+            const touchX = e.clientX;
+            const touchY = e.clientY;
+
+            const dx = touchX - touchStartX;
+            const dy = touchY - touchStartY;
+
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance > 5) {
+                const angle = Math.atan2(dy, dx);
+                neuron.dx = Math.cos(angle) * neuron.speed;
+                neuron.dy = Math.sin(angle) * neuron.speed;
+                neuron.lastAngle = angle;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isTouching = false;
+            // Полная остановка при отпускании
+            neuron.dx = 0;
+            neuron.dy = 0;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isTouching = false;
+            // Полная остановка при выходе за пределы
+            neuron.dx = 0;
+            neuron.dy = 0;
+        });
+
+        // Отрисовка нейрона с усиками (улучшенная)
         function drawNeuron() {
             ctx.save();
             
             // Тело нейрона
+            const gradient = ctx.createRadialGradient(
+                0, 0, NEURON_RADIUS * 0.3,
+                0, 0, NEURON_RADIUS
+            );
+            
+            if (neuron.charge > 30) {
+                gradient.addColorStop(0, '#8a2be2');
+                gradient.addColorStop(1, '#6a00ff');
+            } else {
+                gradient.addColorStop(0, '#ff6b6b');
+                gradient.addColorStop(1, '#ff5555');
+            }
+            
             ctx.beginPath();
             ctx.arc(0, 0, NEURON_RADIUS, 0, Math.PI * 2);
-            ctx.fillStyle = neuron.charge > 30 ? '#6a00ff' : '#ff5555';
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = neuron.charge > 30 ? 'rgba(100, 200, 255, 0.8)' : 'rgba(255, 50, 50, 0.8)';
-            ctx.fill();
-
+            ctx.fillStyle = gradient;
+            
+            const glowColor = neuron.charge > 30 ? 
+                'rgba(138, 43, 226, 0.7)' : 'rgba(255, 85, 85, 0.7)';
+            
+            for (let i = 0; i < 3; i++) {
+                ctx.shadowBlur = 15 + i * 5;
+                ctx.shadowColor = glowColor;
+                ctx.fill();
+            }
+            
             // Усики с физикой
             neuron.tentacles.forEach(tentacle => {
                 // Плавное движение усиков
                 tentacle.currentAngle += (tentacle.angle - tentacle.currentAngle) * 0.1;
                 
-                const endX = Math.cos(tentacle.currentAngle) * (NEURON_RADIUS + tentacle.length);
-                const endY = Math.sin(tentacle.currentAngle) * (NEURON_RADIUS + tentacle.length);
+                // Длина зависит от скорости движения
+                const speedFactor = Math.min(1, Math.sqrt(neuron.dx * neuron.dx + neuron.dy * neuron.dy) / neuron.speed);
+                const length = tentacle.baseLength * (0.7 + speedFactor * 0.6);
+                
+                const endX = Math.cos(tentacle.currentAngle) * (NEURON_RADIUS + length);
+                const endY = Math.sin(tentacle.currentAngle) * (NEURON_RADIUS + length);
 
+                // Градиент для усика
+                const tentacleGradient = ctx.createLinearGradient(0, 0, endX, endY);
+                if (neuron.charge > 30) {
+                    tentacleGradient.addColorStop(0, 'rgba(106, 0, 255, 0.8)');
+                    tentacleGradient.addColorStop(1, '#00d4ff');
+                } else {
+                    tentacleGradient.addColorStop(0, 'rgba(255, 85, 85, 0.8)');
+                    tentacleGradient.addColorStop(1, '#ff9999');
+                }
+                
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.lineTo(endX, endY);
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = neuron.charge > 30 ? '#00d4ff' : '#ff9999';
+                ctx.lineWidth = 2 + speedFactor;
+                ctx.strokeStyle = tentacleGradient;
                 ctx.stroke();
 
                 // Кончики усиков
                 ctx.beginPath();
-                ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+                ctx.arc(endX, endY, 3 + speedFactor, 0, Math.PI * 2);
                 ctx.fillStyle = neuron.charge > 30 ? '#00d4ff' : '#ff9999';
                 ctx.fill();
             });
 
+            // Анимация пульсации
+            const pulse = 0.9 + 0.1 * Math.sin(gameTime * 0.1);
+            ctx.beginPath();
+            ctx.arc(0, 0, NEURON_RADIUS * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = neuron.charge > 30 ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255, 153, 153, 0.2)';
+            ctx.fill();
+
             ctx.restore();
         }
 
-        // Отрисовка мира
+        // Отрисовка мира (оптимизированная)
         function drawEnvironment() {
+            // Фоновые звезды
+            drawStars();
+            
             // Стены
             ctx.fillStyle = '#303050';
             walls.forEach(wall => {
                 const screenX = wall.x - neuron.x + canvas.width / 2;
                 const screenY = wall.y - neuron.y + canvas.height / 2;
+                
+                // Отрисовываем только видимые стены
                 if (
                     screenX > -CELL_SIZE && screenX < canvas.width + CELL_SIZE &&
                     screenY > -CELL_SIZE && screenY < canvas.height + CELL_SIZE
                 ) {
+                    // Тень для стены
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetX = 5;
+                    ctx.shadowOffsetY = 5;
+                    
                     ctx.fillRect(screenX, screenY, wall.width, wall.height);
+                    
+                    // Сброс тени
+                    ctx.shadowColor = 'transparent';
+                    
+                    // Светлые края для эффекта объема
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(screenX, screenY, wall.width, wall.height);
                 }
             });
 
@@ -285,113 +563,269 @@
             chargePacks.forEach(pack => {
                 const screenX = pack.x - neuron.x + canvas.width / 2;
                 const screenY = pack.y - neuron.y + canvas.height / 2;
+                
                 if (
                     screenX > -50 && screenX < canvas.width + 50 &&
                     screenY > -50 && screenY < canvas.height + 50
                 ) {
+                    // Анимация пульсации
+                    const pulse = 0.8 + 0.2 * Math.sin(gameTime * 0.2 + pack.x * 0.01);
+                    
+                    // Внешнее свечение
                     ctx.beginPath();
-                    ctx.arc(screenX, screenY, pack.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = '#00ffaa';
+                    ctx.arc(screenX, screenY, pack.radius * 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0, 255, 170, 0.3)';
+                    ctx.fill();
+                    
+                    // Основной круг
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, pack.radius * pulse, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(
+                        screenX - pack.radius * 0.3, screenY - pack.radius * 0.3, 0,
+                        screenX, screenY, pack.radius * pulse
+                    );
+                    gradient.addColorStop(0, '#00ffaa');
+                    gradient.addColorStop(1, '#00a2ff');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Внутренний круг
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, pack.radius * 0.5 * pulse, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
                     ctx.fill();
                 }
             });
 
-            // IQ-очки (исправлено отображение)
+            // IQ-очки
             iqPoints.forEach(point => {
                 const screenX = point.x - neuron.x + canvas.width / 2;
                 const screenY = point.y - neuron.y + canvas.height / 2;
+                
                 if (
                     screenX > -50 && screenX < canvas.width + 50 &&
                     screenY > -50 && screenY < canvas.height + 50
                 ) {
+                    // Вращение
+                    const rotation = gameTime * 0.05;
+                    
+                    // Внешнее свечение
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, point.radius * 1.8, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                    ctx.fill();
+                    
+                    // Основной круг
                     ctx.beginPath();
                     ctx.arc(screenX, screenY, point.radius, 0, Math.PI * 2);
                     ctx.fillStyle = '#ffff00';
                     ctx.fill();
                     
+                    // Буквы IQ с эффектом вращения
+                    ctx.save();
+                    ctx.translate(screenX, screenY);
+                    ctx.rotate(rotation);
+                    
                     ctx.fillStyle = '#000';
-                    ctx.font = 'bold 12px Arial';
+                    ctx.font = 'bold ' + (10 + 2 * Math.sin(gameTime * 0.1)) + 'px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText('IQ', screenX, screenY);
+                    ctx.fillText('IQ', 0, 0);
+                    
+                    ctx.restore();
                 }
             });
         }
 
-        // Проверка столкновений
-        function checkCollisions() {
-            // Со стенами
-            walls.forEach(wall => {
-                if (
-                    Math.abs(neuron.x - wall.x - CELL_SIZE / 2) < NEURON_RADIUS + CELL_SIZE / 2 &&
-                    Math.abs(neuron.y - wall.y - CELL_SIZE / 2) < NEURON_RADIUS + CELL_SIZE / 2
-                ) {
-                    // Отталкивание
-                    const angle = Math.atan2(neuron.y - wall.y - CELL_SIZE / 2, neuron.x - wall.x - CELL_SIZE / 2);
-                    neuron.dx = Math.cos(angle) * neuron.speed * 0.7;
-                    neuron.dy = Math.sin(angle) * neuron.speed * 0.7;
+        // Отрисовка фоновых звезд
+        function drawStars() {
+            // Генерация звезд при первом вызове
+            if (!drawStars.stars) {
+                drawStars.stars = [];
+                const starCount = 200;
+                
+                for (let i = 0; i < starCount; i++) {
+                    drawStars.stars.push({
+                        x: Math.random() * canvas.width * 10 - canvas.width * 5,
+                        y: Math.random() * canvas.height * 10 - canvas.height * 5,
+                        size: 0.5 + Math.random() * 1.5,
+                        alpha: 0.1 + Math.random() * 0.9,
+                        speed: 0.1 + Math.random() * 0.3
+                    });
+                }
+            }
+            
+            // Отрисовка звезд
+            ctx.save();
+            drawStars.stars.forEach(star => {
+                const screenX = star.x - neuron.x * star.speed + canvas.width / 2;
+                const screenY = star.y - neuron.y * star.speed + canvas.height / 2;
+                
+                if (screenX > -20 && screenX < canvas.width + 20 &&
+                    screenY > -20 && screenY < canvas.height + 20) {
+                    
+                    ctx.globalAlpha = star.alpha;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, star.size, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             });
+            ctx.restore();
+        }
 
-            // С подпиткой
-            chargePacks.forEach((pack, index) => {
+        // Проверка столкновений (оптимизированная)
+        function checkCollisions() {
+            // Со стенами (оптимизированная проверка только ближайших стен)
+            const checkRadius = NEURON_RADIUS + CELL_SIZE * 1.5;
+            
+            for (let i = walls.length - 1; i >= 0; i--) {
+                const wall = walls[i];
+                const distX = Math.abs(neuron.x - wall.x - CELL_SIZE / 2);
+                const distY = Math.abs(neuron.y - wall.y - CELL_SIZE / 2);
+                
+                // Быстрая проверка расстояния
+                if (distX > checkRadius || distY > checkRadius) continue;
+                
+                // Точная проверка столкновения
+                if (distX < NEURON_RADIUS + CELL_SIZE / 2 &&
+                    distY < NEURON_RADIUS + CELL_SIZE / 2) {
+                    
+                    // Отталкивание
+                    const angle = Math.atan2(
+                        neuron.y - wall.y - CELL_SIZE / 2,
+                        neuron.x - wall.x - CELL_SIZE / 2
+                    );
+                    
+                    neuron.dx = Math.cos(angle) * neuron.speed * 0.7;
+                    neuron.dy = Math.sin(angle) * neuron.speed * 0.7;
+                    
+                    // Создаем частицы при столкновении
+                    createParticles(
+                        wall.x + CELL_SIZE / 2,
+                        wall.y + CELL_SIZE / 2,
+                        '#606090',
+                        5
+                    );
+                }
+            }
+
+            // С подпиткой (без удаления предметов)
+            chargePacks.forEach(pack => {
+                pack.life++;
+                
                 const distance = Math.sqrt(
                     Math.pow(neuron.x - pack.x, 2) + 
                     Math.pow(neuron.y - pack.y, 2)
                 );
+                
                 if (distance < NEURON_RADIUS + pack.radius) {
                     neuron.charge = Math.min(100, neuron.charge + CHARGE_GAIN);
-                    chargePacks.splice(index, 1);
+                    
+                    // Эффект сбора
+                    createParticles(pack.x, pack.y, '#00ffaa', 15);
+                    updateChargeDisplay();
                 }
             });
 
-            // С IQ
-            iqPoints.forEach((point, index) => {
+            // С IQ (без удаления предметов)
+            iqPoints.forEach(point => {
+                point.life++;
+                
                 const distance = Math.sqrt(
                     Math.pow(neuron.x - point.x, 2) + 
                     Math.pow(neuron.y - point.y, 2)
                 );
+                
                 if (distance < NEURON_RADIUS + point.radius) {
                     score += point.value;
                     scoreDisplay.textContent = `IQ: ${score}`;
-                    iqPoints.splice(index, 1);
+                    
+                    // Эффект сбора
+                    createParticles(point.x, point.y, '#ffff00', 15);
+                    
+                    // Анимация текста
+                    scoreDisplay.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        scoreDisplay.style.transform = 'scale(1)';
+                    }, 200);
                 }
             });
         }
 
-        // Игровой цикл
+        // Обновление отображения заряда
+        function updateChargeDisplay() {
+            chargeFill.style.width = `${neuron.charge}%`;
+            chargeText.textContent = `${Math.round(neuron.charge)}%`;
+            
+            // Изменение цвета при низком заряде
+            if (neuron.charge < 30) {
+                chargeFill.style.background = 'linear-gradient(90deg, #ff5555, #ff9999)';
+                chargeText.style.color = '#ff9999';
+                
+                // Мигание при критическом уровне
+                if (neuron.charge < 15) {
+                    const blink = Math.sin(gameTime * 0.2) > 0 ? 1 : 0;
+                    chargeFill.style.opacity = blink;
+                    chargeText.style.opacity = blink;
+                } else {
+                    chargeFill.style.opacity = 1;
+                    chargeText.style.opacity = 1;
+                }
+            } else {
+                chargeFill.style.background = 'linear-gradient(90deg, #6a00ff, #00d4ff)';
+                chargeText.style.color = '#00d4ff';
+                chargeFill.style.opacity = 1;
+                chargeText.style.opacity = 1;
+            }
+        }
+
+        // Игровой цикл (оптимизированный)
         function gameLoop() {
             if (!neuron.isAlive) return;
 
-            // Очистка экрана
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Очистка экрана с эффектом затемнения
+            ctx.fillStyle = 'rgba(10, 10, 18, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Обновление позиции нейрона
+            // Обновление позиции нейрона (только при управлении)
             neuron.x += neuron.dx;
             neuron.y += neuron.dy;
 
             // Генерация новых участков лабиринта
             generateMazeAround(neuron.x, neuron.y);
 
-            // Расход заряда
-            neuron.charge -= CHARGE_DRAIN;
-            chargeFill.style.width = `${neuron.charge}%`;
+            // Расход заряда (увеличивается со временем)
+            neuron.charge -= CHARGE_DRAIN * difficulty;
+            updateChargeDisplay();
 
+            // Проверка смерти
             if (neuron.charge <= 0) {
                 neuron.isAlive = false;
                 gameOver();
+                return;
             }
 
             // Обновление углов усиков (движение)
             neuron.tentacles.forEach(tentacle => {
-                tentacle.angle = Math.atan2(-neuron.dy, -neuron.dx) + Math.PI + (Math.random() - 0.5) * 0.5;
+                // Более плавное движение усиков
+                tentacle.angle = neuron.lastAngle + Math.PI + 
+                    (Math.random() - 0.5) * 0.7 + 
+                    Math.sin(gameTime * tentacle.speed) * 0.5;
             });
 
             // Генерация новых элементов
             spawnItems();
 
+            // Обновление частиц
+            updateParticles();
+
             // Проверка столкновений
             checkCollisions();
+
+            // Увеличение сложности со временем
+            gameTime++;
+            difficulty = 1 + Math.min(3, gameTime / 2000);
 
             // Смещение камеры (центрирование на нейроне)
             ctx.save();
@@ -399,6 +833,9 @@
 
             // Отрисовка мира
             drawEnvironment();
+
+            // Отрисовка частиц
+            drawParticles();
 
             // Отрисовка нейрона (относительно камеры)
             ctx.save();
@@ -411,52 +848,86 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Конец игры
+        // Конец игры (с анимацией)
         function gameOver() {
             finalScoreDisplay.textContent = `IQ: ${score}`;
+            
+            // Обновление рекорда
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
+                highScoreDisplay.textContent = `Новый рекорд: ${highScore}`;
+                
+                // Эффект для нового рекорда
+                highScoreDisplay.style.animation = 'none';
+                void highScoreDisplay.offsetWidth; // Trigger reflow
+                highScoreDisplay.style.animation = 'pulse 1s 3';
+            } else {
+                highScoreDisplay.textContent = `Рекорд: ${highScore}`;
             }
-            highScoreDisplay.textContent = `Рекорд: ${highScore}`;
-            gameOverScreen.style.display = 'flex';
+            
+            // Показываем экран с анимацией
+            gameOverScreen.classList.add('show');
+            
+            // Создаем частицы смерти
+            for (let i = 0; i < 30; i++) {
+                createParticles(neuron.x, neuron.y, '#ff5555', 1);
+            }
         }
 
         // Перезапуск игры
-        restartBtn.addEventListener('click', () => {
+        function restartGame() {
+            // Сброс состояния игры
             neuron = {
                 x: 0,
                 y: 0,
                 dx: 0,
                 dy: 0,
-                speed: 3,
+                speed: NEURON_SPEED,
                 charge: 100,
                 isAlive: true,
-                tentacles: []
+                tentacles: [],
+                lastAngle: 0
             };
 
-            for (let i = 0; i < 6; i++) {
-                neuron.tentacles.push({
-                    length: 15 + Math.random() * 10,
-                    angle: (i / 6) * Math.PI * 2,
-                    currentAngle: (i / 6) * Math.PI * 2,
-                    speed: 0.05 + Math.random() * 0.1
-                });
-            }
-
+            initTentacles();
+            
             chargePacks = [];
             iqPoints = [];
             walls = [];
+            particles = [];
             score = 0;
+            gameTime = 0;
+            difficulty = 1;
+            
             scoreDisplay.textContent = 'IQ: 0';
-            gameOverScreen.style.display = 'none';
+            scoreDisplay.style.transform = 'scale(1)';
+            
+            updateChargeDisplay();
+            
+            // Скрываем экран окончания игры
+            gameOverScreen.classList.remove('show');
+            
+            // Генерация начального лабиринта
             generateMazeAround(0, 0);
+            
+            // Запуск игрового цикла
             gameLoop();
-        });
+        }
+
+        restartBtn.addEventListener('click', restartGame);
 
         // Запуск игры
+        initTentacles();
         generateMazeAround(0, 0);
         gameLoop();
+
+        // Анимация инструкции
+        setTimeout(() => {
+            if (isFirstGame) {
+                instructions.style.opacity = '1';
+            }
+        }, 1000);
     </script>
 </body>
 </html>
