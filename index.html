@@ -9,8 +9,9 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
             user-select: none;
+            outline: none;
         }
 
         body {
@@ -18,6 +19,12 @@
             background: linear-gradient(#87CEEB, #E0F7FA);
             height: 100vh;
             overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Убираем синие рамки на мобильных устройствах */
+        input, textarea, button, select, a {
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
 
         /* Меню */
@@ -66,6 +73,7 @@
             transition: all 0.2s;
             box-shadow: 0 4px 0 #689F38;
             width: 200px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .menu-btn:active {
@@ -125,7 +133,6 @@
             min-width: 100%;
             height: 100%;
             position: relative;
-            touch-action: none;
         }
 
         .field {
@@ -162,7 +169,7 @@
             font-size: 24px;
             transition: height 1.5s ease-out;
             z-index: 2;
-            touch-action: none;
+            pointer-events: none;
         }
 
         .wheat::before {
@@ -196,6 +203,7 @@
             box-shadow: 0 4px 0 #F57F17;
             transition: all 0.1s;
             flex-grow: 1;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .tool-btn:active {
@@ -234,6 +242,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .prev-field {
@@ -343,6 +352,7 @@
             cursor: pointer;
             animation: bugMove 5s linear infinite;
             touch-action: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         @keyframes bugMove {
@@ -424,6 +434,7 @@
             padding: 5px 10px;
             font-size: 14px;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .item-btn:disabled {
@@ -443,6 +454,7 @@
             height: 30px;
             font-size: 16px;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Анимации */
@@ -491,6 +503,7 @@
             padding: 8px 15px;
             margin-top: 10px;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
     </style>
 </head>
@@ -822,6 +835,7 @@
             
             updateFieldsPosition();
             restorePlants();
+            setupFieldHandlers();
         }
         
         // Восстановление растений после загрузки
@@ -963,8 +977,8 @@
         }
         
         // Создание пшеницы
-        function createWheat(x, y) {
-            const currentField = gameState.fields[gameState.currentField];
+        function createWheat(x, y, fieldIndex) {
+            const currentField = gameState.fields[fieldIndex];
             
             if (gameState.seeds <= 0) {
                 showMessage("Недостаточно семян!");
@@ -997,7 +1011,7 @@
             wheat.style.left = left;
             wheat.style.bottom = bottom;
             
-            fieldsElements[gameState.currentField].appendChild(wheat);
+            fieldsElements[fieldIndex].appendChild(wheat);
             currentField.plants.push({
                 element: wheat,
                 position: positionKey,
@@ -1011,20 +1025,20 @@
             
             // Шанс появления жучка при посадке
             if (!gameState.hasFence && Math.random() < 0.2) {
-                spawnBug();
+                spawnBug(fieldIndex);
             }
             
             return wheat;
         }
         
         // Полив пшеницы
-        function waterWheat(wheat) {
+        function waterWheat(wheat, fieldIndex) {
             if (gameState.water <= 0) {
                 showMessage("Недостаточно воды!");
                 return false;
             }
             
-            const currentField = gameState.fields[gameState.currentField];
+            const currentField = gameState.fields[fieldIndex];
             const plant = currentField.plants.find(p => p.element === wheat);
             
             if (!plant || plant.grown) return false;
@@ -1046,13 +1060,13 @@
         }
         
         // Сбор урожая
-        function harvestWheat(wheat) {
+        function harvestWheat(wheat, fieldIndex) {
             if (gameState.sickleDurability <= 0) {
                 showMessage("Серп сломан! Купите новый.");
                 return false;
             }
             
-            const currentField = gameState.fields[gameState.currentField];
+            const currentField = gameState.fields[fieldIndex];
             const plantIndex = currentField.plants.findIndex(p => p.element === wheat);
             
             if (plantIndex === -1 || !currentField.plants[plantIndex].grown) return false;
@@ -1065,13 +1079,13 @@
             
             // Эффект сбора
             const rect = wheat.getBoundingClientRect();
-            const fieldRect = fieldsElements[gameState.currentField].getBoundingClientRect();
+            const fieldRect = fieldsElements[fieldIndex].getBoundingClientRect();
             const effect = document.createElement('div');
             effect.className = 'harvest-effect';
             effect.textContent = '🌾';
             effect.style.left = `${rect.left - fieldRect.left + 15}px`;
             effect.style.top = `${rect.top - fieldRect.top}px`;
-            fieldsElements[gameState.currentField].appendChild(effect);
+            fieldsElements[fieldIndex].appendChild(effect);
             
             setTimeout(() => {
                 effect.remove();
@@ -1161,14 +1175,14 @@
         }
         
         // Спавн жучка
-        function spawnBug() {
+        function spawnBug(fieldIndex) {
             if (gameState.hasFence) return;
             
             const now = Date.now();
             if (now - lastBugSpawnTime < 10000) return; // Не чаще чем раз в 10 секунд
             
             lastBugSpawnTime = now;
-            const currentField = gameState.fields[gameState.currentField];
+            const currentField = gameState.fields[fieldIndex];
             
             const bug = document.createElement('div');
             bug.className = 'bug';
@@ -1180,7 +1194,7 @@
             const duration = 3 + Math.random() * 4;
             bug.style.animationDuration = `${duration}s`;
             
-            bug.addEventListener('click', () => {
+            bug.addEventListener('click', function() {
                 bugSound.currentTime = 0;
                 bugSound.play();
                 bug.remove();
@@ -1197,7 +1211,7 @@
                 saveGame();
             });
             
-            fieldsElements[gameState.currentField].appendChild(bug);
+            fieldsElements[fieldIndex].appendChild(bug);
             currentField.bugs.push({
                 element: bug,
                 spawnTime: now
@@ -1291,6 +1305,82 @@
             // Следующее изменение погоды через 1-3 минуты
             clearTimeout(weatherChangeTimer);
             weatherChangeTimer = setTimeout(changeWeather, 60000 + Math.random() * 120000);
+        }
+        
+        // Настройка обработчиков для полей
+        function setupFieldHandlers() {
+            fieldsElements.forEach((field, fieldIndex) => {
+                // Очищаем старые обработчики
+                field.ontouchstart = null;
+                field.ontouchmove = null;
+                field.onmousedown = null;
+                field.onmousemove = null;
+                
+                // Обработка касаний (мобильные устройства)
+                field.ontouchstart = function(e) {
+                    if (gameState.currentField !== fieldIndex) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = this.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    handleFieldAction(x, y, fieldIndex);
+                };
+                
+                field.ontouchmove = function(e) {
+                    if (gameState.currentField !== fieldIndex) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = this.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    handleFieldAction(x, y, fieldIndex);
+                };
+                
+                // Обработка кликов (десктоп)
+                field.onmousedown = function(e) {
+                    if (gameState.currentField !== fieldIndex) return;
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    handleFieldAction(x, y, fieldIndex);
+                };
+                
+                field.onmousemove = function(e) {
+                    if (gameState.currentField !== fieldIndex || e.buttons !== 1) return;
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    handleFieldAction(x, y, fieldIndex);
+                };
+            });
+        }
+        
+        // Обработка действий на поле
+        function handleFieldAction(x, y, fieldIndex) {
+            if (!activeTool || gameState.currentField !== fieldIndex) return;
+            
+            if (activeTool === 'plant') {
+                createWheat(x, y, fieldIndex);
+            } else {
+                // Получаем элемент под точкой касания/клика
+                const elements = document.elementsFromPoint(
+                    x + fieldsElements[fieldIndex].getBoundingClientRect().left, 
+                    y + fieldsElements[fieldIndex].getBoundingClientRect().top
+                );
+                
+                // Ищем пшеницу среди элементов
+                const wheat = elements.find(el => el.classList && el.classList.contains('wheat'));
+                
+                if (wheat) {
+                    if (activeTool === 'water') {
+                        createWaterEffect(x, y, fieldIndex);
+                        waterWheat(wheat, fieldIndex);
+                    } else if (activeTool === 'sickle') {
+                        harvestWheat(wheat, fieldIndex);
+                    }
+                }
+            }
         }
         
         // Обработчики событий
@@ -1459,109 +1549,9 @@
         buyField4Btn.addEventListener('click', () => buyField(3));
         buyField5Btn.addEventListener('click', () => buyField(4));
         
-        // Обработка касаний на поле
-        function setupFieldTouchHandlers() {
-            fieldsElements.forEach((field, index) => {
-                // Удаляем старые обработчики
-                field.removeEventListener('touchstart', handleTouchStart);
-                field.removeEventListener('touchmove', handleTouchMove);
-                field.removeEventListener('touchend', handleTouchEnd);
-                field.removeEventListener('mousedown', handleMouseDown);
-                field.removeEventListener('mousemove', handleMouseMove);
-                field.removeEventListener('mouseup', handleMouseUp);
-                
-                // Добавляем новые обработчики
-                field.addEventListener('touchstart', handleTouchStart);
-                field.addEventListener('touchmove', handleTouchMove);
-                field.addEventListener('touchend', handleTouchEnd);
-                field.addEventListener('mousedown', handleMouseDown);
-                field.addEventListener('mousemove', handleMouseMove);
-                field.addEventListener('mouseup', handleMouseUp);
-            });
-        }
-        
-        function handleTouchStart(e) {
-            if (gameState.currentField !== parseInt(this.dataset.index)) return;
-            
-            const touch = e.touches[0];
-            const rect = this.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            processFieldAction(x, y);
-        }
-        
-        function handleTouchMove(e) {
-            if (gameState.currentField !== parseInt(this.dataset.index)) return;
-            
-            const touch = e.touches[0];
-            const rect = this.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            processFieldAction(x, y);
-            e.preventDefault();
-        }
-        
-        function handleTouchEnd() {
-            // Ничего не делаем, но нужно для корректной работы
-        }
-        
-        function handleMouseDown(e) {
-            if (gameState.currentField !== parseInt(this.dataset.index)) return;
-            
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            processFieldAction(x, y);
-        }
-        
-        function handleMouseMove(e) {
-            if (gameState.currentField !== parseInt(this.dataset.index)) return;
-            if (e.buttons !== 1) return;
-            
-            const rect = this.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            processFieldAction(x, y);
-        }
-        
-        function handleMouseUp() {
-            // Ничего не делаем, но нужно для корректной работы
-        }
-        
-        function processFieldAction(x, y) {
-            if (!activeTool) return;
-            
-            if (activeTool === 'plant') {
-                createWheat(x, y);
-            } else {
-                // Получаем элемент под точкой касания/клика
-                const elements = document.elementsFromPoint(
-                    x + this.getBoundingClientRect().left, 
-                    y + this.getBoundingClientRect().top
-                );
-                
-                // Ищем пшеницу среди элементов
-                const wheat = elements.find(el => el.classList && el.classList.contains('wheat'));
-                
-                if (wheat) {
-                    if (activeTool === 'water') {
-                        createWaterEffect(x, y, gameState.currentField);
-                        waterWheat(wheat);
-                    } else if (activeTool === 'sickle') {
-                        harvestWheat(wheat);
-                    }
-                }
-            }
-        }
-        
         // Инициализация игры
         loadGame();
         createFields();
-        setupFieldTouchHandlers();
         
         // Проверка поддержки аудио
         document.addEventListener('click', () => {
