@@ -1363,23 +1363,31 @@
             if (activeTool === 'plant') {
                 createWheat(x, y, fieldIndex);
             } else {
-                // Получаем элемент под точкой касания/клика
-                const elements = document.elementsFromPoint(
-                    x + fieldsElements[fieldIndex].getBoundingClientRect().left, 
-                    y + fieldsElements[fieldIndex].getBoundingClientRect().top
-                );
+                // Получаем все элементы пшеницы на текущем поле
+                const wheatElements = fieldsElements[fieldIndex].querySelectorAll('.wheat');
                 
-                // Ищем пшеницу среди элементов
-                const wheat = elements.find(el => el.classList && el.classList.contains('wheat'));
-                
-                if (wheat) {
-                    if (activeTool === 'water') {
-                        createWaterEffect(x, y, fieldIndex);
-                        waterWheat(wheat, fieldIndex);
-                    } else if (activeTool === 'sickle') {
-                        harvestWheat(wheat, fieldIndex);
+                // Проверяем каждый элемент пшеницы на пересечение с координатами
+                wheatElements.forEach(wheat => {
+                    const rect = wheat.getBoundingClientRect();
+                    const fieldRect = fieldsElements[fieldIndex].getBoundingClientRect();
+                    
+                    // Пересчитываем координаты относительно поля
+                    const wheatLeft = rect.left - fieldRect.left;
+                    const wheatRight = rect.right - fieldRect.left;
+                    const wheatTop = rect.top - fieldRect.top;
+                    const wheatBottom = rect.bottom - fieldRect.top;
+                    
+                    // Проверяем, попадают ли координаты в область пшеницы
+                    if (x >= wheatLeft - 15 && x <= wheatRight + 15 && 
+                        y >= wheatTop - 15 && y <= wheatBottom + 15) {
+                        if (activeTool === 'water') {
+                            createWaterEffect(x, y, fieldIndex);
+                            waterWheat(wheat, fieldIndex);
+                        } else if (activeTool === 'sickle') {
+                            harvestWheat(wheat, fieldIndex);
+                        }
                     }
-                }
+                });
             }
         }
         
