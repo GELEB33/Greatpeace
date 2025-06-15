@@ -19,7 +19,7 @@
             background: linear-gradient(#87CEEB, #E0F7FA);
             height: 100vh;
             overflow: hidden;
-            touch-action: manipulation;
+            touch-action: none; /* Отключаем скролл страницы */
         }
 
         /* Убираем синие рамки на мобильных устройствах */
@@ -93,6 +93,7 @@
             flex-direction: column;
             height: 100vh;
             padding: 10px;
+            overflow: hidden;
         }
 
         .header {
@@ -119,7 +120,7 @@
             flex-grow: 1;
             margin: 10px 0;
             overflow: hidden;
-            touch-action: pan-y;
+            touch-action: none; /* Отключаем скролл полей */
         }
 
         .fields-slider {
@@ -1361,6 +1362,7 @@
             if (!activeTool || gameState.currentField !== fieldIndex) return;
             
             if (activeTool === 'plant') {
+                // Создаем пшеницу точно в месте касания
                 createWheat(x, y, fieldIndex);
             } else {
                 // Получаем все элементы пшеницы на текущем поле
