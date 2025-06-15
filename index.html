@@ -19,7 +19,7 @@
             background: linear-gradient(#87CEEB, #E0F7FA);
             height: 100vh;
             overflow: hidden;
-            touch-action: none; /* Отключаем скролл страницы */
+            touch-action: none;
         }
 
         /* Убираем синие рамки на мобильных устройствах */
@@ -120,7 +120,7 @@
             flex-grow: 1;
             margin: 10px 0;
             overflow: hidden;
-            touch-action: none; /* Отключаем скролл полей */
+            touch-action: none;
         }
 
         .fields-slider {
@@ -164,8 +164,7 @@
             width: 30px;
             height: 0;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
             text-align: center;
             font-size: 24px;
             transition: height 1.5s ease-out;
@@ -1004,8 +1003,8 @@
             plantSound.currentTime = 0;
             plantSound.play();
             
-            const left = `${gridX * gridSize}px`;
-            const bottom = `${gridY * gridSize + 20}px`;
+            const left = `${x}px`;
+            const bottom = `${y}px`;
             
             const wheat = document.createElement('div');
             wheat.className = 'wheat';
