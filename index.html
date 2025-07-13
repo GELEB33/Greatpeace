@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎮 Эмодзи Баттл</title>
+    <title>Emoji Collector</title>
     <style>
         * {
             -webkit-touch-callout: none;
@@ -13,10 +13,11 @@
             -ms-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -29,98 +30,152 @@
         }
         .header {
             text-align: center;
-            padding: 20px 0;
+            padding: 15px 0;
             width: 100%;
-            background-color: rgba(0,0,0,0.2);
-            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         h1 {
             margin: 0;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 10px rgba(255,255,255,0.3);
             letter-spacing: 1px;
+            background: linear-gradient(90deg, #f5af19, #f12711, #f5af19);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .money-display {
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 10px auto;
-            display: inline-block;
-            backdrop-filter: blur(5px);
-        }
-        .game-container {
-            width: 95%;
-            max-width: 500px;
-            background-color: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px);
-            margin-bottom: 20px;
-        }
-        .case-button {
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            border: none;
-            border-radius: 15px;
-            padding: 15px 0;
-            width: 100%;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-        .case-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .case-button:disabled {
-            background: linear-gradient(45deg, #cccccc 0%, #eeeeee 100%);
-            cursor: not-allowed;
-        }
-        .result-display {
-            font-size: 5rem;
-            text-align: center;
-            margin: 20px 0;
-            min-height: 100px;
+        .money-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: rgba(0,0,0,0.1);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .money-display {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: inline-block;
+            border: 1px solid rgba(255,215,0,0.3);
+            box-shadow: 0 0 15px rgba(255,215,0,0.2);
+            position: relative;
+        }
+        .click-for-coins {
+            background: rgba(255,215,0,0.2);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255,215,0,0.5);
+            transition: transform 0.2s;
+        }
+        .click-for-coins:active {
+            transform: scale(0.9);
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            width: 95%;
+            max-width: 500px;
+            height: calc(100vh - 200px);
+            background: rgba(0,0,0,0.2);
             border-radius: 15px;
-            transition: all 0.3s;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
         }
-        .inventory {
-            margin-top: 30px;
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
-        .inventory h2 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .action-button {
+            background: linear-gradient(45deg, #8e2de2, #4a00e0);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-button:active {
+            transform: scale(0.96);
+        }
+        .action-button:disabled {
+            background: linear-gradient(45deg, #555, #333);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .free-coins-button {
+            background: linear-gradient(45deg, #f5af19, #f12711);
+        }
+        .inventory-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 10px;
+            flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .inventory-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: rgba(255,255,255,0.9);
+        }
+        .inventory-stats {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
         }
         .items-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
             gap: 10px;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 5px;
         }
         .item {
             font-size: 2rem;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             aspect-ratio: 1/1;
             position: relative;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.1);
+            cursor: pointer;
         }
         .item:active {
             transform: scale(0.95);
@@ -129,411 +184,788 @@
             position: absolute;
             bottom: 5px;
             right: 5px;
-            background-color: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             font-size: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s;
         }
-        .shop {
-            width: 95%;
-            max-width: 500px;
-            background-color: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px);
-            margin-bottom: 30px;
+        .item-sell {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,0,0,0.7);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
         }
-        .shop h2 {
-            text-align: center;
-            margin-top: 0;
-            font-size: 1.5rem;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-        .shop-items {
+        .item:hover .item-sell {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
-        .shop-item {
-            background: linear-gradient(45deg, #a18cd1 0%, #fbc2eb 100%);
+        .item-common { border-color: #bdc3c7; }
+        .item-rare { border-color: #3498db; }
+        .item-epic { border-color: #9b59b6; }
+        .item-legendary { border-color: #f1c40f; }
+        .item-ultra { border-color: #e74c3c; }
+        .item-mythical { border-color: #1abc9c; }
+        .item-unique { border-color: #FFD700; }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
             border-radius: 15px;
-            padding: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            animation: slideUp 0.3s;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .shop-item:active {
-            transform: scale(0.98);
+        .close-modal:active {
+            transform: scale(0.9);
         }
-        .shop-item h3 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: white;
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
-        .shop-item p {
+        .case-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .case-item:active {
+            transform: scale(0.97);
+        }
+        .case-emoji {
+            font-size: 2.5rem;
             margin-bottom: 5px;
+            transition: transform 0.3s;
+        }
+        .case-item:hover .case-emoji {
+            transform: scale(1.1);
+        }
+        .case-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .case-price {
+            color: gold;
             font-size: 0.9rem;
         }
-        .shop-item-price {
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-align: right;
-            color: white;
-        }
-        .rarity-info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .rarity-tag {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .common { background-color: rgba(189, 195, 199, 0.7); }
-        .rare { background-color: rgba(52, 152, 219, 0.7); }
-        .epic { background-color: rgba(155, 89, 182, 0.7); }
-        .legendary { background-color: rgba(241, 196, 15, 0.7); }
-        .ultra { background-color: rgba(231, 76, 60, 0.7); }
-        .mythical { background-color: rgba(26, 188, 156, 0.7); }
-        .item-common { border: 3px solid #bdc3c7; }
-        .item-rare { border: 3px solid #3498db; }
-        .item-epic { border: 3px solid #9b59b6; }
-        .item-legendary { border: 3px solid #f1c40f; }
-        .item-ultra { border: 3px solid #e74c3c; }
-        .item-mythical { border: 3px solid #1abc9c; }
-        .share-code {
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        .share-code input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 10px;
-            border: none;
-            background-color: rgba(255,255,255,0.8);
-            text-align: center;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-        .share-button {
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .share-button:active {
-            transform: scale(0.98);
+        .case-chances {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 5px;
         }
         .confetti {
             position: fixed;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background-color: #f00;
             border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
         }
+        .coin {
+            position: absolute;
+            font-size: 1rem;
+            pointer-events: none;
+            z-index: 1001;
+            animation: coinFly 1s forwards;
+        }
+        @keyframes coinFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+        .rarity-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 0.7rem;
+        }
+        .rarity-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+        }
+        .rarity-tag:active {
+            transform: scale(0.95);
+        }
+        .common { border-left: 3px solid #bdc3c7; }
+        .rare { border-left: 3px solid #3498db; }
+        .epic { border-left: 3px solid #9b59b6; }
+        .legendary { border-left: 3px solid #f1c40f; }
+        .ultra { border-left: 3px solid #e74c3c; }
+        .mythical { border-left: 3px solid #1abc9c; }
+        .unique { border-left: 3px solid #FFD700; }
+        .sell-confirmation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 1002;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            max-width: 80%;
+            animation: fadeIn 0.3s;
+        }
+        .sell-confirmation-text {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .sell-confirmation-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .sell-confirm-btn, .sell-cancel-btn {
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .sell-confirm-btn:active, .sell-cancel-btn:active {
+            transform: scale(0.95);
+        }
+        .sell-confirm-btn {
+            background: linear-gradient(45deg, #FF416C 0%, #FF4B2B 100%);
+            color: white;
+        }
+        .sell-cancel-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .timer-display {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: rgba(255,255,255,0.7);
+        }
+        .quests-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .quest-item {
+            margin-bottom: 15px;
+        }
+        .quest-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .quest-progress {
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        .quest-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f5af19, #f12711);
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+        .quest-percentage {
+            font-size: 0.8rem;
+            text-align: right;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 1s infinite;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🎮 Эмодзи Баттл</h1>
-        <div class="money-display">💰 <span id="money">100</span></div>
-    </div>
-
-    <div class="game-container">
-        <button class="case-button" id="openCase">Открыть кейс (10💰)</button>
-        <div class="result-display" id="result"></div>
-        
-        <div class="inventory">
-            <h2>📦 Инвентарь</h2>
-            <div class="items-grid" id="inventory"></div>
+        <h1>Emoji Collector</h1>
+        <div class="money-container">
+            <div class="money-display">🪙 <span id="money">100</span></div>
+            <div class="click-for-coins" id="clickForCoins">👆</div>
         </div>
     </div>
 
-    <div class="shop">
-        <h2>🛒 Магазин кейсов</h2>
-        <div class="shop-items">
-            <div class="shop-item" onclick="buyCase(1, 10)">
-                <h3>Обычный кейс</h3>
-                <p>Шансы: 60% обычный, 30% редкий, 9% эпик, 1% легендарный</p>
-                <div class="shop-item-price">10💰</div>
+    <div class="main-container">
+        <div class="game-area">
+            <div class="action-buttons">
+                <button class="action-button" id="openCasesModal">Buy Cases</button>
+                <button class="action-button free-coins-button" id="freeCoinsButton">Free Coins (30🪙)</button>
+                <button class="action-button" id="openQuestsModal">Quests</button>
             </div>
-            <div class="shop-item" onclick="buyCase(2, 30)">
-                <h3>Редкий кейс</h3>
-                <p>Шансы: 40% редкий, 40% эпик, 19% легендарный, 1% ультра</p>
-                <div class="shop-item-price">30💰</div>
-            </div>
-            <div class="shop-item" onclick="buyCase(3, 100)">
-                <h3>Эпический кейс</h3>
-                <p>Шансы: 10% эпик, 70% легендарный, 19% ультра, 1% мифический</p>
-                <div class="shop-item-price">100💰</div>
+            
+            <div class="inventory-container">
+                <div class="inventory-header">
+                    <div class="inventory-title">📦 Your Collection</div>
+                    <div class="inventory-stats">Items: <span id="itemCount">0</span></div>
+                </div>
+                <div class="items-grid" id="inventory"></div>
             </div>
         </div>
     </div>
 
-    <div class="share-code">
-        <input type="text" id="shareInput" readonly placeholder="Код предмета появится здесь">
-        <button class="share-button" onclick="copyCode()">📋 Копировать код</button>
+    <div class="modal" id="casesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🎁 Premium Cases</div>
+                <button class="close-modal" id="closeCasesModal">&times;</button>
+            </div>
+            <div class="cases-grid" id="casesGrid">
+                <!-- Cases will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="questsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🏆 Quests</div>
+                <button class="close-modal" id="closeQuestsModal">&times;</button>
+            </div>
+            <div class="quests-container">
+                <div class="quest-item">
+                    <div class="quest-title">Earn 1,000,000,000 coins</div>
+                    <div class="quest-progress">
+                        <div class="quest-progress-bar" id="moneyQuestBar"></div>
+                    </div>
+                    <div class="quest-percentage" id="moneyQuestPercent">0%</div>
+                </div>
+                <div class="quest-item">
+                    <div class="quest-title">Open 1,000,000 cases</div>
+                    <div class="quest-progress">
+                        <div class="quest-progress-bar" id="casesQuestBar"></div>
+                    </div>
+                    <div class="quest-percentage" id="casesQuestPercent">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sell-confirmation" id="sellConfirmation">
+        <div class="sell-confirmation-text" id="sellConfirmationText"></div>
+        <div class="sell-confirmation-buttons">
+            <button class="sell-confirm-btn" id="sellConfirmBtn">Sell</button>
+            <button class="sell-cancel-btn" id="sellCancelBtn">Cancel</button>
+        </div>
     </div>
 
     <div class="rarity-info">
-        <div class="rarity-tag common">Обычный</div>
-        <div class="rarity-tag rare">Редкий</div>
-        <div class="rarity-tag epic">Эпический</div>
-        <div class="rarity-tag legendary">Легендарный</div>
-        <div class="rarity-tag ultra">Ультра</div>
-        <div class="rarity-tag mythical">Мифический</div>
+        <div class="rarity-tag common">Common</div>
+        <div class="rarity-tag rare">Rare</div>
+        <div class="rarity-tag epic">Epic</div>
+        <div class="rarity-tag legendary">Legendary</div>
+        <div class="rarity-tag ultra">Ultra</div>
+        <div class="rarity-tag mythical">Mythical</div>
     </div>
 
     <script>
-        // Эмодзи по редкости
+        // Emojis by rarity (only widely supported emojis)
         const emojis = {
-            common: ['😀', '😎', '🤓', '🧐', '😊', '🙂', '😇', '🤠', '🥸', '😋'],
-            rare: ['😍', '🤩', '🥳', '😏', '😘', '😜', '🤪', '😻', '🤑', '🤯'],
-            epic: ['👽', '🤖', '👾', '🐲', '🦄', '🌈', '⚡', '💫', '🌟', '✨'],
-            legendary: ['👑', '💎', '🎩', '🏆', '🥇', '🪄', '🔮', '🧿', '🦹', '🦸'],
-            ultra: ['🌌', '🌠', '🪐', '☄️', '♾️', '💥', '🕳️', '👁️', '🗝️', '🔱'],
-            mythical: ['🫅', '👼', '🧞', '🧚', '🦚', '🦢', '🕊️', '☯️', '🕉️', '✡️']
+            common: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'],
+            rare: ['😍', '🥰', '😘', '😗', '😎', '🤓', '🧐', '🥳', '😏', '😋'],
+            epic: ['🤩', '🤯', '😱', '😈', '👹', '👺', '🤡', '👻', '💀', '👽'],
+            legendary: ['👑', '🎩', '🧢', '👒', '💍', '💎', '🏆', '🎖', '🥇', '🪙'],
+            ultra: ['⚡', '💫', '⭐', '🌟', '✨', '🔥', '💥', '☄️', '🌪', '🌈'],
+            mythical: ['🦄', '🐉', '🐲', '🦂', '🦅', '🦇', '🦉', '🦚', '🦩', '🦋'],
+            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️']
         };
         
-        // Значения эмодзи
+        // Emoji values (many will not pay for their case)
         const emojiValues = {
-            common: 5,
-            rare: 15,
-            epic: 50,
-            legendary: 150,
-            ultra: 500,
-            mythical: 1500
+            common: 2,
+            rare: 8,
+            epic: 25,
+            legendary: 80,
+            ultra: 250,
+            mythical: 1000,
+            unique: 5000
         };
         
-        // Игрок
+        // Cases (9 total cases now)
+        const cases = [
+            { 
+                name: "Basic Case", 
+                emoji: "🎁", 
+                price: 15, 
+                chances: { common: 80, rare: 18, epic: 2 },
+                color: "common"
+            },
+            { 
+                name: "Rare Case", 
+                emoji: "📦", 
+                price: 50, 
+                chances: { common: 50, rare: 40, epic: 9, legendary: 1 },
+                color: "rare"
+            },
+            { 
+                name: "Epic Case", 
+                emoji: "💎", 
+                price: 150, 
+                chances: { rare: 50, epic: 40, legendary: 9, ultra: 1 },
+                color: "epic"
+            },
+            { 
+                name: "Legendary Case", 
+                emoji: "🏆", 
+                price: 500, 
+                chances: { epic: 50, legendary: 40, ultra: 9, mythical: 1 },
+                color: "legendary"
+            },
+            { 
+                name: "Ultra Case", 
+                emoji: "⚡", 
+                price: 1500, 
+                chances: { legendary: 50, ultra: 40, mythical: 9, unique: 1 },
+                color: "ultra"
+            },
+            { 
+                name: "Mythical Case", 
+                emoji: "🦄", 
+                price: 5000, 
+                chances: { ultra: 60, mythical: 35, unique: 5 },
+                color: "mythical"
+            },
+            { 
+                name: "Dragon Case", 
+                emoji: "🐉", 
+                price: 10000, 
+                chances: { mythical: 70, unique: 30 },
+                color: "unique"
+            },
+            { 
+                name: "Phoenix Case", 
+                emoji: "🔥", 
+                price: 25000, 
+                chances: { mythical: 30, unique: 70 },
+                color: "unique"
+            },
+            { 
+                name: "Godly Case", 
+                emoji: "✨", 
+                price: 50000, 
+                chances: { unique: 100 },
+                color: "unique"
+            }
+        ];
+        
+        // Player data
         const player = {
             money: 100,
             inventory: [],
-            lastItem: null
+            unopenedCases: [],
+            lastFreeCoins: 0,
+            totalMoneyEarned: 0,
+            totalCasesOpened: 0
         };
         
-        // Обновление интерфейса
-        function updateUI() {
-            // Обновляем деньги
-            document.getElementById('money').textContent = player.money;
-            
-            // Обновляем кнопку открытия кейса
-            document.getElementById('openCase').disabled = player.money < 10;
-            
-            // Обновляем инвентарь
+        // Initialize the game
+        function initGame() {
+            loadGame();
+            updateUI();
             updateInventory();
+            initCasesModal();
+            updateQuests();
+            
+            // Set up free coins button
+            updateFreeCoinsButton();
+            document.getElementById('freeCoinsButton').addEventListener('click', claimFreeCoins);
+            
+            // Set up click for coins button
+            document.getElementById('clickForCoins').addEventListener('click', clickForCoins);
+            
+            // Set up quests modal
+            document.getElementById('openQuestsModal').onclick = () => {
+                document.getElementById('questsModal').style.display = 'flex';
+            };
+            document.getElementById('closeQuestsModal').onclick = () => {
+                document.getElementById('questsModal').style.display = 'none';
+            };
+            
+            // Auto-save every 30 seconds
+            setInterval(saveGame, 30000);
+            window.addEventListener('beforeunload', saveGame);
+            
+            // Sell confirmation buttons
+            document.getElementById('sellConfirmBtn').onclick = confirmSell;
+            document.getElementById('sellCancelBtn').onclick = cancelSell;
         }
         
-        // Обновление инвентаря
+        // Load game from localStorage
+        function loadGame() {
+            const savedGame = localStorage.getItem('emojiCollectorSave');
+            if (savedGame) {
+                const parsed = JSON.parse(savedGame);
+                player.money = parsed.money || 100;
+                player.inventory = parsed.inventory || [];
+                player.unopenedCases = parsed.unopenedCases || [];
+                player.lastFreeCoins = parsed.lastFreeCoins || 0;
+                player.totalMoneyEarned = parsed.totalMoneyEarned || 0;
+                player.totalCasesOpened = parsed.totalCasesOpened || 0;
+            }
+        }
+        
+        // Save game to localStorage
+        function saveGame() {
+            const gameData = {
+                money: player.money,
+                inventory: player.inventory,
+                unopenedCases: player.unopenedCases,
+                lastFreeCoins: player.lastFreeCoins,
+                totalMoneyEarned: player.totalMoneyEarned,
+                totalCasesOpened: player.totalCasesOpened
+            };
+            localStorage.setItem('emojiCollectorSave', JSON.stringify(gameData));
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('money').textContent = player.money;
+            document.getElementById('itemCount').textContent = player.inventory.length + player.unopenedCases.length;
+        }
+        
+        // Update inventory display
         function updateInventory() {
             const inventoryDiv = document.getElementById('inventory');
             inventoryDiv.innerHTML = '';
             
+            // Display unopened cases first
+            player.unopenedCases.forEach((caseItem, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                itemDiv.innerHTML = `
+                    ${caseItem.emoji}
+                    <div class="item-value">${caseItem.price}🪙</div>
+                `;
+                itemDiv.onclick = () => openCase(index);
+                inventoryDiv.appendChild(itemDiv);
+            });
+            
+            // Then display collected emojis
             player.inventory.forEach((item, index) => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = `item item-${item.rarity}`;
                 itemDiv.innerHTML = `
                     ${item.emoji}
-                    <span class="item-value">${emojiValues[item.rarity]}</span>
+                    <div class="item-value">${item.value}🪙</div>
+                    <div class="item-sell">×</div>
                 `;
-                itemDiv.onclick = () => sellItem(index);
+                itemDiv.onclick = (e) => {
+                    // Check if the sell button was clicked
+                    if (e.target.classList.contains('item-sell')) {
+                        showSellConfirmation(index, item);
+                    }
+                };
                 inventoryDiv.appendChild(itemDiv);
             });
         }
         
-        // Открытие кейса
-        function openCase() {
-            if (player.money < 10) return;
+        // Initialize cases modal
+        function initCasesModal() {
+            const casesGrid = document.getElementById('casesGrid');
+            casesGrid.innerHTML = '';
             
-            player.money -= 10;
+            cases.forEach((caseItem, index) => {
+                const caseDiv = document.createElement('div');
+                caseDiv.className = 'case-item';
+                caseDiv.innerHTML = `
+                    <div class="case-emoji">${caseItem.emoji}</div>
+                    <div class="case-name">${caseItem.name}</div>
+                    <div class="case-price">${caseItem.price}🪙</div>
+                    <div class="case-chances">
+                        ${Object.entries(caseItem.chances).map(([rarity, chance]) => 
+                            `${chance}% ${rarity}`).join(', ')}
+                    </div>
+                `;
+                caseDiv.onclick = () => buyCase(index);
+                casesGrid.appendChild(caseDiv);
+            });
             
-            // Определяем редкость
-            const random = Math.random() * 100;
-            let rarity, emoji;
+            // Modal controls
+            document.getElementById('openCasesModal').onclick = () => {
+                document.getElementById('casesModal').style.display = 'flex';
+            };
             
-            if (random < 60) {
-                rarity = 'common';
-            } else if (random < 90) {
-                rarity = 'rare';
-            } else if (random < 99) {
-                rarity = 'epic';
-            } else {
-                rarity = 'legendary';
+            document.getElementById('closeCasesModal').onclick = () => {
+                document.getElementById('casesModal').style.display = 'none';
+            };
+        }
+        
+        // Buy a case
+        function buyCase(caseIndex) {
+            const caseItem = cases[caseIndex];
+            
+            if (player.money < caseItem.price) {
+                alert("Not enough coins!");
+                return;
             }
             
-            // Выбираем случайное эмодзи
-            const emojiList = emojis[rarity];
-            emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            player.money -= caseItem.price;
+            player.unopenedCases.push({
+                ...caseItem,
+                id: Date.now()
+            });
             
-            // Создаем предмет
-            const item = { emoji, rarity };
-            player.lastItem = item;
+            updateUI();
+            updateInventory();
+        }
+        
+        // Open a case
+        function openCase(caseIndex) {
+            const caseItem = player.unopenedCases[caseIndex];
+            
+            // Determine rarity
+            const random = Math.random() * 100;
+            let rarity = 'common';
+            let cumulative = 0;
+            
+            for (const [r, chance] of Object.entries(caseItem.chances)) {
+                cumulative += chance;
+                if (random <= cumulative) {
+                    rarity = r;
+                    break;
+                }
+            }
+            
+            // Get random emoji
+            const emojiList = emojis[rarity];
+            const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            
+            // Create item
+            const item = {
+                emoji,
+                rarity,
+                value: emojiValues[rarity]
+            };
+            
+            // Add to inventory
             player.inventory.push(item);
             
-            // Показываем результат
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = emoji;
-            resultDiv.className = `result-display item-${rarity}`;
+            // Remove case
+            player.unopenedCases.splice(caseIndex, 1);
             
-            // Анимация
-            resultDiv.style.transform = 'scale(0)';
-            setTimeout(() => {
-                resultDiv.style.transform = 'scale(1)';
-            }, 10);
+            // Update stats
+            player.totalCasesOpened++;
+            player.totalMoneyEarned += item.value;
             
-            // Генерируем код для обмена
-            generateShareCode(item);
+            // Update quests
+            updateQuests();
             
-            // Конфетти для редких предметов
-            if (rarity !== 'common') {
+            // Show confetti for rare items
+            if (rarity !== 'common' && rarity !== 'rare') {
                 createConfetti();
             }
             
             updateUI();
+            updateInventory();
         }
         
-        // Покупка кейса в магазине
-        function buyCase(caseType, cost) {
-            if (player.money < cost) {
-                alert('Недостаточно денег!');
-                return;
+        // Free coins system
+        function updateFreeCoinsButton() {
+            const button = document.getElementById('freeCoinsButton');
+            const now = Date.now();
+            const cooldown = 2 * 60 * 1000; // 2 minutes
+            
+            if (now - player.lastFreeCoins >= cooldown) {
+                button.disabled = false;
+                button.innerHTML = 'Free Coins (30🪙)';
+            } else {
+                button.disabled = true;
+                const remaining = Math.ceil((cooldown - (now - player.lastFreeCoins)) / 1000);
+                button.innerHTML = `Free Coins (${remaining}s)`;
             }
+        }
+        
+        function claimFreeCoins() {
+            const now = Date.now();
+            const cooldown = 2 * 60 * 1000; // 2 minutes
             
-            player.money -= cost;
-            
-            let rarity, emoji;
-            const random = Math.random() * 100;
-            
-            switch(caseType) {
-                case 1: // Обычный кейс
-                    if (random < 60) {
-                        rarity = 'common';
-                    } else if (random < 90) {
-                        rarity = 'rare';
-                    } else if (random < 99) {
-                        rarity = 'epic';
-                    } else {
-                        rarity = 'legendary';
+            if (now - player.lastFreeCoins >= cooldown) {
+                addCoins(30);
+                player.lastFreeCoins = now;
+                updateFreeCoinsButton();
+                createConfetti();
+                
+                // Update button every second
+                const interval = setInterval(() => {
+                    updateFreeCoinsButton();
+                    if (!document.getElementById('freeCoinsButton').disabled) {
+                        clearInterval(interval);
                     }
-                    break;
-                case 2: // Редкий кейс
-                    if (random < 40) {
-                        rarity = 'rare';
-                    } else if (random < 80) {
-                        rarity = 'epic';
-                    } else if (random < 99) {
-                        rarity = 'legendary';
-                    } else {
-                        rarity = 'ultra';
-                    }
-                    break;
-                case 3: // Эпический кейс
-                    if (random < 10) {
-                        rarity = 'epic';
-                    } else if (random < 80) {
-                        rarity = 'legendary';
-                    } else if (random < 99) {
-                        rarity = 'ultra';
-                    } else {
-                        rarity = 'mythical';
-                    }
-                    break;
+                }, 1000);
             }
+        }
+        
+        // Click for coins
+        function clickForCoins() {
+            addCoins(0.2);
             
-            // Выбираем случайное эмодзи
-            const emojiList = emojis[rarity];
-            emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
+            // Create flying coin animation
+            const button = document.getElementById('clickForCoins');
+            const rect = button.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
             
-            // Создаем предмет
-            const item = { emoji, rarity };
-            player.lastItem = item;
-            player.inventory.push(item);
-            
-            // Показываем результат
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = emoji;
-            resultDiv.className = `result-display item-${rarity}`;
-            
-            // Анимация
-            resultDiv.style.transform = 'scale(0)';
-            setTimeout(() => {
-                resultDiv.style.transform = 'scale(1)';
-            }, 10);
-            
-            // Генерируем код для обмена
-            generateShareCode(item);
-            
-            // Конфетти
-            createConfetti();
-            
+            // Create 3 coins
+            for (let i = 0; i < 3; i++) {
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.textContent = '🪙';
+                coin.style.left = `${startX}px`;
+                coin.style.top = `${startY}px`;
+                
+                // Random end position (toward money display)
+                const endX = -50 + Math.random() * 100;
+                const endY = -100 - Math.random() * 50;
+                
+                coin.style.setProperty('--tx', `${endX}px`);
+                coin.style.setProperty('--ty', `${endY}px`);
+                
+                document.body.appendChild(coin);
+                
+                // Remove after animation
+                setTimeout(() => {
+                    coin.remove();
+                }, 1000);
+            }
+        }
+        
+        // Add coins with animation
+        function addCoins(amount) {
+            player.money += amount;
+            player.totalMoneyEarned += amount;
             updateUI();
+            updateQuests();
         }
         
-        // Продажа предмета
-        function sellItem(index) {
-            const item = player.inventory[index];
+        // Update quests display
+        function updateQuests() {
+            // Money quest (1,000,000,000)
+            const moneyPercent = Math.min(100, (player.totalMoneyEarned / 1000000000) * 100);
+            document.getElementById('moneyQuestBar').style.width = `${moneyPercent}%`;
+            document.getElementById('moneyQuestPercent').textContent = `${moneyPercent.toFixed(6)}%`;
             
-            player.money += emojiValues[item.rarity];
-            player.inventory.splice(index, 1);
-            
-            updateUI();
+            // Cases quest (1,000,000)
+            const casesPercent = Math.min(100, (player.totalCasesOpened / 1000000) * 100);
+            document.getElementById('casesQuestBar').style.width = `${casesPercent}%`;
+            document.getElementById('casesQuestPercent').textContent = `${casesPercent.toFixed(4)}%`;
         }
         
-        // Генерация кода для обмена
-        function generateShareCode(item) {
-            const code = `${item.emoji}-${item.rarity}-${Date.now().toString(36)}`;
-            document.getElementById('shareInput').value = code;
-            return code;
+        // Sell system
+        let currentSellIndex = null;
+        
+        function showSellConfirmation(index, item) {
+            currentSellIndex = index;
+            document.getElementById('sellConfirmationText').innerHTML = 
+                `Sell <span style="font-size:1.5em">${item.emoji}</span> for ${item.value}🪙?`;
+            document.getElementById('sellConfirmation').style.display = 'flex';
         }
         
-        // Копирование кода
-        function copyCode() {
-            const input = document.getElementById('shareInput');
-            input.select();
-            document.execCommand('copy');
-            alert('Код скопирован! Поделитесь им с другом для сравнения.');
+        function confirmSell() {
+            if (currentSellIndex !== null) {
+                const item = player.inventory[currentSellIndex];
+                addCoins(item.value);
+                player.inventory.splice(currentSellIndex, 1);
+                updateInventory();
+            }
+            cancelSell();
         }
         
-        // Создание конфетти
+        function cancelSell() {
+            currentSellIndex = null;
+            document.getElementById('sellConfirmation').style.display = 'none';
+        }
+        
+        // Create confetti effect
         function createConfetti() {
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900'];
             
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 20; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = `${Math.random() * 100}vw`;
                 confetti.style.top = '-10px';
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = `${Math.random() * 10 + 5}px`;
-                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.width = `${Math.random() * 8 + 4}px`;
+                confetti.style.height = `${Math.random() * 8 + 4}px`;
                 document.body.appendChild(confetti);
                 
-                const animationDuration = Math.random() * 3 + 2;
-                confetti.style.transition = `top ${animationDuration}s linear, transform ${animationDuration}s ease-out`;
+                const animationDuration = Math.random() * 2 + 1;
+                confetti.style.transition = `top ${animationDuration}s linear, transform ${animationDuration}s ease-out, opacity ${animationDuration}s`;
                 
                 setTimeout(() => {
                     confetti.style.top = '100vh';
                     confetti.style.transform = `rotate(${Math.random() * 360}deg) translateX(${Math.random() * 100 - 50}px)`;
+                    confetti.style.opacity = '0';
                 }, 10);
                 
                 setTimeout(() => {
@@ -542,9 +974,11 @@
             }
         }
         
-        // Инициализация
-        document.getElementById('openCase').addEventListener('click', openCase);
-        updateUI();
+        // Start the game
+        initGame();
+        
+        // Update free coins button every second
+        setInterval(updateFreeCoinsButton, 1000);
     </script>
 </body>
 </html>
