@@ -365,33 +365,38 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.9);
-            padding: 20px;
+            padding: 25px;
             border-radius: 15px;
             z-index: 1002;
             border: 1px solid rgba(255,255,255,0.2);
             display: none;
             flex-direction: column;
             align-items: center;
-            max-width: 80%;
+            width: 85%;
+            max-width: 350px;
             animation: fadeIn 0.3s;
         }
         .sell-confirmation-text {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
+            font-size: 1.1rem;
         }
         .sell-confirmation-buttons {
             display: flex;
             gap: 10px;
+            width: 100%;
         }
-        .sell-confirm-btn, .sell-cancel-btn {
-            padding: 8px 15px;
+        .sell-confirm-btn, .sell-cancel-btn, .sell-all-btn {
+            padding: 10px 15px;
             border-radius: 8px;
             border: none;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.2s;
+            flex: 1;
+            text-align: center;
         }
-        .sell-confirm-btn:active, .sell-cancel-btn:active {
+        .sell-confirm-btn:active, .sell-cancel-btn:active, .sell-all-btn:active {
             transform: scale(0.95);
         }
         .sell-confirm-btn {
@@ -401,6 +406,12 @@
         .sell-cancel-btn {
             background: rgba(255,255,255,0.1);
             color: white;
+        }
+        .sell-all-btn {
+            background: linear-gradient(45deg, #FF9500, #FF5E00);
+            color: white;
+            margin-top: 10px;
+            width: 100%;
         }
         .timer-display {
             font-size: 0.8rem;
@@ -451,7 +462,7 @@
     <div class="header">
         <h1>Emoji Collector</h1>
         <div class="money-container">
-            <div class="money-display">🪙 <span id="money">100</span></div>
+            <div class="money-display">🪙 <span id="money">100.0</span></div>
             <div class="click-for-coins" id="clickForCoins">👆</div>
         </div>
     </div>
@@ -517,6 +528,7 @@
             <button class="sell-confirm-btn" id="sellConfirmBtn">Sell</button>
             <button class="sell-cancel-btn" id="sellCancelBtn">Cancel</button>
         </div>
+        <button class="sell-all-btn" id="sellAllBtn">Sell All Emojis</button>
     </div>
 
     <div class="rarity-info">
@@ -658,6 +670,7 @@
             // Sell confirmation buttons
             document.getElementById('sellConfirmBtn').onclick = confirmSell;
             document.getElementById('sellCancelBtn').onclick = cancelSell;
+            document.getElementById('sellAllBtn').onclick = sellAllEmojis;
         }
         
         // Load game from localStorage
@@ -689,7 +702,7 @@
         
         // Update UI
         function updateUI() {
-            document.getElementById('money').textContent = player.money;
+            document.getElementById('money').textContent = player.money.toFixed(1);
             document.getElementById('itemCount').textContent = player.inventory.length + player.unopenedCases.length;
         }
         
@@ -938,6 +951,21 @@
                 updateInventory();
             }
             cancelSell();
+        }
+        
+        function sellAllEmojis() {
+            if (player.inventory.length === 0) {
+                alert("You don't have any emojis to sell!");
+                cancelSell();
+                return;
+            }
+            
+            const totalValue = player.inventory.reduce((sum, item) => sum + item.value, 0);
+            addCoins(totalValue);
+            player.inventory = [];
+            updateInventory();
+            cancelSell();
+            createConfetti();
         }
         
         function cancelSell() {
