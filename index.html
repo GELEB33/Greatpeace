@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
     <title>Emoji Collector</title>
     <style>
         * {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
-            -khtml-user-select: none;
+            -khtml-user-select: none;    
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
@@ -459,6 +462,17 @@
     </style>
 </head>
 <body>
+    <!-- Yandex.RTB R-A-16246931-1 -->
+    <script>
+    window.yaContextCb.push(() => {
+        Ya.Context.AdvManager.render({
+            "blockId": "R-A-16246931-1",
+            "type": "floorAd",
+            "platform": "touch"
+        })
+    })
+    </script>
+
     <div class="header">
         <h1>Emoji Collector</h1>
         <div class="money-container">
@@ -901,7 +915,7 @@
                 const endY = -100 - Math.random() * 50;
                 
                 coin.style.setProperty('--tx', `${endX}px`);
-                coin.style.setProperty('--ty', `${endY}px`);
+                coin.style.setProperty('--ty', `${endY}px');
                 
                 document.body.appendChild(coin);
                 
