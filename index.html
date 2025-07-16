@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Emoji Collector</title>
+    <title>Ultimate Emoji Collector</title>
     <style>
         * {
             -webkit-touch-callout: none;
@@ -17,7 +17,7 @@
         }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: var(--bg-gradient);
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -27,25 +27,28 @@
             color: white;
             overflow-x: hidden;
             touch-action: manipulation;
+            transition: all 0.3s;
         }
         .header {
             text-align: center;
             padding: 15px 0;
             width: 100%;
-            background: rgba(0,0,0,0.3);
+            background: var(--header-bg);
             margin-bottom: 15px;
             position: relative;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid var(--accent-color);
+            box-shadow: 0 0 20px var(--accent-shadow);
         }
         h1 {
             margin: 0;
-            font-size: 1.8rem;
+            font-size: 2rem;
             color: #fff;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.3);
-            letter-spacing: 1px;
-            background: linear-gradient(90deg, #f5af19, #f12711, #f5af19);
+            text-shadow: 0 0 15px var(--accent-color);
+            letter-spacing: 2px;
+            background: var(--title-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 900;
         }
         .money-container {
             display: flex;
@@ -55,27 +58,30 @@
             margin-top: 10px;
         }
         .money-display {
-            background: rgba(0,0,0,0.5);
+            background: var(--money-bg);
             border-radius: 20px;
             padding: 8px 20px;
             font-size: 1.1rem;
             font-weight: bold;
             display: inline-block;
-            border: 1px solid rgba(255,215,0,0.3);
-            box-shadow: 0 0 15px rgba(255,215,0,0.2);
+            border: 1px solid var(--coin-color);
+            box-shadow: 0 0 20px var(--coin-shadow);
             position: relative;
+            text-shadow: 0 0 5px var(--coin-color);
         }
         .click-for-coins {
-            background: rgba(255,215,0,0.2);
+            background: var(--clicker-bg);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 1px solid rgba(255,215,0,0.5);
+            border: 1px solid var(--coin-color);
             transition: transform 0.2s;
+            box-shadow: 0 0 15px var(--coin-shadow);
+            font-size: 1.2rem;
         }
         .click-for-coins:active {
             transform: scale(0.9);
@@ -86,11 +92,11 @@
             width: 95%;
             max-width: 500px;
             height: calc(100vh - 200px);
-            background: rgba(0,0,0,0.2);
+            background: var(--container-bg);
             border-radius: 15px;
             padding: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 40px var(--container-shadow);
+            border: 1px solid var(--accent-color);
             overflow: hidden;
         }
         .game-area {
@@ -105,41 +111,44 @@
             gap: 10px;
         }
         .action-button {
-            background: linear-gradient(45deg, #8e2de2, #4a00e0);
+            background: var(--button-bg);
             border: none;
             border-radius: 10px;
-            padding: 10px 15px;
+            padding: 12px 15px;
             font-size: 0.9rem;
             font-weight: bold;
             color: white;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 20px var(--button-shadow);
             transition: all 0.2s;
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            border: 1px solid var(--button-border);
         }
         .action-button:active {
             transform: scale(0.96);
         }
         .action-button:disabled {
-            background: linear-gradient(45deg, #555, #333);
+            background: var(--button-disabled);
             cursor: not-allowed;
             opacity: 0.7;
         }
         .free-coins-button {
-            background: linear-gradient(45deg, #f5af19, #f12711);
+            background: var(--freecoins-bg);
+            box-shadow: 0 4px 20px var(--freecoins-shadow);
         }
         .inventory-container {
-            background: rgba(0,0,0,0.3);
+            background: var(--inventory-bg);
             border-radius: 12px;
             padding: 10px;
             flex-grow: 1;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--inventory-border);
         }
         .inventory-header {
             display: flex;
@@ -150,11 +159,12 @@
         .inventory-title {
             font-size: 1rem;
             font-weight: bold;
-            color: rgba(255,255,255,0.9);
+            color: var(--text-color);
+            text-shadow: 0 0 5px var(--text-shadow);
         }
         .inventory-stats {
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.7);
+            color: var(--text-secondary);
         }
         .items-grid {
             display: grid;
@@ -166,7 +176,7 @@
         }
         .item {
             font-size: 2rem;
-            background: rgba(0,0,0,0.3);
+            background: var(--item-bg);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -174,8 +184,9 @@
             aspect-ratio: 1/1;
             position: relative;
             transition: all 0.3s;
-            border: 2px solid rgba(255,255,255,0.1);
+            border: 2px solid var(--item-border);
             cursor: pointer;
+            box-shadow: 0 0 10px var(--item-shadow);
         }
         .item:active {
             transform: scale(0.95);
@@ -184,8 +195,8 @@
             position: absolute;
             bottom: 5px;
             right: 5px;
-            background: rgba(0,0,0,0.7);
-            color: white;
+            background: var(--value-bg);
+            color: var(--coin-color);
             border-radius: 50%;
             width: 18px;
             height: 18px;
@@ -194,12 +205,13 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            text-shadow: 0 0 2px black;
         }
         .item-sell {
             position: absolute;
             top: 5px;
             right: 5px;
-            background: rgba(255,0,0,0.7);
+            background: var(--sell-bg);
             color: white;
             border-radius: 50%;
             width: 18px;
@@ -209,24 +221,25 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            border: 1px solid var(--sell-border);
         }
         .item:hover .item-sell {
             display: flex;
         }
-        .item-common { border-color: #bdc3c7; }
-        .item-rare { border-color: #3498db; }
-        .item-epic { border-color: #9b59b6; }
-        .item-legendary { border-color: #f1c40f; }
-        .item-ultra { border-color: #e74c3c; }
-        .item-mythical { border-color: #1abc9c; }
-        .item-unique { border-color: #FFD700; }
+        .item-common { border-color: #bdc3c7; box-shadow: 0 0 10px rgba(189,195,199,0.3); }
+        .item-rare { border-color: #3498db; box-shadow: 0 0 15px rgba(52,152,219,0.5); }
+        .item-epic { border-color: #9b59b6; box-shadow: 0 0 20px rgba(155,89,182,0.6); }
+        .item-legendary { border-color: #f1c40f; box-shadow: 0 0 25px rgba(241,196,15,0.7); }
+        .item-ultra { border-color: #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.8); }
+        .item-mythical { border-color: #1abc9c; box-shadow: 0 0 35px rgba(26,188,156,0.9); }
+        .item-unique { border-color: #FFD700; box-shadow: 0 0 40px rgba(255,215,0,1); animation: pulse-gold 2s infinite; }
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: var(--modal-bg);
             display: none;
             justify-content: center;
             align-items: center;
@@ -238,15 +251,15 @@
             to { opacity: 1; }
         }
         .modal-content {
-            background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+            background: var(--modal-content-bg);
             border-radius: 15px;
             padding: 20px;
             width: 90%;
             max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 40px var(--modal-shadow);
             animation: slideUp 0.3s;
         }
         @keyframes slideUp {
@@ -258,16 +271,19 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            border-bottom: 1px solid var(--modal-header-border);
+            padding-bottom: 10px;
         }
         .modal-title {
             font-size: 1.3rem;
             font-weight: bold;
-            color: #fff;
+            color: var(--modal-title-color);
+            text-shadow: 0 0 10px var(--modal-title-shadow);
         }
         .close-modal {
             background: none;
             border: none;
-            color: white;
+            color: var(--modal-close-color);
             font-size: 1.5rem;
             cursor: pointer;
             transition: transform 0.2s;
@@ -281,13 +297,14 @@
             gap: 10px;
         }
         .case-item {
-            background: rgba(0,0,0,0.3);
+            background: var(--case-item-bg);
             border-radius: 10px;
             padding: 15px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid var(--case-item-border);
+            box-shadow: 0 0 15px var(--case-item-shadow);
         }
         .case-item:active {
             transform: scale(0.97);
@@ -303,21 +320,23 @@
         .case-name {
             font-weight: bold;
             margin-bottom: 5px;
+            color: var(--case-name-color);
         }
         .case-price {
-            color: gold;
+            color: var(--coin-color);
             font-size: 0.9rem;
+            text-shadow: 0 0 5px var(--coin-shadow);
         }
         .case-chances {
             font-size: 0.7rem;
-            opacity: 0.8;
+            color: var(--case-chances-color);
             margin-top: 5px;
         }
         .confetti {
             position: fixed;
             width: 8px;
             height: 8px;
-            background-color: #f00;
+            background-color: var(--confetti-color);
             border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
@@ -346,8 +365,9 @@
             padding: 4px 8px;
             border-radius: 12px;
             font-weight: bold;
-            background: rgba(0,0,0,0.4);
+            background: var(--rarity-tag-bg);
             transition: transform 0.2s;
+            border: 1px solid var(--rarity-tag-border);
         }
         .rarity-tag:active {
             transform: scale(0.95);
@@ -364,22 +384,24 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
+            background: var(--sell-confirmation-bg);
             padding: 25px;
             border-radius: 15px;
             z-index: 1002;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--sell-confirmation-border);
             display: none;
             flex-direction: column;
             align-items: center;
             width: 85%;
             max-width: 350px;
             animation: fadeIn 0.3s;
+            box-shadow: 0 0 30px var(--sell-confirmation-shadow);
         }
         .sell-confirmation-text {
             margin-bottom: 20px;
             text-align: center;
             font-size: 1.1rem;
+            color: var(--sell-confirmation-text);
         }
         .sell-confirmation-buttons {
             display: flex;
@@ -400,29 +422,32 @@
             transform: scale(0.95);
         }
         .sell-confirm-btn {
-            background: linear-gradient(45deg, #FF416C 0%, #FF4B2B 100%);
+            background: var(--sell-confirm-bg);
             color: white;
+            box-shadow: 0 0 15px var(--sell-confirm-shadow);
         }
         .sell-cancel-btn {
-            background: rgba(255,255,255,0.1);
+            background: var(--sell-cancel-bg);
             color: white;
         }
         .sell-all-btn {
-            background: linear-gradient(45deg, #FF9500, #FF5E00);
+            background: var(--sell-all-bg);
             color: white;
             margin-top: 10px;
             width: 100%;
+            box-shadow: 0 0 15px var(--sell-all-shadow);
         }
         .timer-display {
             font-size: 0.8rem;
             margin-top: 5px;
-            color: rgba(255,255,255,0.7);
+            color: var(--timer-color);
         }
         .quests-container {
-            background: rgba(0,0,0,0.3);
+            background: var(--quests-bg);
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
+            border: 1px solid var(--quests-border);
         }
         .quest-item {
             margin-bottom: 15px;
@@ -430,37 +455,137 @@
         .quest-title {
             font-weight: bold;
             margin-bottom: 5px;
+            color: var(--quest-title-color);
         }
         .quest-progress {
             height: 10px;
-            background: rgba(255,255,255,0.1);
+            background: var(--quest-progress-bg);
             border-radius: 5px;
             overflow: hidden;
             margin-bottom: 5px;
         }
         .quest-progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #f5af19, #f12711);
+            background: var(--quest-progress-bar);
             border-radius: 5px;
             transition: width 0.5s;
         }
         .quest-percentage {
             font-size: 0.8rem;
             text-align: right;
+            color: var(--quest-percentage-color);
         }
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 20px rgba(255,215,0,0.7); }
+            50% { box-shadow: 0 0 40px rgba(255,215,0,1); }
+            100% { box-shadow: 0 0 20px rgba(255,215,0,0.7); }
+        }
         .pulse {
             animation: pulse 1s infinite;
+        }
+        .glow {
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+            to { box-shadow: 0 0 20px rgba(255,255,255,0.9); }
+        }
+        .theme-selector {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 1000;
+        }
+        .theme-btn {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .theme-btn:active {
+            transform: scale(0.9);
+        }
+        .theme-red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .theme-blue { background: linear-gradient(135deg, #4b6cb7, #182848); }
+        .theme-green { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .theme-purple { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
+        .theme-orange { background: linear-gradient(135deg, #f12711, #f5af19); }
+        .emoji-library-btn {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background: var(--button-bg);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--button-shadow);
+            color: white;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        .emoji-library-btn:active {
+            transform: scale(0.9);
+        }
+        .emoji-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            padding: 10px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .emoji-library-item {
+            font-size: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            border-radius: 8px;
+            background: var(--item-bg);
+            position: relative;
+        }
+        .emoji-library-item.uncollected {
+            filter: brightness(0.3);
+        }
+        .emoji-library-value {
+            font-size: 0.6rem;
+            margin-top: 3px;
+            color: var(--coin-color);
+        }
+        .click-coin {
+            position: absolute;
+            font-size: 0.8rem;
+            color: gold;
+            font-weight: bold;
+            pointer-events: none;
+            animation: clickCoin 1s forwards;
+            z-index: 1001;
+        }
+        @keyframes clickCoin {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(0, -30px) scale(0.5); opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Emoji Collector</h1>
+        <button class="emoji-library-btn" id="openEmojiLibrary">📖</button>
+        <h1>Ultimate Emoji Collector</h1>
         <div class="money-container">
             <div class="money-display">🪙 <span id="money">100.0</span></div>
             <div class="click-for-coins" id="clickForCoins">👆</div>
@@ -505,19 +630,31 @@
             </div>
             <div class="quests-container">
                 <div class="quest-item">
-                    <div class="quest-title">Earn 1,000,000,000 coins</div>
+                    <div class="quest-title">Earn 1,000,000 coins</div>
                     <div class="quest-progress">
                         <div class="quest-progress-bar" id="moneyQuestBar"></div>
                     </div>
                     <div class="quest-percentage" id="moneyQuestPercent">0%</div>
                 </div>
                 <div class="quest-item">
-                    <div class="quest-title">Open 1,000,000 cases</div>
+                    <div class="quest-title">Open 1,000 cases</div>
                     <div class="quest-progress">
                         <div class="quest-progress-bar" id="casesQuestBar"></div>
                     </div>
                     <div class="quest-percentage" id="casesQuestPercent">0%</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="emojiLibraryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📚 Emoji Library</div>
+                <button class="close-modal" id="closeEmojiLibraryModal">&times;</button>
+            </div>
+            <div class="emoji-library" id="emojiLibrary">
+                <!-- Emojis will be added here -->
             </div>
         </div>
     </div>
@@ -540,96 +677,414 @@
         <div class="rarity-tag mythical">Mythical</div>
     </div>
 
+    <div class="theme-selector">
+        <div class="theme-btn theme-red" onclick="changeTheme('red')"></div>
+        <div class="theme-btn theme-blue" onclick="changeTheme('blue')"></div>
+        <div class="theme-btn theme-green" onclick="changeTheme('green')"></div>
+        <div class="theme-btn theme-purple" onclick="changeTheme('purple')"></div>
+        <div class="theme-btn theme-orange" onclick="changeTheme('orange')"></div>
+    </div>
+
     <script>
-        // Emojis by rarity (only widely supported emojis)
+        // Emojis by rarity with realistic values
         const emojis = {
-            common: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'],
-            rare: ['😍', '🥰', '😘', '😗', '😎', '🤓', '🧐', '🥳', '😏', '😋'],
-            epic: ['🤩', '🤯', '😱', '😈', '👹', '👺', '🤡', '👻', '💀', '👽'],
-            legendary: ['👑', '🎩', '🧢', '👒', '💍', '💎', '🏆', '🎖', '🥇', '🪙'],
-            ultra: ['⚡', '💫', '⭐', '🌟', '✨', '🔥', '💥', '☄️', '🌪', '🌈'],
-            mythical: ['🦄', '🐉', '🐲', '🦂', '🦅', '🦇', '🦉', '🦚', '🦩', '🦋'],
-            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️']
+            common: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😋', '😜'],
+            rare: ['😍', '🥰', '😘', '😗', '😎', '🤓', '🧐', '🥳', '😏', '😋', '🤩', '🤪', '😇', '🥺', '😳'],
+            epic: ['🤩', '🤯', '😱', '😈', '👹', '👺', '🤡', '👻', '💀', '👽', '🤖', '👾', '🐲', '🦇', '🦹'],
+            legendary: ['👑', '🎩', '🧢', '👒', '💍', '💎', '🏆', '🎖', '🥇', '🪙', '⚔️', '🛡️', '🗡️', '🏹', '🔫'],
+            ultra: ['⚡', '💫', '⭐', '🌟', '✨', '🔥', '💥', '☄️', '🌪', '🌈', '🌋', '🌠', '🌀', '❄️', '🌊'],
+            mythical: ['🦄', '🐉', '🐲', '🦂', '🦅', '🦇', '🦉', '🦚', '🦩', '🦋', '🐍', '🦖', '🦕', '🐊', '🦈'],
+            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️', '🕎', '☦️', '☪️', '🛐', '⛎']
         };
         
-        // Emoji values (many will not pay for their case)
+        // Emoji values (balanced to make cases profitable ~30% of the time)
         const emojiValues = {
-            common: 2,
-            rare: 8,
-            epic: 25,
-            legendary: 80,
-            ultra: 250,
-            mythical: 1000,
-            unique: 5000
+            common: 3,       // было 1
+            rare: 15,        // было 5
+            epic: 60,        // было 20
+            legendary: 300,  // было 100
+            ultra: 1500,     // было 500
+            mythical: 6000,  // было 2000
+            unique: 30000    // было 10000
         };
         
-        // Cases (9 total cases now)
+        // Cases with realistic chances and descriptions
         const cases = [
             { 
-                name: "Basic Case", 
+                name: "Starter Case", 
                 emoji: "🎁", 
-                price: 15, 
-                chances: { common: 80, rare: 18, epic: 2 },
-                color: "common"
+                price: 10, 
+                chances: { common: 85, rare: 14, epic: 1 },
+                color: "common",
+                description: "Basic case with mostly common emojis. 85% common, 14% rare, 1% epic"
             },
             { 
-                name: "Rare Case", 
+                name: "Silver Case", 
                 emoji: "📦", 
                 price: 50, 
-                chances: { common: 50, rare: 40, epic: 9, legendary: 1 },
-                color: "rare"
+                chances: { common: 60, rare: 35, epic: 4, legendary: 1 },
+                color: "rare",
+                description: "Better chances for rare emojis. 60% common, 35% rare, 4% epic, 1% legendary"
             },
             { 
-                name: "Epic Case", 
+                name: "Gold Case", 
                 emoji: "💎", 
-                price: 150, 
-                chances: { rare: 50, epic: 40, legendary: 9, ultra: 1 },
-                color: "epic"
+                price: 200, 
+                chances: { common: 30, rare: 50, epic: 15, legendary: 4, ultra: 1 },
+                color: "epic",
+                description: "Chance for epic and legendary emojis. 30% common, 50% rare, 15% epic, 4% legendary, 1% ultra"
+            },
+            { 
+                name: "Platinum Case", 
+                emoji: "🏆", 
+                price: 800, 
+                chances: { rare: 50, epic: 35, legendary: 10, ultra: 4, mythical: 1 },
+                color: "legendary",
+                description: "High chance for epic and legendary. 50% rare, 35% epic, 10% legendary, 4% ultra, 1% mythical"
+            },
+            { 
+                name: "Diamond Case", 
+                emoji: "⚡", 
+                price: 3000, 
+                chances: { epic: 50, legendary: 30, ultra: 15, mythical: 4, unique: 1 },
+                color: "ultra",
+                description: "Premium case with guaranteed profit chance. 50% epic, 30% legendary, 15% ultra, 4% mythical, 1% unique"
+            },
+            { 
+                name: "Mythic Case", 
+                emoji: "🦄", 
+                price: 10000, 
+                chances: { legendary: 50, ultra: 35, mythical: 13, unique: 2 },
+                color: "mythical",
+                description: "For serious collectors. 50% legendary, 35% ultra, 13% mythical, 2% unique"
             },
             { 
                 name: "Legendary Case", 
-                emoji: "🏆", 
-                price: 500, 
-                chances: { epic: 50, legendary: 40, ultra: 9, mythical: 1 },
-                color: "legendary"
-            },
-            { 
-                name: "Ultra Case", 
-                emoji: "⚡", 
-                price: 1500, 
-                chances: { legendary: 50, ultra: 40, mythical: 9, unique: 1 },
-                color: "ultra"
-            },
-            { 
-                name: "Mythical Case", 
-                emoji: "🦄", 
-                price: 5000, 
-                chances: { ultra: 60, mythical: 35, unique: 5 },
-                color: "mythical"
-            },
-            { 
-                name: "Dragon Case", 
                 emoji: "🐉", 
-                price: 10000, 
-                chances: { mythical: 70, unique: 30 },
-                color: "unique"
-            },
-            { 
-                name: "Phoenix Case", 
-                emoji: "🔥", 
                 price: 25000, 
-                chances: { mythical: 30, unique: 70 },
-                color: "unique"
+                chances: { ultra: 60, mythical: 35, unique: 5 },
+                color: "unique",
+                description: "High-end case with great rewards. 60% ultra, 35% mythical, 5% unique"
             },
             { 
-                name: "Godly Case", 
-                emoji: "✨", 
+                name: "Ultimate Case", 
+                emoji: "🔥", 
                 price: 50000, 
-                chances: { unique: 100 },
-                color: "unique"
+                chances: { mythical: 70, unique: 30 },
+                color: "unique",
+                description: "The best chance for unique emojis. 70% mythical, 30% unique"
             }
         ];
         
+        // Themes configuration
+        const themes = {
+            red: {
+                '--bg-gradient': 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
+                '--header-bg': 'rgba(0,0,0,0.5)',
+                '--title-gradient': 'linear-gradient(90deg, #ff512f, #dd2476, #ff512f)',
+                '--accent-color': '#ff3300',
+                '--accent-shadow': 'rgba(255,51,0,0.3)',
+                '--money-bg': 'rgba(0,0,0,0.7)',
+                '--coin-color': 'gold',
+                '--coin-shadow': 'rgba(255,215,0,0.3)',
+                '--clicker-bg': 'rgba(255,215,0,0.3)',
+                '--container-bg': 'rgba(10,10,10,0.7)',
+                '--container-shadow': 'rgba(255,51,0,0.2)',
+                '--button-bg': 'linear-gradient(45deg, #ff416c, #ff4b2b)',
+                '--button-shadow': 'rgba(255,0,0,0.3)',
+                '--button-border': 'rgba(255,255,255,0.2)',
+                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
+                '--freecoins-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
+                '--freecoins-shadow': 'rgba(241,39,17,0.4)',
+                '--inventory-bg': 'rgba(20,20,20,0.5)',
+                '--inventory-border': 'rgba(255,51,0,0.3)',
+                '--text-color': 'rgba(255,255,255,0.9)',
+                '--text-shadow': 'rgba(255,255,255,0.3)',
+                '--text-secondary': 'rgba(255,255,255,0.7)',
+                '--item-bg': 'rgba(30,30,30,0.7)',
+                '--item-border': 'rgba(255,255,255,0.1)',
+                '--item-shadow': 'rgba(0,0,0,0.5)',
+                '--value-bg': 'rgba(0,0,0,0.8)',
+                '--sell-bg': 'rgba(255,0,0,0.8)',
+                '--sell-border': 'rgba(255,255,255,0.3)',
+                '--modal-bg': 'rgba(0,0,0,0.9)',
+                '--modal-content-bg': 'linear-gradient(135deg, #222 0%, #111 100%)',
+                '--modal-shadow': 'rgba(255,51,0,0.3)',
+                '--modal-header-border': 'rgba(255,51,0,0.5)',
+                '--modal-title-color': '#fff',
+                '--modal-title-shadow': 'rgba(255,51,0,0.7)',
+                '--modal-close-color': 'white',
+                '--case-item-bg': 'rgba(40,40,40,0.8)',
+                '--case-item-border': 'rgba(255,51,0,0.3)',
+                '--case-item-shadow': 'rgba(0,0,0,0.5)',
+                '--case-name-color': '#fff',
+                '--case-chances-color': 'rgba(255,255,255,0.8)',
+                '--confetti-color': '#ff0000',
+                '--rarity-tag-bg': 'rgba(0,0,0,0.6)',
+                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
+                '--sell-confirmation-bg': 'rgba(20,20,20,0.95)',
+                '--sell-confirmation-border': '#ff3300',
+                '--sell-confirmation-shadow': 'rgba(255,51,0,0.3)',
+                '--sell-confirmation-text': '#fff',
+                '--sell-confirm-bg': 'linear-gradient(45deg, #FF416C, #FF4B2B)',
+                '--sell-confirm-shadow': 'rgba(255,75,43,0.5)',
+                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
+                '--sell-all-bg': 'linear-gradient(45deg, #FF9500, #FF5E00)',
+                '--sell-all-shadow': 'rgba(255,149,0,0.5)',
+                '--timer-color': 'rgba(255,255,255,0.7)',
+                '--quests-bg': 'rgba(30,30,30,0.7)',
+                '--quests-border': 'rgba(255,51,0,0.3)',
+                '--quest-title-color': '#fff',
+                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
+                '--quest-progress-bar': 'linear-gradient(90deg, #ff512f, #dd2476)',
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+            },
+            blue: {
+                '--bg-gradient': 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
+                '--header-bg': 'rgba(15,32,39,0.7)',
+                '--title-gradient': 'linear-gradient(90deg, #00d2ff, #3a7bd5, #00d2ff)',
+                '--accent-color': '#00d2ff',
+                '--accent-shadow': 'rgba(0,210,255,0.3)',
+                '--money-bg': 'rgba(15,32,39,0.8)',
+                '--coin-color': 'gold',
+                '--coin-shadow': 'rgba(255,215,0,0.3)',
+                '--clicker-bg': 'rgba(0,210,255,0.3)',
+                '--container-bg': 'rgba(32,58,67,0.7)',
+                '--container-shadow': 'rgba(0,210,255,0.2)',
+                '--button-bg': 'linear-gradient(45deg, #4b6cb7, #182848)',
+                '--button-shadow': 'rgba(75,108,183,0.3)',
+                '--button-border': 'rgba(255,255,255,0.2)',
+                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
+                '--freecoins-bg': 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
+                '--freecoins-shadow': 'rgba(58,123,213,0.4)',
+                '--inventory-bg': 'rgba(32,58,67,0.6)',
+                '--inventory-border': 'rgba(0,210,255,0.3)',
+                '--text-color': 'rgba(255,255,255,0.9)',
+                '--text-shadow': 'rgba(255,255,255,0.3)',
+                '--text-secondary': 'rgba(255,255,255,0.7)',
+                '--item-bg': 'rgba(44,83,100,0.7)',
+                '--item-border': 'rgba(255,255,255,0.1)',
+                '--item-shadow': 'rgba(0,0,0,0.5)',
+                '--value-bg': 'rgba(15,32,39,0.8)',
+                '--sell-bg': 'rgba(255,0,0,0.8)',
+                '--sell-border': 'rgba(255,255,255,0.3)',
+                '--modal-bg': 'rgba(15,32,39,0.9)',
+                '--modal-content-bg': 'linear-gradient(135deg, #203a43, #2c5364)',
+                '--modal-shadow': 'rgba(0,210,255,0.3)',
+                '--modal-header-border': 'rgba(0,210,255,0.5)',
+                '--modal-title-color': '#fff',
+                '--modal-title-shadow': 'rgba(0,210,255,0.7)',
+                '--modal-close-color': 'white',
+                '--case-item-bg': 'rgba(32,58,67,0.8)',
+                '--case-item-border': 'rgba(0,210,255,0.3)',
+                '--case-item-shadow': 'rgba(0,0,0,0.5)',
+                '--case-name-color': '#fff',
+                '--case-chances-color': 'rgba(255,255,255,0.8)',
+                '--confetti-color': '#00d2ff',
+                '--rarity-tag-bg': 'rgba(15,32,39,0.6)',
+                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
+                '--sell-confirmation-bg': 'rgba(32,58,67,0.95)',
+                '--sell-confirmation-border': '#00d2ff',
+                '--sell-confirmation-shadow': 'rgba(0,210,255,0.3)',
+                '--sell-confirmation-text': '#fff',
+                '--sell-confirm-bg': 'linear-gradient(45deg, #4b6cb7, #182848)',
+                '--sell-confirm-shadow': 'rgba(75,108,183,0.5)',
+                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
+                '--sell-all-bg': 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
+                '--sell-all-shadow': 'rgba(0,210,255,0.5)',
+                '--timer-color': 'rgba(255,255,255,0.7)',
+                '--quests-bg': 'rgba(44,83,100,0.7)',
+                '--quests-border': 'rgba(0,210,255,0.3)',
+                '--quest-title-color': '#fff',
+                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
+                '--quest-progress-bar': 'linear-gradient(90deg, #00d2ff, #3a7bd5)',
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+            },
+            green: {
+                '--bg-gradient': 'linear-gradient(135deg, #0f0f0f, #1a2a1a, #0f3d0f)',
+                '--header-bg': 'rgba(15,47,15,0.7)',
+                '--title-gradient': 'linear-gradient(90deg, #11998e, #38ef7d, #11998e)',
+                '--accent-color': '#38ef7d',
+                '--accent-shadow': 'rgba(56,239,125,0.3)',
+                '--money-bg': 'rgba(15,47,15,0.8)',
+                '--coin-color': 'gold',
+                '--coin-shadow': 'rgba(255,215,0,0.3)',
+                '--clicker-bg': 'rgba(56,239,125,0.3)',
+                '--container-bg': 'rgba(26,42,26,0.7)',
+                '--container-shadow': 'rgba(56,239,125,0.2)',
+                '--button-bg': 'linear-gradient(45deg, #11998e, #38ef7d)',
+                '--button-shadow': 'rgba(17,153,142,0.3)',
+                '--button-border': 'rgba(255,255,255,0.2)',
+                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
+                '--freecoins-bg': 'linear-gradient(45deg, #38ef7d, #11998e)',
+                '--freecoins-shadow': 'rgba(17,153,142,0.4)',
+                '--inventory-bg': 'rgba(26,42,26,0.6)',
+                '--inventory-border': 'rgba(56,239,125,0.3)',
+                '--text-color': 'rgba(255,255,255,0.9)',
+                '--text-shadow': 'rgba(255,255,255,0.3)',
+                '--text-secondary': 'rgba(255,255,255,0.7)',
+                '--item-bg': 'rgba(15,61,15,0.7)',
+                '--item-border': 'rgba(255,255,255,0.1)',
+                '--item-shadow': 'rgba(0,0,0,0.5)',
+                '--value-bg': 'rgba(15,47,15,0.8)',
+                '--sell-bg': 'rgba(255,0,0,0.8)',
+                '--sell-border': 'rgba(255,255,255,0.3)',
+                '--modal-bg': 'rgba(15,47,15,0.9)',
+                '--modal-content-bg': 'linear-gradient(135deg, #1a2a1a, #0f3d0f)',
+                '--modal-shadow': 'rgba(56,239,125,0.3)',
+                '--modal-header-border': 'rgba(56,239,125,0.5)',
+                '--modal-title-color': '#fff',
+                '--modal-title-shadow': 'rgba(56,239,125,0.7)',
+                '--modal-close-color': 'white',
+                '--case-item-bg': 'rgba(26,42,26,0.8)',
+                '--case-item-border': 'rgba(56,239,125,0.3)',
+                '--case-item-shadow': 'rgba(0,0,0,0.5)',
+                '--case-name-color': '#fff',
+                '--case-chances-color': 'rgba(255,255,255,0.8)',
+                '--confetti-color': '#38ef7d',
+                '--rarity-tag-bg': 'rgba(15,47,15,0.6)',
+                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
+                '--sell-confirmation-bg': 'rgba(26,42,26,0.95)',
+                '--sell-confirmation-border': '#38ef7d',
+                '--sell-confirmation-shadow': 'rgba(56,239,125,0.3)',
+                '--sell-confirmation-text': '#fff',
+                '--sell-confirm-bg': 'linear-gradient(45deg, #11998e, #38ef7d)',
+                '--sell-confirm-shadow': 'rgba(17,153,142,0.5)',
+                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
+                '--sell-all-bg': 'linear-gradient(45deg, #38ef7d, #11998e)',
+                '--sell-all-shadow': 'rgba(56,239,125,0.5)',
+                '--timer-color': 'rgba(255,255,255,0.7)',
+                '--quests-bg': 'rgba(15,61,15,0.7)',
+                '--quests-border': 'rgba(56,239,125,0.3)',
+                '--quest-title-color': '#fff',
+                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
+                '--quest-progress-bar': 'linear-gradient(90deg, #11998e, #38ef7d)',
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+            },
+            purple: {
+                '--bg-gradient': 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
+                '--header-bg': 'rgba(22,33,62,0.7)',
+                '--title-gradient': 'linear-gradient(90deg, #8e2de2, #4a00e0, #8e2de2)',
+                '--accent-color': '#8e2de2',
+                '--accent-shadow': 'rgba(142,45,226,0.3)',
+                '--money-bg': 'rgba(22,33,62,0.8)',
+                '--coin-color': 'gold',
+                '--coin-shadow': 'rgba(255,215,0,0.3)',
+                '--clicker-bg': 'rgba(142,45,226,0.3)',
+                '--container-bg': 'rgba(26,26,46,0.7)',
+                '--container-shadow': 'rgba(142,45,226,0.2)',
+                '--button-bg': 'linear-gradient(45deg, #8e2de2, #4a00e0)',
+                '--button-shadow': 'rgba(142,45,226,0.3)',
+                '--button-border': 'rgba(255,255,255,0.2)',
+                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
+                '--freecoins-bg': 'linear-gradient(45deg, #4a00e0, #8e2de2)',
+                '--freecoins-shadow': 'rgba(74,0,224,0.4)',
+                '--inventory-bg': 'rgba(26,26,46,0.6)',
+                '--inventory-border': 'rgba(142,45,226,0.3)',
+                '--text-color': 'rgba(255,255,255,0.9)',
+                '--text-shadow': 'rgba(255,255,255,0.3)',
+                '--text-secondary': 'rgba(255,255,255,0.7)',
+                '--item-bg': 'rgba(15,52,96,0.7)',
+                '--item-border': 'rgba(255,255,255,0.1)',
+                '--item-shadow': 'rgba(0,0,0,0.5)',
+                '--value-bg': 'rgba(22,33,62,0.8)',
+                '--sell-bg': 'rgba(255,0,0,0.8)',
+                '--sell-border': 'rgba(255,255,255,0.3)',
+                '--modal-bg': 'rgba(22,33,62,0.9)',
+                '--modal-content-bg': 'linear-gradient(135deg, #16213e, #0f3460)',
+                '--modal-shadow': 'rgba(142,45,226,0.3)',
+                '--modal-header-border': 'rgba(142,45,226,0.5)',
+                '--modal-title-color': '#fff',
+                '--modal-title-shadow': 'rgba(142,45,226,0.7)',
+                '--modal-close-color': 'white',
+                '--case-item-bg': 'rgba(26,26,46,0.8)',
+                '--case-item-border': 'rgba(142,45,226,0.3)',
+                '--case-item-shadow': 'rgba(0,0,0,0.5)',
+                '--case-name-color': '#fff',
+                '--case-chances-color': 'rgba(255,255,255,0.8)',
+                '--confetti-color': '#8e2de2',
+                '--rarity-tag-bg': 'rgba(22,33,62,0.6)',
+                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
+                '--sell-confirmation-bg': 'rgba(26,26,46,0.95)',
+                '--sell-confirmation-border': '#8e2de2',
+                '--sell-confirmation-shadow': 'rgba(142,45,226,0.3)',
+                '--sell-confirmation-text': '#fff',
+                '--sell-confirm-bg': 'linear-gradient(45deg, #8e2de2, #4a00e0)',
+                '--sell-confirm-shadow': 'rgba(142,45,226,0.5)',
+                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
+                '--sell-all-bg': 'linear-gradient(45deg, #4a00e0, #8e2de2)',
+                '--sell-all-shadow': 'rgba(74,0,224,0.5)',
+                '--timer-color': 'rgba(255,255,255,0.7)',
+                '--quests-bg': 'rgba(15,52,96,0.7)',
+                '--quests-border': 'rgba(142,45,226,0.3)',
+                '--quest-title-color': '#fff',
+                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
+                '--quest-progress-bar': 'linear-gradient(90deg, #8e2de2, #4a00e0)',
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+            },
+            orange: {
+                '--bg-gradient': 'linear-gradient(135deg, #1a1a1a, #2a1a1a, #3d0f0f)',
+                '--header-bg': 'rgba(58,32,32,0.7)',
+                '--title-gradient': 'linear-gradient(90deg, #f12711, #f5af19, #f12711)',
+                '--accent-color': '#f5af19',
+                '--accent-shadow': 'rgba(245,175,25,0.3)',
+                '--money-bg': 'rgba(58,32,32,0.8)',
+                '--coin-color': 'gold',
+                '--coin-shadow': 'rgba(255,215,0,0.3)',
+                '--clicker-bg': 'rgba(245,175,25,0.3)',
+                '--container-bg': 'rgba(42,26,26,0.7)',
+                '--container-shadow': 'rgba(245,175,25,0.2)',
+                '--button-bg': 'linear-gradient(45deg, #f12711, #f5af19)',
+                '--button-shadow': 'rgba(241,39,17,0.3)',
+                '--button-border': 'rgba(255,255,255,0.2)',
+                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
+                '--freecoins-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
+                '--freecoins-shadow': 'rgba(241,39,17,0.4)',
+                '--inventory-bg': 'rgba(42,26,26,0.6)',
+                '--inventory-border': 'rgba(245,175,25,0.3)',
+                '--text-color': 'rgba(255,255,255,0.9)',
+                '--text-shadow': 'rgba(255,255,255,0.3)',
+                '--text-secondary': 'rgba(255,255,255,0.7)',
+                '--item-bg': 'rgba(61,15,15,0.7)',
+                '--item-border': 'rgba(255,255,255,0.1)',
+                '--item-shadow': 'rgba(0,0,0,0.5)',
+                '--value-bg': 'rgba(58,32,32,0.8)',
+                '--sell-bg': 'rgba(255,0,0,0.8)',
+                '--sell-border': 'rgba(255,255,255,0.3)',
+                '--modal-bg': 'rgba(58,32,32,0.9)',
+                '--modal-content-bg': 'linear-gradient(135deg, #2a1a1a, #3d0f0f)',
+                '--modal-shadow': 'rgba(245,175,25,0.3)',
+                '--modal-header-border': 'rgba(245,175,25,0.5)',
+                '--modal-title-color': '#fff',
+                '--modal-title-shadow': 'rgba(245,175,25,0.7)',
+                '--modal-close-color': 'white',
+                '--case-item-bg': 'rgba(42,26,26,0.8)',
+                '--case-item-border': 'rgba(245,175,25,0.3)',
+                '--case-item-shadow': 'rgba(0,0,0,0.5)',
+                '--case-name-color': '#fff',
+                '--case-chances-color': 'rgba(255,255,255,0.8)',
+                '--confetti-color': '#f5af19',
+                '--rarity-tag-bg': 'rgba(58,32,32,0.6)',
+                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
+                '--sell-confirmation-bg': 'rgba(42,26,26,0.95)',
+                '--sell-confirmation-border': '#f5af19',
+                '--sell-confirmation-shadow': 'rgba(245,175,25,0.3)',
+                '--sell-confirmation-text': '#fff',
+                '--sell-confirm-bg': 'linear-gradient(45deg, #f12711, #f5af19)',
+                '--sell-confirm-shadow': 'rgba(241,39,17,0.5)',
+                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
+                '--sell-all-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
+                '--sell-all-shadow': 'rgba(245,175,25,0.5)',
+                '--timer-color': 'rgba(255,255,255,0.7)',
+                '--quests-bg': 'rgba(61,15,15,0.7)',
+                '--quests-border': 'rgba(245,175,25,0.3)',
+                '--quest-title-color': '#fff',
+                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
+                '--quest-progress-bar': 'linear-gradient(90deg, #f12711, #f5af19)',
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+            }
+        };
+
         // Player data
         const player = {
             money: 100,
@@ -637,16 +1092,20 @@
             unopenedCases: [],
             lastFreeCoins: 0,
             totalMoneyEarned: 0,
-            totalCasesOpened: 0
+            totalCasesOpened: 0,
+            currentTheme: 'red',
+            collectedEmojis: []
         };
         
         // Initialize the game
         function initGame() {
             loadGame();
+            applyTheme(player.currentTheme);
             updateUI();
             updateInventory();
             initCasesModal();
             updateQuests();
+            initEmojiLibrary();
             
             // Set up free coins button
             updateFreeCoinsButton();
@@ -663,6 +1122,15 @@
                 document.getElementById('questsModal').style.display = 'none';
             };
             
+            // Set up emoji library modal
+            document.getElementById('openEmojiLibrary').onclick = () => {
+                updateEmojiLibrary();
+                document.getElementById('emojiLibraryModal').style.display = 'flex';
+            };
+            document.getElementById('closeEmojiLibraryModal').onclick = () => {
+                document.getElementById('emojiLibraryModal').style.display = 'none';
+            };
+            
             // Auto-save every 30 seconds
             setInterval(saveGame, 30000);
             window.addEventListener('beforeunload', saveGame);
@@ -671,6 +1139,55 @@
             document.getElementById('sellConfirmBtn').onclick = confirmSell;
             document.getElementById('sellCancelBtn').onclick = cancelSell;
             document.getElementById('sellAllBtn').onclick = sellAllEmojis;
+        }
+        
+        // Initialize emoji library
+        function initEmojiLibrary() {
+            const library = document.getElementById('emojiLibrary');
+            library.innerHTML = '';
+            
+            // Add all emojis to library
+            for (const [rarity, emojiList] of Object.entries(emojis)) {
+                emojiList.forEach(emoji => {
+                    const item = document.createElement('div');
+                    item.className = 'emoji-library-item';
+                    item.innerHTML = `
+                        ${emoji}
+                        <div class="emoji-library-value">${emojiValues[rarity]}🪙</div>
+                    `;
+                    library.appendChild(item);
+                });
+            }
+        }
+        
+        // Update emoji library display
+        function updateEmojiLibrary() {
+            const items = document.querySelectorAll('.emoji-library-item');
+            
+            items.forEach(item => {
+                const emoji = item.textContent.trim().charAt(0);
+                
+                if (player.collectedEmojis.includes(emoji)) {
+                    item.classList.remove('uncollected');
+                } else {
+                    item.classList.add('uncollected');
+                }
+            });
+        }
+        
+        // Change theme function
+        function changeTheme(theme) {
+            player.currentTheme = theme;
+            applyTheme(theme);
+            saveGame();
+        }
+        
+        // Apply theme
+        function applyTheme(theme) {
+            const themeColors = themes[theme];
+            for (const [key, value] of Object.entries(themeColors)) {
+                document.documentElement.style.setProperty(key, value);
+            }
         }
         
         // Load game from localStorage
@@ -684,6 +1201,8 @@
                 player.lastFreeCoins = parsed.lastFreeCoins || 0;
                 player.totalMoneyEarned = parsed.totalMoneyEarned || 0;
                 player.totalCasesOpened = parsed.totalCasesOpened || 0;
+                player.currentTheme = parsed.currentTheme || 'red';
+                player.collectedEmojis = parsed.collectedEmojis || [];
             }
         }
         
@@ -695,7 +1214,9 @@
                 unopenedCases: player.unopenedCases,
                 lastFreeCoins: player.lastFreeCoins,
                 totalMoneyEarned: player.totalMoneyEarned,
-                totalCasesOpened: player.totalCasesOpened
+                totalCasesOpened: player.totalCasesOpened,
+                currentTheme: player.currentTheme,
+                collectedEmojis: player.collectedEmojis
             };
             localStorage.setItem('emojiCollectorSave', JSON.stringify(gameData));
         }
@@ -754,10 +1275,7 @@
                     <div class="case-emoji">${caseItem.emoji}</div>
                     <div class="case-name">${caseItem.name}</div>
                     <div class="case-price">${caseItem.price}🪙</div>
-                    <div class="case-chances">
-                        ${Object.entries(caseItem.chances).map(([rarity, chance]) => 
-                            `${chance}% ${rarity}`).join(', ')}
-                    </div>
+                    <div class="case-chances">${caseItem.description}</div>
                 `;
                 caseDiv.onclick = () => buyCase(index);
                 casesGrid.appendChild(caseDiv);
@@ -823,6 +1341,11 @@
             // Add to inventory
             player.inventory.push(item);
             
+            // Add to collected emojis if not already there
+            if (!player.collectedEmojis.includes(emoji)) {
+                player.collectedEmojis.push(emoji);
+            }
+            
             // Remove case
             player.unopenedCases.splice(caseIndex, 1);
             
@@ -840,6 +1363,46 @@
             
             updateUI();
             updateInventory();
+            
+            // Check if item is profitable
+            if (item.value >= caseItem.price * 0.3) {
+                // 30% of case price is considered profitable
+                showProfitMessage(item.value, caseItem.price);
+            }
+        }
+        
+        // Show profit message
+        function showProfitMessage(itemValue, casePrice) {
+            const profit = itemValue - casePrice;
+            const profitPercentage = Math.round((profit / casePrice) * 100);
+            
+            const message = document.createElement('div');
+            message.style.position = 'fixed';
+            message.style.top = '50%';
+            message.style.left = '50%';
+            message.style.transform = 'translate(-50%, -50%)';
+            message.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            message.style.color = 'white';
+            message.style.padding = '15px';
+            message.style.borderRadius = '10px';
+            message.style.border = '2px solid gold';
+            message.style.zIndex = '1003';
+            message.style.textAlign = 'center';
+            message.style.fontWeight = 'bold';
+            message.style.fontSize = '1.2rem';
+            message.innerHTML = `
+                <div>Profit: ${profit > 0 ? '+' : ''}${profit}🪙 (${profitPercentage}%)</div>
+                <div style="font-size: 2rem; margin: 10px 0">${profit > 0 ? '💰' : '💸'}</div>
+                <div>Item value: ${itemValue}🪙</div>
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.transition = 'opacity 0.5s';
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            }, 1500);
         }
         
         // Free coins system
@@ -880,13 +1443,25 @@
         
         // Click for coins
         function clickForCoins() {
-            addCoins(0.2);
+            addCoins(0.5); // Changed from 0.2 to 0.5 per click
             
             // Create flying coin animation
             const button = document.getElementById('clickForCoins');
             const rect = button.getBoundingClientRect();
             const startX = rect.left + rect.width / 2;
             const startY = rect.top + rect.height / 2;
+            
+            // Create click coin animation
+            const clickCoin = document.createElement('div');
+            clickCoin.className = 'click-coin';
+            clickCoin.textContent = '+0.5';
+            clickCoin.style.left = `${startX}px`;
+            clickCoin.style.top = `${startY}px`;
+            document.body.appendChild(clickCoin);
+            
+            setTimeout(() => {
+                clickCoin.remove();
+            }, 1000);
             
             // Create 3 coins
             for (let i = 0; i < 3; i++) {
@@ -922,15 +1497,15 @@
         
         // Update quests display
         function updateQuests() {
-            // Money quest (1,000,000,000)
-            const moneyPercent = Math.min(100, (player.totalMoneyEarned / 1000000000) * 100);
+            // Money quest (1,000,000)
+            const moneyPercent = Math.min(100, (player.totalMoneyEarned / 1000000) * 100);
             document.getElementById('moneyQuestBar').style.width = `${moneyPercent}%`;
-            document.getElementById('moneyQuestPercent').textContent = `${moneyPercent.toFixed(6)}%`;
+            document.getElementById('moneyQuestPercent').textContent = `${moneyPercent.toFixed(2)}%`;
             
-            // Cases quest (1,000,000)
-            const casesPercent = Math.min(100, (player.totalCasesOpened / 1000000) * 100);
+            // Cases quest (1,000)
+            const casesPercent = Math.min(100, (player.totalCasesOpened / 1000) * 100);
             document.getElementById('casesQuestBar').style.width = `${casesPercent}%`;
-            document.getElementById('casesQuestPercent').textContent = `${casesPercent.toFixed(4)}%`;
+            document.getElementById('casesQuestPercent').textContent = `${casesPercent.toFixed(1)}%`;
         }
         
         // Sell system
