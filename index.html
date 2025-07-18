@@ -82,9 +82,32 @@
             transition: transform 0.2s;
             box-shadow: 0 0 15px var(--coin-shadow);
             font-size: 1.2rem;
+            position: relative;
         }
         .click-for-coins:active {
             transform: scale(0.9);
+        }
+        .combo-display {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            background: var(--combo-bg);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: scale(0.5);
+        }
+        .combo-active {
+            opacity: 1;
+            transform: scale(1);
         }
         .main-container {
             display: flex;
@@ -233,6 +256,10 @@
         .item-ultra { border-color: #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.8); }
         .item-mythical { border-color: #1abc9c; box-shadow: 0 0 35px rgba(26,188,156,0.9); }
         .item-unique { border-color: #FFD700; box-shadow: 0 0 40px rgba(255,215,0,1); animation: pulse-gold 2s infinite; }
+        .item-divine { border-color: #FF69B4; box-shadow: 0 0 45px rgba(255,105,180,1); animation: pulse-pink 2s infinite; }
+        .item-immortal { border-color: #00FFFF; box-shadow: 0 0 50px rgba(0,255,255,1); animation: pulse-cyan 2s infinite; }
+        .item-cosmic { border-color: #9400D3; box-shadow: 0 0 55px rgba(148,0,211,1); animation: pulse-violet 2s infinite; }
+        .item-godlike { border-color: #FF4500; box-shadow: 0 0 60px rgba(255,69,0,1); animation: pulse-orangered 2s infinite; }
         .modal {
             position: fixed;
             top: 0;
@@ -379,6 +406,10 @@
         .ultra { border-left: 3px solid #e74c3c; }
         .mythical { border-left: 3px solid #1abc9c; }
         .unique { border-left: 3px solid #FFD700; }
+        .divine { border-left: 3px solid #FF69B4; }
+        .immortal { border-left: 3px solid #00FFFF; }
+        .cosmic { border-left: 3px solid #9400D3; }
+        .godlike { border-left: 3px solid #FF4500; }
         .sell-confirmation {
             position: fixed;
             top: 50%;
@@ -485,6 +516,26 @@
             50% { box-shadow: 0 0 40px rgba(255,215,0,1); }
             100% { box-shadow: 0 0 20px rgba(255,215,0,0.7); }
         }
+        @keyframes pulse-pink {
+            0% { box-shadow: 0 0 20px rgba(255,105,180,0.7); }
+            50% { box-shadow: 0 0 45px rgba(255,105,180,1); }
+            100% { box-shadow: 0 0 20px rgba(255,105,180,0.7); }
+        }
+        @keyframes pulse-cyan {
+            0% { box-shadow: 0 0 20px rgba(0,255,255,0.7); }
+            50% { box-shadow: 0 0 50px rgba(0,255,255,1); }
+            100% { box-shadow: 0 0 20px rgba(0,255,255,0.7); }
+        }
+        @keyframes pulse-violet {
+            0% { box-shadow: 0 0 20px rgba(148,0,211,0.7); }
+            50% { box-shadow: 0 0 55px rgba(148,0,211,1); }
+            100% { box-shadow: 0 0 20px rgba(148,0,211,0.7); }
+        }
+        @keyframes pulse-orangered {
+            0% { box-shadow: 0 0 20px rgba(255,69,0,0.7); }
+            50% { box-shadow: 0 0 60px rgba(255,69,0,1); }
+            100% { box-shadow: 0 0 20px rgba(255,69,0,0.7); }
+        }
         .pulse {
             animation: pulse 1s infinite;
         }
@@ -588,7 +639,9 @@
         <h1>Ultimate Emoji Collector</h1>
         <div class="money-container">
             <div class="money-display">🪙 <span id="money">100.0</span></div>
-            <div class="click-for-coins" id="clickForCoins">👆</div>
+            <div class="click-for-coins" id="clickForCoins">👆
+                <div class="combo-display" id="comboDisplay"></div>
+            </div>
         </div>
     </div>
 
@@ -643,6 +696,13 @@
                     </div>
                     <div class="quest-percentage" id="casesQuestPercent">0%</div>
                 </div>
+                <div class="quest-item">
+                    <div class="quest-title">Reach 50x combo</div>
+                    <div class="quest-progress">
+                        <div class="quest-progress-bar" id="comboQuestBar"></div>
+                    </div>
+                    <div class="quest-percentage" id="comboQuestPercent">0%</div>
+                </div>
             </div>
         </div>
     </div>
@@ -675,6 +735,11 @@
         <div class="rarity-tag legendary">Legendary</div>
         <div class="rarity-tag ultra">Ultra</div>
         <div class="rarity-tag mythical">Mythical</div>
+        <div class="rarity-tag unique">Unique</div>
+        <div class="rarity-tag divine">Divine</div>
+        <div class="rarity-tag immortal">Immortal</div>
+        <div class="rarity-tag cosmic">Cosmic</div>
+        <div class="rarity-tag godlike">Godlike</div>
     </div>
 
     <div class="theme-selector">
@@ -694,18 +759,26 @@
             legendary: ['👑', '🎩', '🧢', '👒', '💍', '💎', '🏆', '🎖', '🥇', '🪙', '⚔️', '🛡️', '🗡️', '🏹', '🔫'],
             ultra: ['⚡', '💫', '⭐', '🌟', '✨', '🔥', '💥', '☄️', '🌪', '🌈', '🌋', '🌠', '🌀', '❄️', '🌊'],
             mythical: ['🦄', '🐉', '🐲', '🦂', '🦅', '🦇', '🦉', '🦚', '🦩', '🦋', '🐍', '🦖', '🦕', '🐊', '🦈'],
-            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️', '🕎', '☦️', '☪️', '🛐', '⛎']
+            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️', '🕎', '☦️', '☪️', '🛐', '⛎'],
+            divine: ['🪽', '👼', '🧚', '🧞', '🧝', '🧙', '🫅', '👸', '🤴', '🦹', '🦸', '🧛', '🧟', '🧌', '🧚‍♂️'],
+            immortal: ['♾️', '🕉️', '☸️', '✝️', '☮️', '🕎', '☪️', '☯️', '✡️', '🔯', '🛐', '⛩️', '🛕', '🕍', '🕌'],
+            cosmic: ['🌌', '🌠', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '🌙', '🌚', '🌛', '🌜', '🌝'],
+            godlike: ['🛐', '⚛️', '🕉️', '☸️', '✝️', '☦️', '☪️', '☯️', '🕎', '🔯', '♈', '♉', '♊', '♋', '♌']
         };
         
         // Emoji values (balanced to make cases profitable ~30% of the time)
         const emojiValues = {
-            common: 6,       // было 1
-            rare: 30,        // было 5
-            epic: 400,        // было 20
-            legendary: 2000,  // было 100
-            ultra: 9000,     // было 500
-            mythical: 25000,  // было 2000
-            unique: 80000    // было 10000
+            common: 3,       // было 1
+            rare: 15,        // было 5
+            epic: 60,        // было 20
+            legendary: 300,  // было 100
+            ultra: 1500,     // было 500
+            mythical: 6000,  // было 2000
+            unique: 30000,   // было 10000
+            divine: 150000,
+            immortal: 750000,
+            cosmic: 3000000,
+            godlike: 15000000
         };
         
         // Cases with realistic chances and descriptions
@@ -773,6 +846,47 @@
                 chances: { mythical: 70, unique: 30 },
                 color: "unique",
                 description: "The best chance for unique emojis. 70% mythical, 30% unique"
+            },
+            // Новые кейсы
+            { 
+                name: "Divine Case", 
+                emoji: "👼", 
+                price: 150000, 
+                chances: { unique: 60, divine: 35, immortal: 5 },
+                color: "divine",
+                description: "Divine blessings inside. 60% unique, 35% divine, 5% immortal"
+            },
+            { 
+                name: "Immortal Case", 
+                emoji: "♾️", 
+                price: 500000, 
+                chances: { divine: 60, immortal: 35, cosmic: 5 },
+                color: "immortal",
+                description: "Eternal treasures await. 60% divine, 35% immortal, 5% cosmic"
+            },
+            { 
+                name: "Cosmic Case", 
+                emoji: "🌌", 
+                price: 1500000, 
+                chances: { immortal: 60, cosmic: 35, godlike: 5 },
+                color: "cosmic",
+                description: "From the depths of the universe. 60% immortal, 35% cosmic, 5% godlike"
+            },
+            { 
+                name: "Godlike Case", 
+                emoji: "⚛️", 
+                price: 5000000, 
+                chances: { cosmic: 60, godlike: 40 },
+                color: "godlike",
+                description: "For those who seek ultimate power. 60% cosmic, 40% godlike"
+            },
+            { 
+                name: "Mystery Case", 
+                emoji: "❓", 
+                price: 100000, 
+                chances: { common: 10, rare: 15, epic: 20, legendary: 20, ultra: 15, mythical: 10, unique: 5, divine: 3, immortal: 1, cosmic: 1 },
+                color: "unique",
+                description: "Who knows what's inside? Random chances for all rarities!"
             }
         ];
         
@@ -837,7 +951,8 @@
                 '--quest-title-color': '#fff',
                 '--quest-progress-bg': 'rgba(255,255,255,0.1)',
                 '--quest-progress-bar': 'linear-gradient(90deg, #ff512f, #dd2476)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
+                '--combo-bg': 'linear-gradient(45deg, #ff0000, #ff6600)'
             },
             blue: {
                 '--bg-gradient': 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
@@ -898,7 +1013,8 @@
                 '--quest-title-color': '#fff',
                 '--quest-progress-bg': 'rgba(255,255,255,0.1)',
                 '--quest-progress-bar': 'linear-gradient(90deg, #00d2ff, #3a7bd5)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
+                '--combo-bg': 'linear-gradient(45deg, #0066ff, #00ccff)'
             },
             green: {
                 '--bg-gradient': 'linear-gradient(135deg, #0f0f0f, #1a2a1a, #0f3d0f)',
@@ -959,7 +1075,8 @@
                 '--quest-title-color': '#fff',
                 '--quest-progress-bg': 'rgba(255,255,255,0.1)',
                 '--quest-progress-bar': 'linear-gradient(90deg, #11998e, #38ef7d)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
+                '--combo-bg': 'linear-gradient(45deg, #00cc00, #66ff66)'
             },
             purple: {
                 '--bg-gradient': 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
@@ -1020,7 +1137,8 @@
                 '--quest-title-color': '#fff',
                 '--quest-progress-bg': 'rgba(255,255,255,0.1)',
                 '--quest-progress-bar': 'linear-gradient(90deg, #8e2de2, #4a00e0)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
+                '--combo-bg': 'linear-gradient(45deg, #9933ff, #cc66ff)'
             },
             orange: {
                 '--bg-gradient': 'linear-gradient(135deg, #1a1a1a, #2a1a1a, #3d0f0f)',
@@ -1081,7 +1199,8 @@
                 '--quest-title-color': '#fff',
                 '--quest-progress-bg': 'rgba(255,255,255,0.1)',
                 '--quest-progress-bar': 'linear-gradient(90deg, #f12711, #f5af19)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)'
+                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
+                '--combo-bg': 'linear-gradient(45deg, #ff6600, #ff9933)'
             }
         };
 
@@ -1094,8 +1213,16 @@
             totalMoneyEarned: 0,
             totalCasesOpened: 0,
             currentTheme: 'red',
-            collectedEmojis: []
+            collectedEmojis: [],
+            combo: 0,
+            maxCombo: 0,
+            lastClickTime: 0
         };
+        
+        // Combo settings
+        const COMBO_TIME_WINDOW = 500; // 0.5 seconds between clicks to maintain combo
+        const COMBO_MULTIPLIER = 0.05; // 5% bonus per combo
+        const MAX_COMBO = 50; // Maximum combo multiplier (2.5x)
         
         // Initialize the game
         function initGame() {
@@ -1139,6 +1266,9 @@
             document.getElementById('sellConfirmBtn').onclick = confirmSell;
             document.getElementById('sellCancelBtn').onclick = cancelSell;
             document.getElementById('sellAllBtn').onclick = sellAllEmojis;
+            
+            // Update combo display every second
+            setInterval(updateComboDisplay, 1000);
         }
         
         // Initialize emoji library
@@ -1203,6 +1333,8 @@
                 player.totalCasesOpened = parsed.totalCasesOpened || 0;
                 player.currentTheme = parsed.currentTheme || 'red';
                 player.collectedEmojis = parsed.collectedEmojis || [];
+                player.combo = 0;
+                player.maxCombo = parsed.maxCombo || 0;
             }
         }
         
@@ -1216,7 +1348,8 @@
                 totalMoneyEarned: player.totalMoneyEarned,
                 totalCasesOpened: player.totalCasesOpened,
                 currentTheme: player.currentTheme,
-                collectedEmojis: player.collectedEmojis
+                collectedEmojis: player.collectedEmojis,
+                maxCombo: player.maxCombo
             };
             localStorage.setItem('emojiCollectorSave', JSON.stringify(gameData));
         }
@@ -1225,6 +1358,24 @@
         function updateUI() {
             document.getElementById('money').textContent = player.money.toFixed(1);
             document.getElementById('itemCount').textContent = player.inventory.length + player.unopenedCases.length;
+        }
+        
+        // Update combo display
+        function updateComboDisplay() {
+            const comboDisplay = document.getElementById('comboDisplay');
+            const now = Date.now();
+            
+            // Reset combo if too much time has passed
+            if (now - player.lastClickTime > COMBO_TIME_WINDOW * 2) {
+                player.combo = 0;
+            }
+            
+            if (player.combo > 0) {
+                comboDisplay.textContent = player.combo + 'x';
+                comboDisplay.classList.add('combo-active');
+            } else {
+                comboDisplay.classList.remove('combo-active');
+            }
         }
         
         // Update inventory display
@@ -1441,9 +1592,30 @@
             }
         }
         
-        // Click for coins
+        // Click for coins with combo system
         function clickForCoins() {
-            addCoins(0.5); // Changed from 0.2 to 0.5 per click
+            const now = Date.now();
+            const timeDiff = now - player.lastClickTime;
+            
+            // Update combo
+            if (timeDiff < COMBO_TIME_WINDOW) {
+                player.combo = Math.min(player.combo + 1, MAX_COMBO);
+                player.maxCombo = Math.max(player.maxCombo, player.combo);
+            } else {
+                player.combo = 1;
+            }
+            
+            player.lastClickTime = now;
+            
+            // Calculate coins with combo bonus
+            const baseCoins = 0.5;
+            const comboBonus = baseCoins * player.combo * COMBO_MULTIPLIER;
+            const totalCoins = baseCoins + comboBonus;
+            
+            addCoins(totalCoins);
+            
+            // Update quests (for max combo)
+            updateQuests();
             
             // Create flying coin animation
             const button = document.getElementById('clickForCoins');
@@ -1454,7 +1626,7 @@
             // Create click coin animation
             const clickCoin = document.createElement('div');
             clickCoin.className = 'click-coin';
-            clickCoin.textContent = '+0.5';
+            clickCoin.textContent = `+${totalCoins.toFixed(1)}`;
             clickCoin.style.left = `${startX}px`;
             clickCoin.style.top = `${startY}px`;
             document.body.appendChild(clickCoin);
@@ -1463,8 +1635,10 @@
                 clickCoin.remove();
             }, 1000);
             
-            // Create 3 coins
-            for (let i = 0; i < 3; i++) {
+            // Create coins based on combo
+            const coinsToCreate = Math.min(3 + Math.floor(player.combo / 5), 10);
+            
+            for (let i = 0; i < coinsToCreate; i++) {
                 const coin = document.createElement('div');
                 coin.className = 'coin';
                 coin.textContent = '🪙';
@@ -1485,6 +1659,9 @@
                     coin.remove();
                 }, 1000);
             }
+            
+            // Update combo display
+            updateComboDisplay();
         }
         
         // Add coins with animation
@@ -1506,6 +1683,11 @@
             const casesPercent = Math.min(100, (player.totalCasesOpened / 1000) * 100);
             document.getElementById('casesQuestBar').style.width = `${casesPercent}%`;
             document.getElementById('casesQuestPercent').textContent = `${casesPercent.toFixed(1)}%`;
+            
+            // Combo quest (50x)
+            const comboPercent = Math.min(100, (player.maxCombo / 50) * 100);
+            document.getElementById('comboQuestBar').style.width = `${comboPercent}%`;
+            document.getElementById('comboQuestPercent').textContent = `${comboPercent.toFixed(1)}%`;
         }
         
         // Sell system
