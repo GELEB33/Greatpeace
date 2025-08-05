@@ -1,1769 +1,346 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ultimate Emoji Collector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чесночный фермер</title>
     <style>
-        * {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: var(--bg-gradient);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-            overflow-x: hidden;
-            touch-action: manipulation;
-            transition: all 0.3s;
-        }
-        .header {
-            text-align: center;
-            padding: 15px 0;
-            width: 100%;
-            background: var(--header-bg);
-            margin-bottom: 15px;
-            position: relative;
-            border-bottom: 1px solid var(--accent-color);
-            box-shadow: 0 0 20px var(--accent-shadow);
-        }
-        h1 {
-            margin: 0;
-            font-size: 2rem;
-            color: #fff;
-            text-shadow: 0 0 15px var(--accent-color);
-            letter-spacing: 2px;
-            background: var(--title-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-        }
-        .money-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .money-display {
-            background: var(--money-bg);
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            display: inline-block;
-            border: 1px solid var(--coin-color);
-            box-shadow: 0 0 20px var(--coin-shadow);
-            position: relative;
-            text-shadow: 0 0 5px var(--coin-color);
-        }
-        .click-for-coins {
-            background: var(--clicker-bg);
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 1px solid var(--coin-color);
-            transition: transform 0.2s;
-            box-shadow: 0 0 15px var(--coin-shadow);
-            font-size: 1.2rem;
-            position: relative;
-        }
-        .click-for-coins:active {
-            transform: scale(0.9);
-        }
-        .combo-display {
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #ui {
             position: absolute;
-            top: -20px;
-            right: -20px;
-            background: var(--combo-bg);
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-            transform: scale(0.5);
-        }
-        .combo-active {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            width: 95%;
-            max-width: 500px;
-            height: calc(100vh - 200px);
-            background: var(--container-bg);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 0 40px var(--container-shadow);
-            border: 1px solid var(--accent-color);
-            overflow: hidden;
-        }
-        .game-area {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
-        .action-button {
-            background: var(--button-bg);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 15px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 20px var(--button-shadow);
-            transition: all 0.2s;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            border: 1px solid var(--button-border);
-        }
-        .action-button:active {
-            transform: scale(0.96);
-        }
-        .action-button:disabled {
-            background: var(--button-disabled);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .free-coins-button {
-            background: var(--freecoins-bg);
-            box-shadow: 0 4px 20px var(--freecoins-shadow);
-        }
-        .inventory-container {
-            background: var(--inventory-bg);
-            border-radius: 12px;
-            padding: 10px;
-            flex-grow: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--inventory-border);
-        }
-        .inventory-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .inventory-title {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--text-color);
-            text-shadow: 0 0 5px var(--text-shadow);
-        }
-        .inventory-stats {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: 10px;
-            overflow-y: auto;
-            flex-grow: 1;
-            padding: 5px;
-        }
-        .item {
-            font-size: 2rem;
-            background: var(--item-bg);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            aspect-ratio: 1/1;
-            position: relative;
-            transition: all 0.3s;
-            border: 2px solid var(--item-border);
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--item-shadow);
-        }
-        .item:active {
-            transform: scale(0.95);
-        }
-        .item-value {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: var(--value-bg);
-            color: var(--coin-color);
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            text-shadow: 0 0 2px black;
-        }
-        .item-sell {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: var(--sell-bg);
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            border: 1px solid var(--sell-border);
-        }
-        .item:hover .item-sell {
-            display: flex;
-        }
-        .item-common { border-color: #bdc3c7; box-shadow: 0 0 10px rgba(189,195,199,0.3); }
-        .item-rare { border-color: #3498db; box-shadow: 0 0 15px rgba(52,152,219,0.5); }
-        .item-epic { border-color: #9b59b6; box-shadow: 0 0 20px rgba(155,89,182,0.6); }
-        .item-legendary { border-color: #f1c40f; box-shadow: 0 0 25px rgba(241,196,15,0.7); }
-        .item-ultra { border-color: #e74c3c; box-shadow: 0 0 30px rgba(231,76,60,0.8); }
-        .item-mythical { border-color: #1abc9c; box-shadow: 0 0 35px rgba(26,188,156,0.9); }
-        .item-unique { border-color: #FFD700; box-shadow: 0 0 40px rgba(255,215,0,1); animation: pulse-gold 2s infinite; }
-        .item-divine { border-color: #FF69B4; box-shadow: 0 0 45px rgba(255,105,180,1); animation: pulse-pink 2s infinite; }
-        .item-immortal { border-color: #00FFFF; box-shadow: 0 0 50px rgba(0,255,255,1); animation: pulse-cyan 2s infinite; }
-        .item-cosmic { border-color: #9400D3; box-shadow: 0 0 55px rgba(148,0,211,1); animation: pulse-violet 2s infinite; }
-        .item-godlike { border-color: #FF4500; box-shadow: 0 0 60px rgba(255,69,0,1); animation: pulse-orangered 2s infinite; }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--modal-bg);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .modal-content {
-            background: var(--modal-content-bg);
-            border-radius: 15px;
-            padding: 20px;
-            width: 90%;
-            max-width: 400px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid var(--accent-color);
-            box-shadow: 0 0 40px var(--modal-shadow);
-            animation: slideUp 0.3s;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--modal-header-border);
-            padding-bottom: 10px;
-        }
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: var(--modal-title-color);
-            text-shadow: 0 0 10px var(--modal-title-shadow);
-        }
-        .close-modal {
-            background: none;
-            border: none;
-            color: var(--modal-close-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .close-modal:active {
-            transform: scale(0.9);
-        }
-        .cases-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .case-item {
-            background: var(--case-item-bg);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid var(--case-item-border);
-            box-shadow: 0 0 15px var(--case-item-shadow);
-        }
-        .case-item:active {
-            transform: scale(0.97);
-        }
-        .case-emoji {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            transition: transform 0.3s;
-        }
-        .case-item:hover .case-emoji {
-            transform: scale(1.1);
-        }
-        .case-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--case-name-color);
-        }
-        .case-price {
-            color: var(--coin-color);
-            font-size: 0.9rem;
-            text-shadow: 0 0 5px var(--coin-shadow);
-        }
-        .case-chances {
-            font-size: 0.7rem;
-            color: var(--case-chances-color);
-            margin-top: 5px;
-        }
-        .confetti {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background-color: var(--confetti-color);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1000;
-        }
-        .coin {
-            position: absolute;
-            font-size: 1rem;
-            pointer-events: none;
-            z-index: 1001;
-            animation: coinFly 1s forwards;
-        }
-        @keyframes coinFly {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
-        .rarity-info {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-size: 0.7rem;
-        }
-        .rarity-tag {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-weight: bold;
-            background: var(--rarity-tag-bg);
-            transition: transform 0.2s;
-            border: 1px solid var(--rarity-tag-border);
-        }
-        .rarity-tag:active {
-            transform: scale(0.95);
-        }
-        .common { border-left: 3px solid #bdc3c7; }
-        .rare { border-left: 3px solid #3498db; }
-        .epic { border-left: 3px solid #9b59b6; }
-        .legendary { border-left: 3px solid #f1c40f; }
-        .ultra { border-left: 3px solid #e74c3c; }
-        .mythical { border-left: 3px solid #1abc9c; }
-        .unique { border-left: 3px solid #FFD700; }
-        .divine { border-left: 3px solid #FF69B4; }
-        .immortal { border-left: 3px solid #00FFFF; }
-        .cosmic { border-left: 3px solid #9400D3; }
-        .godlike { border-left: 3px solid #FF4500; }
-        .sell-confirmation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--sell-confirmation-bg);
-            padding: 25px;
-            border-radius: 15px;
-            z-index: 1002;
-            border: 1px solid var(--sell-confirmation-border);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 85%;
-            max-width: 350px;
-            animation: fadeIn 0.3s;
-            box-shadow: 0 0 30px var(--sell-confirmation-shadow);
-        }
-        .sell-confirmation-text {
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.1rem;
-            color: var(--sell-confirmation-text);
-        }
-        .sell-confirmation-buttons {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-        .sell-confirm-btn, .sell-cancel-btn, .sell-all-btn {
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-            flex: 1;
-            text-align: center;
-        }
-        .sell-confirm-btn:active, .sell-cancel-btn:active, .sell-all-btn:active {
-            transform: scale(0.95);
-        }
-        .sell-confirm-btn {
-            background: var(--sell-confirm-bg);
-            color: white;
-            box-shadow: 0 0 15px var(--sell-confirm-shadow);
-        }
-        .sell-cancel-btn {
-            background: var(--sell-cancel-bg);
-            color: white;
-        }
-        .sell-all-btn {
-            background: var(--sell-all-bg);
-            color: white;
-            margin-top: 10px;
-            width: 100%;
-            box-shadow: 0 0 15px var(--sell-all-shadow);
-        }
-        .timer-display {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            color: var(--timer-color);
-        }
-        .quests-container {
-            background: var(--quests-bg);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px solid var(--quests-border);
-        }
-        .quest-item {
-            margin-bottom: 15px;
-        }
-        .quest-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--quest-title-color);
-        }
-        .quest-progress {
-            height: 10px;
-            background: var(--quest-progress-bg);
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-        .quest-progress-bar {
-            height: 100%;
-            background: var(--quest-progress-bar);
-            border-radius: 5px;
-            transition: width 0.5s;
-        }
-        .quest-percentage {
-            font-size: 0.8rem;
-            text-align: right;
-            color: var(--quest-percentage-color);
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 20px rgba(255,215,0,0.7); }
-            50% { box-shadow: 0 0 40px rgba(255,215,0,1); }
-            100% { box-shadow: 0 0 20px rgba(255,215,0,0.7); }
-        }
-        @keyframes pulse-pink {
-            0% { box-shadow: 0 0 20px rgba(255,105,180,0.7); }
-            50% { box-shadow: 0 0 45px rgba(255,105,180,1); }
-            100% { box-shadow: 0 0 20px rgba(255,105,180,0.7); }
-        }
-        @keyframes pulse-cyan {
-            0% { box-shadow: 0 0 20px rgba(0,255,255,0.7); }
-            50% { box-shadow: 0 0 50px rgba(0,255,255,1); }
-            100% { box-shadow: 0 0 20px rgba(0,255,255,0.7); }
-        }
-        @keyframes pulse-violet {
-            0% { box-shadow: 0 0 20px rgba(148,0,211,0.7); }
-            50% { box-shadow: 0 0 55px rgba(148,0,211,1); }
-            100% { box-shadow: 0 0 20px rgba(148,0,211,0.7); }
-        }
-        @keyframes pulse-orangered {
-            0% { box-shadow: 0 0 20px rgba(255,69,0,0.7); }
-            50% { box-shadow: 0 0 60px rgba(255,69,0,1); }
-            100% { box-shadow: 0 0 20px rgba(255,69,0,0.7); }
-        }
-        .pulse {
-            animation: pulse 1s infinite;
-        }
-        .glow {
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 5px rgba(255,255,255,0.5); }
-            to { box-shadow: 0 0 20px rgba(255,255,255,0.9); }
-        }
-        .theme-selector {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-            z-index: 1000;
-        }
-        .theme-btn {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            border: 2px solid white;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .theme-btn:active {
-            transform: scale(0.9);
-        }
-        .theme-red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
-        .theme-blue { background: linear-gradient(135deg, #4b6cb7, #182848); }
-        .theme-green { background: linear-gradient(135deg, #11998e, #38ef7d); }
-        .theme-purple { background: linear-gradient(135deg, #8e2de2, #4a00e0); }
-        .theme-orange { background: linear-gradient(135deg, #f12711, #f5af19); }
-        .emoji-library-btn {
-            position: absolute;
-            left: 10px;
             top: 10px;
-            background: var(--button-bg);
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--button-shadow);
+            left: 10px;
             color: white;
-            font-size: 1.2rem;
-            transition: transform 0.2s;
-        }
-        .emoji-library-btn:active {
-            transform: scale(0.9);
-        }
-        .emoji-library {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 10px;
+            background: rgba(0,0,0,0.7);
             padding: 10px;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .emoji-library-item {
-            font-size: 1.8rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 5px;
-            border-radius: 8px;
-            background: var(--item-bg);
-            position: relative;
-        }
-        .emoji-library-item.uncollected {
-            filter: brightness(0.3);
-        }
-        .emoji-library-value {
-            font-size: 0.6rem;
-            margin-top: 3px;
-            color: var(--coin-color);
-        }
-        .click-coin {
-            position: absolute;
-            font-size: 0.8rem;
-            color: gold;
-            font-weight: bold;
+            font-family: Arial;
+            border-radius: 5px;
             pointer-events: none;
-            animation: clickCoin 1s forwards;
-            z-index: 1001;
         }
-        @keyframes clickCoin {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(0, -30px) scale(0.5); opacity: 0; }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        button:disabled {
+            background: #777;
+        }
+        button.active {
+            background: #2E7D32;
+        }
+        #inventory {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button class="emoji-library-btn" id="openEmojiLibrary">📖</button>
-        <h1>Ultimate Emoji Collector</h1>
-        <div class="money-container">
-            <div class="money-display">🪙 <span id="money">100.0</span></div>
-            <div class="click-for-coins" id="clickForCoins">👆
-                <div class="combo-display" id="comboDisplay"></div>
-            </div>
-        </div>
+    <div id="ui">
+        <h3>Чесночный фермер</h3>
+        <p>Кликните по полю для перемещения</p>
+    </div>
+    <div id="inventory">
+        <p>Семена: <span id="seeds-count">10</span></p>
+        <p>Чеснок: <span id="garlic-count">0</span></p>
+    </div>
+    <div id="controls">
+        <button id="move-btn" class="active">Перемещение</button>
+        <button id="plant-btn">Посадить</button>
+        <button id="harvest-btn">Собрать</button>
     </div>
 
-    <div class="main-container">
-        <div class="game-area">
-            <div class="action-buttons">
-                <button class="action-button" id="openCasesModal">Buy Cases</button>
-                <button class="action-button free-coins-button" id="freeCoinsButton">Free Coins (30🪙)</button>
-                <button class="action-button" id="openQuestsModal">Quests</button>
-            </div>
-            
-            <div class="inventory-container">
-                <div class="inventory-header">
-                    <div class="inventory-title">📦 Your Collection</div>
-                    <div class="inventory-stats">Items: <span id="itemCount">0</span></div>
-                </div>
-                <div class="items-grid" id="inventory"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="casesModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">🎁 Premium Cases</div>
-                <button class="close-modal" id="closeCasesModal">&times;</button>
-            </div>
-            <div class="cases-grid" id="casesGrid">
-                <!-- Cases will be added here -->
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="questsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">🏆 Quests</div>
-                <button class="close-modal" id="closeQuestsModal">&times;</button>
-            </div>
-            <div class="quests-container">
-                <div class="quest-item">
-                    <div class="quest-title">Earn 1,000,000 coins</div>
-                    <div class="quest-progress">
-                        <div class="quest-progress-bar" id="moneyQuestBar"></div>
-                    </div>
-                    <div class="quest-percentage" id="moneyQuestPercent">0%</div>
-                </div>
-                <div class="quest-item">
-                    <div class="quest-title">Open 1,000 cases</div>
-                    <div class="quest-progress">
-                        <div class="quest-progress-bar" id="casesQuestBar"></div>
-                    </div>
-                    <div class="quest-percentage" id="casesQuestPercent">0%</div>
-                </div>
-                <div class="quest-item">
-                    <div class="quest-title">Reach 50x combo</div>
-                    <div class="quest-progress">
-                        <div class="quest-progress-bar" id="comboQuestBar"></div>
-                    </div>
-                    <div class="quest-percentage" id="comboQuestPercent">0%</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="emojiLibraryModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">📚 Emoji Library</div>
-                <button class="close-modal" id="closeEmojiLibraryModal">&times;</button>
-            </div>
-            <div class="emoji-library" id="emojiLibrary">
-                <!-- Emojis will be added here -->
-            </div>
-        </div>
-    </div>
-
-    <div class="sell-confirmation" id="sellConfirmation">
-        <div class="sell-confirmation-text" id="sellConfirmationText"></div>
-        <div class="sell-confirmation-buttons">
-            <button class="sell-confirm-btn" id="sellConfirmBtn">Sell</button>
-            <button class="sell-cancel-btn" id="sellCancelBtn">Cancel</button>
-        </div>
-        <button class="sell-all-btn" id="sellAllBtn">Sell All Emojis</button>
-    </div>
-
-    <div class="rarity-info">
-        <div class="rarity-tag common">Common</div>
-        <div class="rarity-tag rare">Rare</div>
-        <div class="rarity-tag epic">Epic</div>
-        <div class="rarity-tag legendary">Legendary</div>
-        <div class="rarity-tag ultra">Ultra</div>
-        <div class="rarity-tag mythical">Mythical</div>
-        <div class="rarity-tag unique">Unique</div>
-        <div class="rarity-tag divine">Divine</div>
-        <div class="rarity-tag immortal">Immortal</div>
-        <div class="rarity-tag cosmic">Cosmic</div>
-        <div class="rarity-tag godlike">Godlike</div>
-    </div>
-
-    <div class="theme-selector">
-        <div class="theme-btn theme-red" onclick="changeTheme('red')"></div>
-        <div class="theme-btn theme-blue" onclick="changeTheme('blue')"></div>
-        <div class="theme-btn theme-green" onclick="changeTheme('green')"></div>
-        <div class="theme-btn theme-purple" onclick="changeTheme('purple')"></div>
-        <div class="theme-btn theme-orange" onclick="changeTheme('orange')"></div>
-    </div>
-
+    <!-- Three.js и необходимые компоненты -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    
     <script>
-        // Emojis by rarity with realistic values
-        const emojis = {
-            common: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '😉', '😌', '😋', '😜'],
-            rare: ['😍', '🥰', '😘', '😗', '😎', '🤓', '🧐', '🥳', '😏', '😋', '🤩', '🤪', '😇', '🥺', '😳'],
-            epic: ['🤩', '🤯', '😱', '😈', '👹', '👺', '🤡', '👻', '💀', '👽', '🤖', '👾', '🐲', '🦇', '🦹'],
-            legendary: ['👑', '🎩', '🧢', '👒', '💍', '💎', '🏆', '🎖', '🥇', '🪙', '⚔️', '🛡️', '🗡️', '🏹', '🔫'],
-            ultra: ['⚡', '💫', '⭐', '🌟', '✨', '🔥', '💥', '☄️', '🌪', '🌈', '🌋', '🌠', '🌀', '❄️', '🌊'],
-            mythical: ['🦄', '🐉', '🐲', '🦂', '🦅', '🦇', '🦉', '🦚', '🦩', '🦋', '🐍', '🦖', '🦕', '🐊', '🦈'],
-            unique: ['☢️', '☣️', '⚕️', '⚚', '⚠️', '♻️', '⚜️', '🔱', '✡️', '☯️', '🕎', '☦️', '☪️', '🛐', '⛎'],
-            divine: ['🪽', '👼', '🧚', '🧞', '🧝', '🧙', '🫅', '👸', '🤴', '🦹', '🦸', '🧛', '🧟', '🧌', '🧚‍♂️'],
-            immortal: ['♾️', '🕉️', '☸️', '✝️', '☮️', '🕎', '☪️', '☯️', '✡️', '🔯', '🛐', '⛩️', '🛕', '🕍', '🕌'],
-            cosmic: ['🌌', '🌠', '🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘', '🌙', '🌚', '🌛', '🌜', '🌝'],
-            godlike: ['🛐', '⚛️', '🕉️', '☸️', '✝️', '☦️', '☪️', '☯️', '🕎', '🔯', '♈', '♉', '♊', '♋', '♌']
-        };
+        // Инициализация сцены
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
         
-        // Emoji values (balanced to make cases profitable ~30% of the time)
-        const emojiValues = {
-            common: 8,       // было 1
-            rare: 45,        // было 5
-            epic: 450,        // было 20
-            legendary: 3000,  // было 100
-            ultra: 8000,     // было 500
-            mythical: 26000,  // было 2000
-            unique: 90000,   // было 10000
-            divine: 190000,
-            immortal: 890000,
-            cosmic: 4505050,
-            godlike: 30303000
-        };
+        // Камера
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(15, 15, 15);
         
-        // Cases with realistic chances and descriptions
-        const cases = [
-            { 
-                name: "Starter Case", 
-                emoji: "🎁", 
-                price: 10, 
-                chances: { common: 85, rare: 14, epic: 1 },
-                color: "common",
-                description: "Basic case with mostly common emojis. 85% common, 14% rare, 1% epic"
-            },
-            { 
-                name: "Silver Case", 
-                emoji: "📦", 
-                price: 50, 
-                chances: { common: 60, rare: 35, epic: 4, legendary: 1 },
-                color: "rare",
-                description: "Better chances for rare emojis. 60% common, 35% rare, 4% epic, 1% legendary"
-            },
-            { 
-                name: "Gold Case", 
-                emoji: "💎", 
-                price: 200, 
-                chances: { common: 30, rare: 50, epic: 15, legendary: 4, ultra: 1 },
-                color: "epic",
-                description: "Chance for epic and legendary emojis. 30% common, 50% rare, 15% epic, 4% legendary, 1% ultra"
-            },
-            { 
-                name: "Platinum Case", 
-                emoji: "🏆", 
-                price: 800, 
-                chances: { rare: 50, epic: 35, legendary: 10, ultra: 4, mythical: 1 },
-                color: "legendary",
-                description: "High chance for epic and legendary. 50% rare, 35% epic, 10% legendary, 4% ultra, 1% mythical"
-            },
-            { 
-                name: "Diamond Case", 
-                emoji: "⚡", 
-                price: 3000, 
-                chances: { epic: 50, legendary: 30, ultra: 15, mythical: 4, unique: 1 },
-                color: "ultra",
-                description: "Premium case with guaranteed profit chance. 50% epic, 30% legendary, 15% ultra, 4% mythical, 1% unique"
-            },
-            { 
-                name: "Mythic Case", 
-                emoji: "🦄", 
-                price: 10000, 
-                chances: { legendary: 50, ultra: 35, mythical: 13, unique: 2 },
-                color: "mythical",
-                description: "For serious collectors. 50% legendary, 35% ultra, 13% mythical, 2% unique"
-            },
-            { 
-                name: "Legendary Case", 
-                emoji: "🐉", 
-                price: 25000, 
-                chances: { ultra: 60, mythical: 35, unique: 5 },
-                color: "unique",
-                description: "High-end case with great rewards. 60% ultra, 35% mythical, 5% unique"
-            },
-            { 
-                name: "Ultimate Case", 
-                emoji: "🔥", 
-                price: 50000, 
-                chances: { mythical: 70, unique: 30 },
-                color: "unique",
-                description: "The best chance for unique emojis. 70% mythical, 30% unique"
-            },
-            // Новые кейсы
-            { 
-                name: "Divine Case", 
-                emoji: "👼", 
-                price: 150000, 
-                chances: { unique: 60, divine: 35, immortal: 5 },
-                color: "divine",
-                description: "Divine blessings inside. 60% unique, 35% divine, 5% immortal"
-            },
-            { 
-                name: "Immortal Case", 
-                emoji: "♾️", 
-                price: 500000, 
-                chances: { divine: 60, immortal: 35, cosmic: 5 },
-                color: "immortal",
-                description: "Eternal treasures await. 60% divine, 35% immortal, 5% cosmic"
-            },
-            { 
-                name: "Cosmic Case", 
-                emoji: "🌌", 
-                price: 1500000, 
-                chances: { immortal: 60, cosmic: 35, godlike: 5 },
-                color: "cosmic",
-                description: "From the depths of the universe. 60% immortal, 35% cosmic, 5% godlike"
-            },
-            { 
-                name: "Godlike Case", 
-                emoji: "⚛️", 
-                price: 5000000, 
-                chances: { cosmic: 60, godlike: 40 },
-                color: "godlike",
-                description: "For those who seek ultimate power. 60% cosmic, 40% godlike"
-            },
-            { 
-                name: "Mystery Case", 
-                emoji: "❓", 
-                price: 100000, 
-                chances: { common: 10, rare: 15, epic: 20, legendary: 20, ultra: 15, mythical: 10, unique: 5, divine: 3, immortal: 1, cosmic: 1 },
-                color: "unique",
-                description: "Who knows what's inside? Random chances for all rarities!"
-            }
-        ];
+        // Рендерер
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
         
-        // Themes configuration
-        const themes = {
-            red: {
-                '--bg-gradient': 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
-                '--header-bg': 'rgba(0,0,0,0.5)',
-                '--title-gradient': 'linear-gradient(90deg, #ff512f, #dd2476, #ff512f)',
-                '--accent-color': '#ff3300',
-                '--accent-shadow': 'rgba(255,51,0,0.3)',
-                '--money-bg': 'rgba(0,0,0,0.7)',
-                '--coin-color': 'gold',
-                '--coin-shadow': 'rgba(255,215,0,0.3)',
-                '--clicker-bg': 'rgba(255,215,0,0.3)',
-                '--container-bg': 'rgba(10,10,10,0.7)',
-                '--container-shadow': 'rgba(255,51,0,0.2)',
-                '--button-bg': 'linear-gradient(45deg, #ff416c, #ff4b2b)',
-                '--button-shadow': 'rgba(255,0,0,0.3)',
-                '--button-border': 'rgba(255,255,255,0.2)',
-                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
-                '--freecoins-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
-                '--freecoins-shadow': 'rgba(241,39,17,0.4)',
-                '--inventory-bg': 'rgba(20,20,20,0.5)',
-                '--inventory-border': 'rgba(255,51,0,0.3)',
-                '--text-color': 'rgba(255,255,255,0.9)',
-                '--text-shadow': 'rgba(255,255,255,0.3)',
-                '--text-secondary': 'rgba(255,255,255,0.7)',
-                '--item-bg': 'rgba(30,30,30,0.7)',
-                '--item-border': 'rgba(255,255,255,0.1)',
-                '--item-shadow': 'rgba(0,0,0,0.5)',
-                '--value-bg': 'rgba(0,0,0,0.8)',
-                '--sell-bg': 'rgba(255,0,0,0.8)',
-                '--sell-border': 'rgba(255,255,255,0.3)',
-                '--modal-bg': 'rgba(0,0,0,0.9)',
-                '--modal-content-bg': 'linear-gradient(135deg, #222 0%, #111 100%)',
-                '--modal-shadow': 'rgba(255,51,0,0.3)',
-                '--modal-header-border': 'rgba(255,51,0,0.5)',
-                '--modal-title-color': '#fff',
-                '--modal-title-shadow': 'rgba(255,51,0,0.7)',
-                '--modal-close-color': 'white',
-                '--case-item-bg': 'rgba(40,40,40,0.8)',
-                '--case-item-border': 'rgba(255,51,0,0.3)',
-                '--case-item-shadow': 'rgba(0,0,0,0.5)',
-                '--case-name-color': '#fff',
-                '--case-chances-color': 'rgba(255,255,255,0.8)',
-                '--confetti-color': '#ff0000',
-                '--rarity-tag-bg': 'rgba(0,0,0,0.6)',
-                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
-                '--sell-confirmation-bg': 'rgba(20,20,20,0.95)',
-                '--sell-confirmation-border': '#ff3300',
-                '--sell-confirmation-shadow': 'rgba(255,51,0,0.3)',
-                '--sell-confirmation-text': '#fff',
-                '--sell-confirm-bg': 'linear-gradient(45deg, #FF416C, #FF4B2B)',
-                '--sell-confirm-shadow': 'rgba(255,75,43,0.5)',
-                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
-                '--sell-all-bg': 'linear-gradient(45deg, #FF9500, #FF5E00)',
-                '--sell-all-shadow': 'rgba(255,149,0,0.5)',
-                '--timer-color': 'rgba(255,255,255,0.7)',
-                '--quests-bg': 'rgba(30,30,30,0.7)',
-                '--quests-border': 'rgba(255,51,0,0.3)',
-                '--quest-title-color': '#fff',
-                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
-                '--quest-progress-bar': 'linear-gradient(90deg, #ff512f, #dd2476)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
-                '--combo-bg': 'linear-gradient(45deg, #ff0000, #ff6600)'
-            },
-            blue: {
-                '--bg-gradient': 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)',
-                '--header-bg': 'rgba(15,32,39,0.7)',
-                '--title-gradient': 'linear-gradient(90deg, #00d2ff, #3a7bd5, #00d2ff)',
-                '--accent-color': '#00d2ff',
-                '--accent-shadow': 'rgba(0,210,255,0.3)',
-                '--money-bg': 'rgba(15,32,39,0.8)',
-                '--coin-color': 'gold',
-                '--coin-shadow': 'rgba(255,215,0,0.3)',
-                '--clicker-bg': 'rgba(0,210,255,0.3)',
-                '--container-bg': 'rgba(32,58,67,0.7)',
-                '--container-shadow': 'rgba(0,210,255,0.2)',
-                '--button-bg': 'linear-gradient(45deg, #4b6cb7, #182848)',
-                '--button-shadow': 'rgba(75,108,183,0.3)',
-                '--button-border': 'rgba(255,255,255,0.2)',
-                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
-                '--freecoins-bg': 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
-                '--freecoins-shadow': 'rgba(58,123,213,0.4)',
-                '--inventory-bg': 'rgba(32,58,67,0.6)',
-                '--inventory-border': 'rgba(0,210,255,0.3)',
-                '--text-color': 'rgba(255,255,255,0.9)',
-                '--text-shadow': 'rgba(255,255,255,0.3)',
-                '--text-secondary': 'rgba(255,255,255,0.7)',
-                '--item-bg': 'rgba(44,83,100,0.7)',
-                '--item-border': 'rgba(255,255,255,0.1)',
-                '--item-shadow': 'rgba(0,0,0,0.5)',
-                '--value-bg': 'rgba(15,32,39,0.8)',
-                '--sell-bg': 'rgba(255,0,0,0.8)',
-                '--sell-border': 'rgba(255,255,255,0.3)',
-                '--modal-bg': 'rgba(15,32,39,0.9)',
-                '--modal-content-bg': 'linear-gradient(135deg, #203a43, #2c5364)',
-                '--modal-shadow': 'rgba(0,210,255,0.3)',
-                '--modal-header-border': 'rgba(0,210,255,0.5)',
-                '--modal-title-color': '#fff',
-                '--modal-title-shadow': 'rgba(0,210,255,0.7)',
-                '--modal-close-color': 'white',
-                '--case-item-bg': 'rgba(32,58,67,0.8)',
-                '--case-item-border': 'rgba(0,210,255,0.3)',
-                '--case-item-shadow': 'rgba(0,0,0,0.5)',
-                '--case-name-color': '#fff',
-                '--case-chances-color': 'rgba(255,255,255,0.8)',
-                '--confetti-color': '#00d2ff',
-                '--rarity-tag-bg': 'rgba(15,32,39,0.6)',
-                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
-                '--sell-confirmation-bg': 'rgba(32,58,67,0.95)',
-                '--sell-confirmation-border': '#00d2ff',
-                '--sell-confirmation-shadow': 'rgba(0,210,255,0.3)',
-                '--sell-confirmation-text': '#fff',
-                '--sell-confirm-bg': 'linear-gradient(45deg, #4b6cb7, #182848)',
-                '--sell-confirm-shadow': 'rgba(75,108,183,0.5)',
-                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
-                '--sell-all-bg': 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
-                '--sell-all-shadow': 'rgba(0,210,255,0.5)',
-                '--timer-color': 'rgba(255,255,255,0.7)',
-                '--quests-bg': 'rgba(44,83,100,0.7)',
-                '--quests-border': 'rgba(0,210,255,0.3)',
-                '--quest-title-color': '#fff',
-                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
-                '--quest-progress-bar': 'linear-gradient(90deg, #00d2ff, #3a7bd5)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
-                '--combo-bg': 'linear-gradient(45deg, #0066ff, #00ccff)'
-            },
-            green: {
-                '--bg-gradient': 'linear-gradient(135deg, #0f0f0f, #1a2a1a, #0f3d0f)',
-                '--header-bg': 'rgba(15,47,15,0.7)',
-                '--title-gradient': 'linear-gradient(90deg, #11998e, #38ef7d, #11998e)',
-                '--accent-color': '#38ef7d',
-                '--accent-shadow': 'rgba(56,239,125,0.3)',
-                '--money-bg': 'rgba(15,47,15,0.8)',
-                '--coin-color': 'gold',
-                '--coin-shadow': 'rgba(255,215,0,0.3)',
-                '--clicker-bg': 'rgba(56,239,125,0.3)',
-                '--container-bg': 'rgba(26,42,26,0.7)',
-                '--container-shadow': 'rgba(56,239,125,0.2)',
-                '--button-bg': 'linear-gradient(45deg, #11998e, #38ef7d)',
-                '--button-shadow': 'rgba(17,153,142,0.3)',
-                '--button-border': 'rgba(255,255,255,0.2)',
-                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
-                '--freecoins-bg': 'linear-gradient(45deg, #38ef7d, #11998e)',
-                '--freecoins-shadow': 'rgba(17,153,142,0.4)',
-                '--inventory-bg': 'rgba(26,42,26,0.6)',
-                '--inventory-border': 'rgba(56,239,125,0.3)',
-                '--text-color': 'rgba(255,255,255,0.9)',
-                '--text-shadow': 'rgba(255,255,255,0.3)',
-                '--text-secondary': 'rgba(255,255,255,0.7)',
-                '--item-bg': 'rgba(15,61,15,0.7)',
-                '--item-border': 'rgba(255,255,255,0.1)',
-                '--item-shadow': 'rgba(0,0,0,0.5)',
-                '--value-bg': 'rgba(15,47,15,0.8)',
-                '--sell-bg': 'rgba(255,0,0,0.8)',
-                '--sell-border': 'rgba(255,255,255,0.3)',
-                '--modal-bg': 'rgba(15,47,15,0.9)',
-                '--modal-content-bg': 'linear-gradient(135deg, #1a2a1a, #0f3d0f)',
-                '--modal-shadow': 'rgba(56,239,125,0.3)',
-                '--modal-header-border': 'rgba(56,239,125,0.5)',
-                '--modal-title-color': '#fff',
-                '--modal-title-shadow': 'rgba(56,239,125,0.7)',
-                '--modal-close-color': 'white',
-                '--case-item-bg': 'rgba(26,42,26,0.8)',
-                '--case-item-border': 'rgba(56,239,125,0.3)',
-                '--case-item-shadow': 'rgba(0,0,0,0.5)',
-                '--case-name-color': '#fff',
-                '--case-chances-color': 'rgba(255,255,255,0.8)',
-                '--confetti-color': '#38ef7d',
-                '--rarity-tag-bg': 'rgba(15,47,15,0.6)',
-                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
-                '--sell-confirmation-bg': 'rgba(26,42,26,0.95)',
-                '--sell-confirmation-border': '#38ef7d',
-                '--sell-confirmation-shadow': 'rgba(56,239,125,0.3)',
-                '--sell-confirmation-text': '#fff',
-                '--sell-confirm-bg': 'linear-gradient(45deg, #11998e, #38ef7d)',
-                '--sell-confirm-shadow': 'rgba(17,153,142,0.5)',
-                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
-                '--sell-all-bg': 'linear-gradient(45deg, #38ef7d, #11998e)',
-                '--sell-all-shadow': 'rgba(56,239,125,0.5)',
-                '--timer-color': 'rgba(255,255,255,0.7)',
-                '--quests-bg': 'rgba(15,61,15,0.7)',
-                '--quests-border': 'rgba(56,239,125,0.3)',
-                '--quest-title-color': '#fff',
-                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
-                '--quest-progress-bar': 'linear-gradient(90deg, #11998e, #38ef7d)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
-                '--combo-bg': 'linear-gradient(45deg, #00cc00, #66ff66)'
-            },
-            purple: {
-                '--bg-gradient': 'linear-gradient(135deg, #1a1a2e, #16213e, #0f3460)',
-                '--header-bg': 'rgba(22,33,62,0.7)',
-                '--title-gradient': 'linear-gradient(90deg, #8e2de2, #4a00e0, #8e2de2)',
-                '--accent-color': '#8e2de2',
-                '--accent-shadow': 'rgba(142,45,226,0.3)',
-                '--money-bg': 'rgba(22,33,62,0.8)',
-                '--coin-color': 'gold',
-                '--coin-shadow': 'rgba(255,215,0,0.3)',
-                '--clicker-bg': 'rgba(142,45,226,0.3)',
-                '--container-bg': 'rgba(26,26,46,0.7)',
-                '--container-shadow': 'rgba(142,45,226,0.2)',
-                '--button-bg': 'linear-gradient(45deg, #8e2de2, #4a00e0)',
-                '--button-shadow': 'rgba(142,45,226,0.3)',
-                '--button-border': 'rgba(255,255,255,0.2)',
-                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
-                '--freecoins-bg': 'linear-gradient(45deg, #4a00e0, #8e2de2)',
-                '--freecoins-shadow': 'rgba(74,0,224,0.4)',
-                '--inventory-bg': 'rgba(26,26,46,0.6)',
-                '--inventory-border': 'rgba(142,45,226,0.3)',
-                '--text-color': 'rgba(255,255,255,0.9)',
-                '--text-shadow': 'rgba(255,255,255,0.3)',
-                '--text-secondary': 'rgba(255,255,255,0.7)',
-                '--item-bg': 'rgba(15,52,96,0.7)',
-                '--item-border': 'rgba(255,255,255,0.1)',
-                '--item-shadow': 'rgba(0,0,0,0.5)',
-                '--value-bg': 'rgba(22,33,62,0.8)',
-                '--sell-bg': 'rgba(255,0,0,0.8)',
-                '--sell-border': 'rgba(255,255,255,0.3)',
-                '--modal-bg': 'rgba(22,33,62,0.9)',
-                '--modal-content-bg': 'linear-gradient(135deg, #16213e, #0f3460)',
-                '--modal-shadow': 'rgba(142,45,226,0.3)',
-                '--modal-header-border': 'rgba(142,45,226,0.5)',
-                '--modal-title-color': '#fff',
-                '--modal-title-shadow': 'rgba(142,45,226,0.7)',
-                '--modal-close-color': 'white',
-                '--case-item-bg': 'rgba(26,26,46,0.8)',
-                '--case-item-border': 'rgba(142,45,226,0.3)',
-                '--case-item-shadow': 'rgba(0,0,0,0.5)',
-                '--case-name-color': '#fff',
-                '--case-chances-color': 'rgba(255,255,255,0.8)',
-                '--confetti-color': '#8e2de2',
-                '--rarity-tag-bg': 'rgba(22,33,62,0.6)',
-                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
-                '--sell-confirmation-bg': 'rgba(26,26,46,0.95)',
-                '--sell-confirmation-border': '#8e2de2',
-                '--sell-confirmation-shadow': 'rgba(142,45,226,0.3)',
-                '--sell-confirmation-text': '#fff',
-                '--sell-confirm-bg': 'linear-gradient(45deg, #8e2de2, #4a00e0)',
-                '--sell-confirm-shadow': 'rgba(142,45,226,0.5)',
-                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
-                '--sell-all-bg': 'linear-gradient(45deg, #4a00e0, #8e2de2)',
-                '--sell-all-shadow': 'rgba(74,0,224,0.5)',
-                '--timer-color': 'rgba(255,255,255,0.7)',
-                '--quests-bg': 'rgba(15,52,96,0.7)',
-                '--quests-border': 'rgba(142,45,226,0.3)',
-                '--quest-title-color': '#fff',
-                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
-                '--quest-progress-bar': 'linear-gradient(90deg, #8e2de2, #4a00e0)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
-                '--combo-bg': 'linear-gradient(45deg, #9933ff, #cc66ff)'
-            },
-            orange: {
-                '--bg-gradient': 'linear-gradient(135deg, #1a1a1a, #2a1a1a, #3d0f0f)',
-                '--header-bg': 'rgba(58,32,32,0.7)',
-                '--title-gradient': 'linear-gradient(90deg, #f12711, #f5af19, #f12711)',
-                '--accent-color': '#f5af19',
-                '--accent-shadow': 'rgba(245,175,25,0.3)',
-                '--money-bg': 'rgba(58,32,32,0.8)',
-                '--coin-color': 'gold',
-                '--coin-shadow': 'rgba(255,215,0,0.3)',
-                '--clicker-bg': 'rgba(245,175,25,0.3)',
-                '--container-bg': 'rgba(42,26,26,0.7)',
-                '--container-shadow': 'rgba(245,175,25,0.2)',
-                '--button-bg': 'linear-gradient(45deg, #f12711, #f5af19)',
-                '--button-shadow': 'rgba(241,39,17,0.3)',
-                '--button-border': 'rgba(255,255,255,0.2)',
-                '--button-disabled': 'linear-gradient(45deg, #333, #111)',
-                '--freecoins-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
-                '--freecoins-shadow': 'rgba(241,39,17,0.4)',
-                '--inventory-bg': 'rgba(42,26,26,0.6)',
-                '--inventory-border': 'rgba(245,175,25,0.3)',
-                '--text-color': 'rgba(255,255,255,0.9)',
-                '--text-shadow': 'rgba(255,255,255,0.3)',
-                '--text-secondary': 'rgba(255,255,255,0.7)',
-                '--item-bg': 'rgba(61,15,15,0.7)',
-                '--item-border': 'rgba(255,255,255,0.1)',
-                '--item-shadow': 'rgba(0,0,0,0.5)',
-                '--value-bg': 'rgba(58,32,32,0.8)',
-                '--sell-bg': 'rgba(255,0,0,0.8)',
-                '--sell-border': 'rgba(255,255,255,0.3)',
-                '--modal-bg': 'rgba(58,32,32,0.9)',
-                '--modal-content-bg': 'linear-gradient(135deg, #2a1a1a, #3d0f0f)',
-                '--modal-shadow': 'rgba(245,175,25,0.3)',
-                '--modal-header-border': 'rgba(245,175,25,0.5)',
-                '--modal-title-color': '#fff',
-                '--modal-title-shadow': 'rgba(245,175,25,0.7)',
-                '--modal-close-color': 'white',
-                '--case-item-bg': 'rgba(42,26,26,0.8)',
-                '--case-item-border': 'rgba(245,175,25,0.3)',
-                '--case-item-shadow': 'rgba(0,0,0,0.5)',
-                '--case-name-color': '#fff',
-                '--case-chances-color': 'rgba(255,255,255,0.8)',
-                '--confetti-color': '#f5af19',
-                '--rarity-tag-bg': 'rgba(58,32,32,0.6)',
-                '--rarity-tag-border': 'rgba(255,255,255,0.1)',
-                '--sell-confirmation-bg': 'rgba(42,26,26,0.95)',
-                '--sell-confirmation-border': '#f5af19',
-                '--sell-confirmation-shadow': 'rgba(245,175,25,0.3)',
-                '--sell-confirmation-text': '#fff',
-                '--sell-confirm-bg': 'linear-gradient(45deg, #f12711, #f5af19)',
-                '--sell-confirm-shadow': 'rgba(241,39,17,0.5)',
-                '--sell-cancel-bg': 'rgba(255,255,255,0.1)',
-                '--sell-all-bg': 'linear-gradient(45deg, #f5af19, #f12711)',
-                '--sell-all-shadow': 'rgba(245,175,25,0.5)',
-                '--timer-color': 'rgba(255,255,255,0.7)',
-                '--quests-bg': 'rgba(61,15,15,0.7)',
-                '--quests-border': 'rgba(245,175,25,0.3)',
-                '--quest-title-color': '#fff',
-                '--quest-progress-bg': 'rgba(255,255,255,0.1)',
-                '--quest-progress-bar': 'linear-gradient(90deg, #f12711, #f5af19)',
-                '--quest-percentage-color': 'rgba(255,255,255,0.8)',
-                '--combo-bg': 'linear-gradient(45deg, #ff6600, #ff9933)'
-            }
-        };
-
-        // Player data
-        const player = {
-            money: 100,
-            inventory: [],
-            unopenedCases: [],
-            lastFreeCoins: 0,
-            totalMoneyEarned: 0,
-            totalCasesOpened: 0,
-            currentTheme: 'red',
-            collectedEmojis: [],
-            combo: 0,
-            maxCombo: 0,
-            lastClickTime: 0
-        };
+        // Управление камерой
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
         
-        // Combo settings
-        const COMBO_TIME_WINDOW = 500; // 0.5 seconds between clicks to maintain combo
-        const COMBO_MULTIPLIER = 0.05; // 5% bonus per combo
-        const MAX_COMBO = 50; // Maximum combo multiplier (2.5x)
+        // Освещение
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
         
-        // Initialize the game
-        function initGame() {
-            loadGame();
-            applyTheme(player.currentTheme);
-            updateUI();
-            updateInventory();
-            initCasesModal();
-            updateQuests();
-            initEmojiLibrary();
-            
-            // Set up free coins button
-            updateFreeCoinsButton();
-            document.getElementById('freeCoinsButton').addEventListener('click', claimFreeCoins);
-            
-            // Set up click for coins button
-            document.getElementById('clickForCoins').addEventListener('click', clickForCoins);
-            
-            // Set up quests modal
-            document.getElementById('openQuestsModal').onclick = () => {
-                document.getElementById('questsModal').style.display = 'flex';
-            };
-            document.getElementById('closeQuestsModal').onclick = () => {
-                document.getElementById('questsModal').style.display = 'none';
-            };
-            
-            // Set up emoji library modal
-            document.getElementById('openEmojiLibrary').onclick = () => {
-                updateEmojiLibrary();
-                document.getElementById('emojiLibraryModal').style.display = 'flex';
-            };
-            document.getElementById('closeEmojiLibraryModal').onclick = () => {
-                document.getElementById('emojiLibraryModal').style.display = 'none';
-            };
-            
-            // Auto-save every 30 seconds
-            setInterval(saveGame, 30000);
-            window.addEventListener('beforeunload', saveGame);
-            
-            // Sell confirmation buttons
-            document.getElementById('sellConfirmBtn').onclick = confirmSell;
-            document.getElementById('sellCancelBtn').onclick = cancelSell;
-            document.getElementById('sellAllBtn').onclick = sellAllEmojis;
-            
-            // Update combo display every second
-            setInterval(updateComboDisplay, 1000);
-        }
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
         
-        // Initialize emoji library
-        function initEmojiLibrary() {
-            const library = document.getElementById('emojiLibrary');
-            library.innerHTML = '';
-            
-            // Add all emojis to library
-            for (const [rarity, emojiList] of Object.entries(emojis)) {
-                emojiList.forEach(emoji => {
-                    const item = document.createElement('div');
-                    item.className = 'emoji-library-item';
-                    item.innerHTML = `
-                        ${emoji}
-                        <div class="emoji-library-value">${emojiValues[rarity]}🪙</div>
-                    `;
-                    library.appendChild(item);
-                });
-            }
-        }
+        // Параметры игры
+        const fieldSize = 10;
+        const cellSize = 1;
+        const grid = [];
+        let farmer = null;
+        let targetPosition = null;
+        let action = 'move';
+        let seedsCount = 10;
+        let garlicCount = 0;
+        let walking = false;
         
-        // Update emoji library display
-        function updateEmojiLibrary() {
-            const items = document.querySelectorAll('.emoji-library-item');
-            
-            items.forEach(item => {
-                const emoji = item.textContent.trim().charAt(0);
-                
-                if (player.collectedEmojis.includes(emoji)) {
-                    item.classList.remove('uncollected');
-                } else {
-                    item.classList.add('uncollected');
-                }
+        // Создание поля
+        function createField() {
+            // Земля
+            const groundGeometry = new THREE.PlaneGeometry(fieldSize, fieldSize);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x3a5f0b,
+                side: THREE.DoubleSide
             });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Сетка клеток
+            const cellsCount = fieldSize / cellSize;
+            for (let i = 0; i < cellsCount; i++) {
+                grid[i] = [];
+                for (let j = 0; j < cellsCount; j++) {
+                    grid[i][j] = {
+                        x: -fieldSize/2 + i*cellSize + cellSize/2,
+                        z: -fieldSize/2 + j*cellSize + cellSize/2,
+                        planted: false,
+                        growthStage: 0,
+                        plant: null
+                    };
+                }
+            }
+            
+            // Разметка поля
+            const gridHelper = new THREE.GridHelper(fieldSize, cellsCount);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
         }
         
-        // Change theme function
-        function changeTheme(theme) {
-            player.currentTheme = theme;
-            applyTheme(theme);
-            saveGame();
+        // Создание персонажа
+        function createFarmer() {
+            // Тело
+            const bodyGeometry = new THREE.BoxGeometry(0.4, 1, 0.2);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x4682B4 });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.5;
+            
+            // Голова
+            const headGeometry = new THREE.SphereGeometry(0.2);
+            const headMaterial = new THREE.MeshStandardMaterial({ color: 0xFFD700 });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.1;
+            
+            farmer = new THREE.Group();
+            farmer.add(body);
+            farmer.add(head);
+            farmer.castShadow = true;
+            scene.add(farmer);
         }
         
-        // Apply theme
-        function applyTheme(theme) {
-            const themeColors = themes[theme];
-            for (const [key, value] of Object.entries(themeColors)) {
-                document.documentElement.style.setProperty(key, value);
+        // Обработка кликов
+        function onFieldClick(event) {
+            const mouse = new THREE.Vector2(
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1
+            );
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children);
+            
+            if (intersects.length > 0 && intersects[0].object === scene.children[0]) {
+                const point = intersects[0].point;
+                const i = Math.floor((point.x + fieldSize/2) / cellSize);
+                const j = Math.floor((point.z + fieldSize/2) / cellSize);
+                
+                if (i >= 0 && i < grid.length && j >= 0 && j < grid[0].length) {
+                    const cell = grid[i][j];
+                    
+                    if (action === 'plant' && !cell.planted && seedsCount > 0) {
+                        plantGarlic(cell);
+                    } else if (action === 'harvest' && cell.planted && cell.growthStage === 3) {
+                        harvestGarlic(cell);
+                    } else if (action === 'move') {
+                        targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
+                        walking = true;
+                    }
+                }
             }
         }
         
-        // Load game from localStorage
-        function loadGame() {
-            const savedGame = localStorage.getItem('emojiCollectorSave');
-            if (savedGame) {
-                const parsed = JSON.parse(savedGame);
-                player.money = parsed.money || 100;
-                player.inventory = parsed.inventory || [];
-                player.unopenedCases = parsed.unopenedCases || [];
-                player.lastFreeCoins = parsed.lastFreeCoins || 0;
-                player.totalMoneyEarned = parsed.totalMoneyEarned || 0;
-                player.totalCasesOpened = parsed.totalCasesOpened || 0;
-                player.currentTheme = parsed.currentTheme || 'red';
-                player.collectedEmojis = parsed.collectedEmojis || [];
-                player.combo = 0;
-                player.maxCombo = parsed.maxCombo || 0;
+        // Посадка чеснока
+        function plantGarlic(cell) {
+            cell.planted = true;
+            seedsCount--;
+            updateUI();
+            
+            targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
+            walking = true;
+            
+            // Создаем растение
+            const plant = new THREE.Group();
+            plant.position.set(cell.x, 0, cell.z);
+            scene.add(plant);
+            cell.plant = plant;
+            
+            growPlant(cell);
+        }
+        
+        // Рост растения
+        function growPlant(cell) {
+            if (cell.growthStage >= 3) return;
+            
+            cell.growthStage++;
+            
+            // Очищаем предыдущую стадию
+            while(cell.plant.children.length) {
+                cell.plant.remove(cell.plant.children[0]);
+            }
+            
+            // Создаем новую стадию
+            const size = 0.1 * cell.growthStage;
+            const stemGeometry = new THREE.CylinderGeometry(size/4, size/4, size, 6);
+            const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x00aa00 });
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = size/2;
+            cell.plant.add(stem);
+            
+            if (cell.growthStage === 3) {
+                const garlicGeometry = new THREE.SphereGeometry(size/2, 8, 8);
+                const garlicMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+                const garlic = new THREE.Mesh(garlicGeometry, garlicMaterial);
+                garlic.position.y = size;
+                cell.plant.add(garlic);
+            }
+            
+            if (cell.growthStage < 3) {
+                setTimeout(() => growPlant(cell), 1000);
             }
         }
         
-        // Save game to localStorage
-        function saveGame() {
-            const gameData = {
-                money: player.money,
-                inventory: player.inventory,
-                unopenedCases: player.unopenedCases,
-                lastFreeCoins: player.lastFreeCoins,
-                totalMoneyEarned: player.totalMoneyEarned,
-                totalCasesOpened: player.totalCasesOpened,
-                currentTheme: player.currentTheme,
-                collectedEmojis: player.collectedEmojis,
-                maxCombo: player.maxCombo
-            };
-            localStorage.setItem('emojiCollectorSave', JSON.stringify(gameData));
+        // Сбор урожая
+        function harvestGarlic(cell) {
+            targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
+            walking = true;
+            
+            scene.remove(cell.plant);
+            cell.planted = false;
+            cell.plant = null;
+            cell.growthStage = 0;
+            
+            garlicCount += 3;
+            updateUI();
         }
         
-        // Update UI
+        // Обновление интерфейса
         function updateUI() {
-            document.getElementById('money').textContent = player.money.toFixed(1);
-            document.getElementById('itemCount').textContent = player.inventory.length + player.unopenedCases.length;
+            document.getElementById('seeds-count').textContent = seedsCount;
+            document.getElementById('garlic-count').textContent = garlicCount;
+            
+            document.getElementById('plant-btn').disabled = seedsCount <= 0;
+            document.getElementById('harvest-btn').disabled = garlicCount <= 0;
         }
         
-        // Update combo display
-        function updateComboDisplay() {
-            const comboDisplay = document.getElementById('comboDisplay');
-            const now = Date.now();
-            
-            // Reset combo if too much time has passed
-            if (now - player.lastClickTime > COMBO_TIME_WINDOW * 2) {
-                player.combo = 0;
-            }
-            
-            if (player.combo > 0) {
-                comboDisplay.textContent = player.combo + 'x';
-                comboDisplay.classList.add('combo-active');
-            } else {
-                comboDisplay.classList.remove('combo-active');
-            }
-        }
+        // Управление кнопками
+        document.getElementById('move-btn').addEventListener('click', () => {
+            action = 'move';
+            updateButtonStyles();
+        });
         
-        // Update inventory display
-        function updateInventory() {
-            const inventoryDiv = document.getElementById('inventory');
-            inventoryDiv.innerHTML = '';
-            
-            // Display unopened cases first
-            player.unopenedCases.forEach((caseItem, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'item';
-                itemDiv.innerHTML = `
-                    ${caseItem.emoji}
-                    <div class="item-value">${caseItem.price}🪙</div>
-                `;
-                itemDiv.onclick = () => openCase(index);
-                inventoryDiv.appendChild(itemDiv);
+        document.getElementById('plant-btn').addEventListener('click', () => {
+            action = 'plant';
+            updateButtonStyles();
+        });
+        
+        document.getElementById('harvest-btn').addEventListener('click', () => {
+            action = 'harvest';
+            updateButtonStyles();
+        });
+        
+        function updateButtonStyles() {
+            document.querySelectorAll('#controls button').forEach(btn => {
+                btn.classList.remove('active');
             });
-            
-            // Then display collected emojis
-            player.inventory.forEach((item, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = `item item-${item.rarity}`;
-                itemDiv.innerHTML = `
-                    ${item.emoji}
-                    <div class="item-value">${item.value}🪙</div>
-                    <div class="item-sell">×</div>
-                `;
-                itemDiv.onclick = (e) => {
-                    // Check if the sell button was clicked
-                    if (e.target.classList.contains('item-sell')) {
-                        showSellConfirmation(index, item);
-                    }
-                };
-                inventoryDiv.appendChild(itemDiv);
-            });
+            document.querySelector(`#${action}-btn`).classList.add('active');
         }
         
-        // Initialize cases modal
-        function initCasesModal() {
-            const casesGrid = document.getElementById('casesGrid');
-            casesGrid.innerHTML = '';
-            
-            cases.forEach((caseItem, index) => {
-                const caseDiv = document.createElement('div');
-                caseDiv.className = 'case-item';
-                caseDiv.innerHTML = `
-                    <div class="case-emoji">${caseItem.emoji}</div>
-                    <div class="case-name">${caseItem.name}</div>
-                    <div class="case-price">${caseItem.price}🪙</div>
-                    <div class="case-chances">${caseItem.description}</div>
-                `;
-                caseDiv.onclick = () => buyCase(index);
-                casesGrid.appendChild(caseDiv);
-            });
-            
-            // Modal controls
-            document.getElementById('openCasesModal').onclick = () => {
-                document.getElementById('casesModal').style.display = 'flex';
-            };
-            
-            document.getElementById('closeCasesModal').onclick = () => {
-                document.getElementById('casesModal').style.display = 'none';
-            };
-        }
+        // Обработка событий
+        renderer.domElement.addEventListener('click', onFieldClick, false);
         
-        // Buy a case
-        function buyCase(caseIndex) {
-            const caseItem = cases[caseIndex];
-            
-            if (player.money < caseItem.price) {
-                alert("Not enough coins!");
-                return;
-            }
-            
-            player.money -= caseItem.price;
-            player.unopenedCases.push({
-                ...caseItem,
-                id: Date.now()
-            });
-            
-            updateUI();
-            updateInventory();
-        }
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
         
-        // Open a case
-        function openCase(caseIndex) {
-            const caseItem = player.unopenedCases[caseIndex];
+        // Анимация
+        function animate() {
+            requestAnimationFrame(animate);
             
-            // Determine rarity
-            const random = Math.random() * 100;
-            let rarity = 'common';
-            let cumulative = 0;
-            
-            for (const [r, chance] of Object.entries(caseItem.chances)) {
-                cumulative += chance;
-                if (random <= cumulative) {
-                    rarity = r;
-                    break;
+            // Движение персонажа
+            if (targetPosition && farmer) {
+                const direction = new THREE.Vector3()
+                    .subVectors(targetPosition, farmer.position)
+                    .normalize()
+                    .multiplyScalar(0.05);
+                
+                if (farmer.position.distanceTo(targetPosition) > 0.1) {
+                    farmer.position.add(direction);
+                    farmer.lookAt(new THREE.Vector3(
+                        targetPosition.x,
+                        farmer.position.y,
+                        targetPosition.z
+                    ));
+                    
+                    // Анимация ходьбы
+                    if (!walking) walking = true;
+                    farmer.children[0].rotation.z = Math.sin(Date.now() * 0.01) * 0.2;
+                } else {
+                    walking = false;
                 }
             }
             
-            // Get random emoji
-            const emojiList = emojis[rarity];
-            const emoji = emojiList[Math.floor(Math.random() * emojiList.length)];
-            
-            // Create item
-            const item = {
-                emoji,
-                rarity,
-                value: emojiValues[rarity]
-            };
-            
-            // Add to inventory
-            player.inventory.push(item);
-            
-            // Add to collected emojis if not already there
-            if (!player.collectedEmojis.includes(emoji)) {
-                player.collectedEmojis.push(emoji);
-            }
-            
-            // Remove case
-            player.unopenedCases.splice(caseIndex, 1);
-            
-            // Update stats
-            player.totalCasesOpened++;
-            player.totalMoneyEarned += item.value;
-            
-            // Update quests
-            updateQuests();
-            
-            // Show confetti for rare items
-            if (rarity !== 'common' && rarity !== 'rare') {
-                createConfetti();
-            }
-            
-            updateUI();
-            updateInventory();
-            
-            // Check if item is profitable
-            if (item.value >= caseItem.price * 0.3) {
-                // 30% of case price is considered profitable
-                showProfitMessage(item.value, caseItem.price);
-            }
+            controls.update();
+            renderer.render(scene, camera);
         }
         
-        // Show profit message
-        function showProfitMessage(itemValue, casePrice) {
-            const profit = itemValue - casePrice;
-            const profitPercentage = Math.round((profit / casePrice) * 100);
-            
-            const message = document.createElement('div');
-            message.style.position = 'fixed';
-            message.style.top = '50%';
-            message.style.left = '50%';
-            message.style.transform = 'translate(-50%, -50%)';
-            message.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            message.style.color = 'white';
-            message.style.padding = '15px';
-            message.style.borderRadius = '10px';
-            message.style.border = '2px solid gold';
-            message.style.zIndex = '1003';
-            message.style.textAlign = 'center';
-            message.style.fontWeight = 'bold';
-            message.style.fontSize = '1.2rem';
-            message.innerHTML = `
-                <div>Profit: ${profit > 0 ? '+' : ''}${profit}🪙 (${profitPercentage}%)</div>
-                <div style="font-size: 2rem; margin: 10px 0">${profit > 0 ? '💰' : '💸'}</div>
-                <div>Item value: ${itemValue}🪙</div>
-            `;
-            
-            document.body.appendChild(message);
-            
-            setTimeout(() => {
-                message.style.transition = 'opacity 0.5s';
-                message.style.opacity = '0';
-                setTimeout(() => message.remove(), 500);
-            }, 1500);
-        }
-        
-        // Free coins system
-        function updateFreeCoinsButton() {
-            const button = document.getElementById('freeCoinsButton');
-            const now = Date.now();
-            const cooldown = 2 * 60 * 1000; // 2 minutes
-            
-            if (now - player.lastFreeCoins >= cooldown) {
-                button.disabled = false;
-                button.innerHTML = 'Free Coins (30🪙)';
-            } else {
-                button.disabled = true;
-                const remaining = Math.ceil((cooldown - (now - player.lastFreeCoins)) / 1000);
-                button.innerHTML = `Free Coins (${remaining}s)`;
-            }
-        }
-        
-        function claimFreeCoins() {
-            const now = Date.now();
-            const cooldown = 2 * 60 * 1000; // 2 minutes
-            
-            if (now - player.lastFreeCoins >= cooldown) {
-                addCoins(30);
-                player.lastFreeCoins = now;
-                updateFreeCoinsButton();
-                createConfetti();
-                
-                // Update button every second
-                const interval = setInterval(() => {
-                    updateFreeCoinsButton();
-                    if (!document.getElementById('freeCoinsButton').disabled) {
-                        clearInterval(interval);
-                    }
-                }, 1000);
-            }
-        }
-        
-        // Click for coins with combo system
-        function clickForCoins() {
-            const now = Date.now();
-            const timeDiff = now - player.lastClickTime;
-            
-            // Update combo
-            if (timeDiff < COMBO_TIME_WINDOW) {
-                player.combo = Math.min(player.combo + 1, MAX_COMBO);
-                player.maxCombo = Math.max(player.maxCombo, player.combo);
-            } else {
-                player.combo = 1;
-            }
-            
-            player.lastClickTime = now;
-            
-            // Calculate coins with combo bonus
-            const baseCoins = 0.5;
-            const comboBonus = baseCoins * player.combo * COMBO_MULTIPLIER;
-            const totalCoins = baseCoins + comboBonus;
-            
-            addCoins(totalCoins);
-            
-            // Update quests (for max combo)
-            updateQuests();
-            
-            // Create flying coin animation
-            const button = document.getElementById('clickForCoins');
-            const rect = button.getBoundingClientRect();
-            const startX = rect.left + rect.width / 2;
-            const startY = rect.top + rect.height / 2;
-            
-            // Create click coin animation
-            const clickCoin = document.createElement('div');
-            clickCoin.className = 'click-coin';
-            clickCoin.textContent = `+${totalCoins.toFixed(1)}`;
-            clickCoin.style.left = `${startX}px`;
-            clickCoin.style.top = `${startY}px`;
-            document.body.appendChild(clickCoin);
-            
-            setTimeout(() => {
-                clickCoin.remove();
-            }, 1000);
-            
-            // Create coins based on combo
-            const coinsToCreate = Math.min(3 + Math.floor(player.combo / 5), 10);
-            
-            for (let i = 0; i < coinsToCreate; i++) {
-                const coin = document.createElement('div');
-                coin.className = 'coin';
-                coin.textContent = '🪙';
-                coin.style.left = `${startX}px`;
-                coin.style.top = `${startY}px`;
-                
-                // Random end position (toward money display)
-                const endX = -50 + Math.random() * 100;
-                const endY = -100 - Math.random() * 50;
-                
-                coin.style.setProperty('--tx', `${endX}px`);
-                coin.style.setProperty('--ty', `${endY}px`);
-                
-                document.body.appendChild(coin);
-                
-                // Remove after animation
-                setTimeout(() => {
-                    coin.remove();
-                }, 1000);
-            }
-            
-            // Update combo display
-            updateComboDisplay();
-        }
-        
-        // Add coins with animation
-        function addCoins(amount) {
-            player.money += amount;
-            player.totalMoneyEarned += amount;
-            updateUI();
-            updateQuests();
-        }
-        
-        // Update quests display
-        function updateQuests() {
-            // Money quest (1,000,000)
-            const moneyPercent = Math.min(100, (player.totalMoneyEarned / 1000000) * 100);
-            document.getElementById('moneyQuestBar').style.width = `${moneyPercent}%`;
-            document.getElementById('moneyQuestPercent').textContent = `${moneyPercent.toFixed(2)}%`;
-            
-            // Cases quest (1,000)
-            const casesPercent = Math.min(100, (player.totalCasesOpened / 1000) * 100);
-            document.getElementById('casesQuestBar').style.width = `${casesPercent}%`;
-            document.getElementById('casesQuestPercent').textContent = `${casesPercent.toFixed(1)}%`;
-            
-            // Combo quest (50x)
-            const comboPercent = Math.min(100, (player.maxCombo / 50) * 100);
-            document.getElementById('comboQuestBar').style.width = `${comboPercent}%`;
-            document.getElementById('comboQuestPercent').textContent = `${comboPercent.toFixed(1)}%`;
-        }
-        
-        // Sell system
-        let currentSellIndex = null;
-        
-        function showSellConfirmation(index, item) {
-            currentSellIndex = index;
-            document.getElementById('sellConfirmationText').innerHTML = 
-                `Sell <span style="font-size:1.5em">${item.emoji}</span> for ${item.value}🪙?`;
-            document.getElementById('sellConfirmation').style.display = 'flex';
-        }
-        
-        function confirmSell() {
-            if (currentSellIndex !== null) {
-                const item = player.inventory[currentSellIndex];
-                addCoins(item.value);
-                player.inventory.splice(currentSellIndex, 1);
-                updateInventory();
-            }
-            cancelSell();
-        }
-        
-        function sellAllEmojis() {
-            if (player.inventory.length === 0) {
-                alert("You don't have any emojis to sell!");
-                cancelSell();
-                return;
-            }
-            
-            const totalValue = player.inventory.reduce((sum, item) => sum + item.value, 0);
-            addCoins(totalValue);
-            player.inventory = [];
-            updateInventory();
-            cancelSell();
-            createConfetti();
-        }
-        
-        function cancelSell() {
-            currentSellIndex = null;
-            document.getElementById('sellConfirmation').style.display = 'none';
-        }
-        
-        // Create confetti effect
-        function createConfetti() {
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900'];
-            
-            for (let i = 0; i < 20; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.top = '-10px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = `${Math.random() * 8 + 4}px`;
-                confetti.style.height = `${Math.random() * 8 + 4}px`;
-                document.body.appendChild(confetti);
-                
-                const animationDuration = Math.random() * 2 + 1;
-                confetti.style.transition = `top ${animationDuration}s linear, transform ${animationDuration}s ease-out, opacity ${animationDuration}s`;
-                
-                setTimeout(() => {
-                    confetti.style.top = '100vh';
-                    confetti.style.transform = `rotate(${Math.random() * 360}deg) translateX(${Math.random() * 100 - 50}px)`;
-                    confetti.style.opacity = '0';
-                }, 10);
-                
-                setTimeout(() => {
-                    confetti.remove();
-                }, animationDuration * 1000);
-            }
-        }
-        
-        // Start the game
-        initGame();
-        
-        // Update free coins button every second
-        setInterval(updateFreeCoinsButton, 1000);
+        // Инициализация
+        createField();
+        createFarmer();
+        updateUI();
+        updateButtonStyles();
+        animate();
     </script>
 </body>
 </html>
