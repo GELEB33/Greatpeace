@@ -2,345 +2,573 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чесночный фермер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Королевство: Песочница — Полная стратегия</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        #ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            font-family: Arial;
-            border-radius: 5px;
-            pointer-events: none;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        #controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+
+        body {
+            background: #1a3a2a;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            padding: 12px;
+            padding-bottom: 85px;
+            min-height: 100vh;
+        }
+
+        .game-wrapper {
+            max-width: 550px;
+            margin: 0 auto;
+            background: #fef7e0;
+            background-image: radial-gradient(circle at 10% 20%, rgba(200,170,110,0.08) 2%, transparent 2.5%);
+            background-size: 24px 24px;
+            border-radius: 48px 32px 48px 32px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+            overflow: hidden;
+            padding: 18px 16px 20px;
+        }
+
+        /* заголовок с названием */
+        .kingdom-header {
             display: flex;
-            gap: 10px;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        button {
-            padding: 8px 16px;
-            font-size: 14px;
-            background: #4CAF50;
-            color: white;
+        .kingdom-name-input {
+            background: #2c241a;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            pointer-events: auto;
+            padding: 6px 12px;
+            border-radius: 30px;
+            color: #ffefcf;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 180px;
+            text-align: center;
         }
-        button:disabled {
-            background: #777;
-        }
-        button.active {
-            background: #2E7D32;
-        }
-        #inventory {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+        .edit-name-btn {
+            background: #b97f44;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
             color: white;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 5px;
-            pointer-events: none;
+            cursor: pointer;
         }
+
+        .resources-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            scrollbar-width: thin;
+        }
+        .resources-flex {
+            display: inline-flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+        }
+        .res-card {
+            background: #2c241ae6;
+            backdrop-filter: blur(4px);
+            padding: 6px 14px;
+            border-radius: 60px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffefcf;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: inset 0 0 0 1px #dbb46a, 0 4px 8px black;
+        }
+        .res-card span:first-child { font-size: 1.2rem; }
+
+        .quick-stats {
+            background: #e9dbbc;
+            border-radius: 28px;
+            padding: 10px 12px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .stat-badge {
+            background: #fff2df;
+            border-radius: 30px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1f2f1cee;
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 12px 18px;
+            border-top: 1px solid #e6c48b;
+            z-index: 100;
+            max-width: 550px;
+            margin: 0 auto;
+            border-radius: 32px 32px 0 0;
+        }
+        .nav-btn {
+            background: #4a3924;
+            border: none;
+            color: #ffe2b5;
+            font-size: 0.7rem;
+            padding: 6px 10px;
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            margin: 0 3px;
+        }
+        .nav-btn span:first-child { font-size: 1.4rem; }
+        .nav-btn:active { transform: scale(0.96); background: #6d4f30; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-card {
+            background: #fef2de;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            border-radius: 48px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 20px 35px black;
+            border: 1px solid #ebc28e;
+        }
+        .modal-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            border-left: 8px solid #b97f44;
+            padding-left: 16px;
+        }
+        .close-modal {
+            background: #a76f3c;
+            float: right;
+            border: none;
+            font-size: 1rem;
+            padding: 4px 12px;
+            border-radius: 30px;
+            color: white;
+        }
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .action-btn {
+            background: #e4cfaa;
+            border: none;
+            padding: 10px;
+            border-radius: 60px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .event-log-sm {
+            background: #2f2a1f;
+            border-radius: 28px;
+            padding: 10px;
+            color: #fbeccd;
+            font-size: 0.7rem;
+            max-height: 160px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        .progress {
+            background: #6a5a44;
+            border-radius: 20px;
+            height: 8px;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            background: #cd9f5a;
+            width: 50%;
+            height: 8px;
+            border-radius: 20px;
+        }
+        footer { font-size: 0.55rem; text-align: center; margin-top: 16px; color: #b48b54; }
+        .resource-detail { font-size: 0.7rem; margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <h3>Чесночный фермер</h3>
-        <p>Кликните по полю для перемещения</p>
+<div class="game-wrapper" id="app">
+    <div class="kingdom-header">
+        <input type="text" id="kingdomNameInput" class="kingdom-name-input" placeholder="Название" maxlength="20" value="Северный Престол">
+        <button id="applyNameBtn" class="edit-name-btn">📜 Сменить</button>
     </div>
-    <div id="inventory">
-        <p>Семена: <span id="seeds-count">10</span></p>
-        <p>Чеснок: <span id="garlic-count">0</span></p>
+    <div class="resources-scroll">
+        <div class="resources-flex" id="resPanel"></div>
     </div>
-    <div id="controls">
-        <button id="move-btn" class="active">Перемещение</button>
-        <button id="plant-btn">Посадить</button>
-        <button id="harvest-btn">Собрать</button>
-    </div>
+    <div class="quick-stats" id="quickStats"></div>
+    <div class="event-log-sm" id="miniLog"><p>🏰 Добро пожаловать, правитель!</p></div>
+</div>
 
-    <!-- Three.js и необходимые компоненты -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+<div class="bottom-nav">
+    <button class="nav-btn" data-modal="economyModal"><span>🏭</span><span>Ресурсы</span></button>
+    <button class="nav-btn" data-modal="militaryModal"><span>⚔️</span><span>Война</span></button>
+    <button class="nav-btn" data-modal="tradeModal"><span>📦</span><span>Торговля</span></button>
+    <button class="nav-btn" data-modal="lawsModal"><span>📜</span><span>Законы</span></button>
+    <button class="nav-btn" data-modal="infoModal"><span>📊</span><span>Статистика</span></button>
+</div>
+
+<!-- МОДАЛЬНЫЕ ОКНА -->
+<div id="economyModal" class="modal">
+    <div class="modal-card">
+        <button class="close-modal">✖️</button>
+        <h3>🏭 Добыча и стройка</h3>
+        <div class="action-list">
+            <button class="action-btn" id="gatherWoodBtn">🪵 Рубить лес (+8-18 древесины) <span>🌲</span></button>
+            <button class="action-btn" id="gatherStoneBtn">⛰️ Добыть камень (+5-12 камня)</button>
+            <button class="action-btn" id="gatherCoalBtn">🪨 Добыть уголь (+4-10 угля)</button>
+            <button class="action-btn" id="buildMineBtn">⛏️ Построить шахту (-40 дер, -20 камня) +2 угля/ход, +1 камня/ход</button>
+            <button class="action-btn" id="buildFarmBtn">🌾 Построить поле (-25 дер, +1 поле, +2 еды/ход)</button>
+            <button class="action-btn" id="buildHouseBtn">🏠 Построить дом (-30 дер, +6 жилья)</button>
+            <button class="action-btn" id="expandLandBtn">🗺️ Освоить земли (-20 дер, +120 площади, +1 поле)</button>
+        </div>
+        <div class="progress"><div class="progress-fill" id="woodDepletionFill" style="width:100%"></div></div>
+        <div id="resourceStatus" style="font-size:0.7rem;">🌲 Леса: богатые</div>
+    </div>
+</div>
+
+<div id="militaryModal" class="modal">
+    <div class="modal-card">
+        <button class="close-modal">✖️</button>
+        <h3>⚔️ Армия</h3>
+        <div class="action-list">
+            <button class="action-btn" id="trainSoldierBtn">🗡️ Нанять воина (-18 еды) +1 воин</button>
+            <button class="action-btn" id="raidBtn">⚡ Набег (+25-55 еды, -4 воина)</button>
+            <button class="action-btn" id="conquerBtn">🏰 Захват (+20% урожая, -10 воинов, +150 площади)</button>
+        </div>
+        <div>⚔️ Сила: <span id="armyPowerSpan">0</span></div>
+    </div>
+</div>
+
+<div id="tradeModal" class="modal">
+    <div class="modal-card">
+        <button class="close-modal">✖️</button>
+        <h3>📦 Торговля</h3>
+        <div class="action-list">
+            <button class="action-btn" id="sellWoodTrade">🪵 Продать 20 дерева → +26-34 золота</button>
+            <button class="action-btn" id="sellStoneTrade">⛰️ Продать 15 камня → +30 золота</button>
+            <button class="action-btn" id="buyFoodTrade">🍞 Купить 35 еды → -22 золота</button>
+            <button class="action-btn" id="investTradeBtn">📈 Инвестиции (-45 золота, +5 золота/ход)</button>
+            <button class="action-btn" id="upgradeLoggingBtn">🪓 Улучшить лесопилку (-60 зол, +30% добычи дерева)</button>
+            <button class="action-btn" id="upgradeMiningBtn">⛏️ Улучшить шахты (-70 зол, +25% добычи камня/угля)</button>
+        </div>
+        <div id="tradeReputation">🤝 Репутация: 50%</div>
+    </div>
+</div>
+
+<div id="lawsModal" class="modal">
+    <div class="modal-card">
+        <button class="close-modal">✖️</button>
+        <h3>📜 Законы</h3>
+        <div class="action-list">
+            <button class="action-btn" id="lawBirthBtn">👶 Указ рождаемости (+1 рождаемость/ход, -15 зол)</button>
+            <button class="action-btn" id="lawTaxBtn">💰 Налоги (+6 зол/ход, -4 счастья)</button>
+            <button class="action-btn" id="lawForestBtn">🌳 Лесной указ (+8% восстановления леса)</button>
+        </div>
+        <div>😊 Счастье: <span id="hapVal">70</span>%</div>
+    </div>
+</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-card">
+        <button class="close-modal">✖️</button>
+        <h3>📊 Статистика</h3>
+        <div id="fullStats"></div>
+        <button id="resetGameBtn" style="background:#b1624b; margin-top:16px;">🔄 Переродить</button>
+    </div>
+</div>
+
+<script>
+    // ========== ЦЕЛЫЕ ЧИСЛА, КАМЕНЬ, УГОЛЬ, УЛУЧШЕНИЯ ==========
+    let kingdom = {
+        name: "Северный Престол",
+        food: 220, wood: 150, stone: 45, coal: 30, gold: 80,
+        population: 48, soldiers: 12,
+        houses: 7, landArea: 620, farms: 5,
+        forestDensity: 85,
+        stoneMines: 0,        // шахты дают пассивно
+        conqueredBonus: 0,
+        birthBonus: 0,
+        taxIncome: 0,
+        happiness: 70,
+        marketIncome: 0,
+        forestRegenBonus: 0,
+        loggingUpgrade: false,   // +30% к сбору дерева
+        miningUpgrade: false,
+        famineCounter: 0,
+        tradeReputation: 50,
+        turnCount: 0
+    };
     
-    <script>
-        // Инициализация сцены
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB);
-        
-        // Камера
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(15, 15, 15);
-        
-        // Рендерер
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-        
-        // Управление камерой
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        
-        // Освещение
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(10, 20, 10);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
-        
-        // Параметры игры
-        const fieldSize = 10;
-        const cellSize = 1;
-        const grid = [];
-        let farmer = null;
-        let targetPosition = null;
-        let action = 'move';
-        let seedsCount = 10;
-        let garlicCount = 0;
-        let walking = false;
-        
-        // Создание поля
-        function createField() {
-            // Земля
-            const groundGeometry = new THREE.PlaneGeometry(fieldSize, fieldSize);
-            const groundMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x3a5f0b,
-                side: THREE.DoubleSide
-            });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            
-            // Сетка клеток
-            const cellsCount = fieldSize / cellSize;
-            for (let i = 0; i < cellsCount; i++) {
-                grid[i] = [];
-                for (let j = 0; j < cellsCount; j++) {
-                    grid[i][j] = {
-                        x: -fieldSize/2 + i*cellSize + cellSize/2,
-                        z: -fieldSize/2 + j*cellSize + cellSize/2,
-                        planted: false,
-                        growthStage: 0,
-                        plant: null
-                    };
-                }
-            }
-            
-            // Разметка поля
-            const gridHelper = new THREE.GridHelper(fieldSize, cellsCount);
-            gridHelper.position.y = 0.01;
-            scene.add(gridHelper);
+    let gameActive = true;
+    let intervalId = null;
+    
+    function addLog(msg, isError = false) {
+        const logDiv = document.getElementById('miniLog');
+        const p = document.createElement('p');
+        p.innerHTML = `${new Date().toLocaleTimeString().slice(0,5)} — ${msg}`;
+        if(isError) p.style.color = "#ffb28b";
+        logDiv.prepend(p);
+        if(logDiv.children.length > 7) logDiv.removeChild(logDiv.lastChild);
+    }
+    
+    // ДОБЫЧА с учетом улучшений и истощения леса
+    function getWoodGather() {
+        let base = 8 + Math.floor(Math.random() * 12);
+        let modifier = kingdom.forestDensity / 100;
+        let upgrade = kingdom.loggingUpgrade ? 1.3 : 1;
+        let gained = Math.floor(base * (0.5 + modifier * 0.9) * upgrade);
+        kingdom.forestDensity = Math.max(5, kingdom.forestDensity - (Math.random() * 7));
+        if(kingdom.forestDensity < 20) addLog("🌲 Леса истощаются! Древесины меньше.", true);
+        return Math.max(3, gained);
+    }
+    
+    function getStoneGather() {
+        let base = 4 + Math.floor(Math.random() * 9);
+        let upgrade = kingdom.miningUpgrade ? 1.25 : 1;
+        let gained = Math.floor(base * upgrade);
+        return Math.max(2, gained);
+    }
+    
+    function getCoalGather() {
+        let base = 3 + Math.floor(Math.random() * 8);
+        let upgrade = kingdom.miningUpgrade ? 1.25 : 1;
+        return Math.max(2, Math.floor(base * upgrade));
+    }
+    
+    function regrowForest() {
+        let regen = 3 + (kingdom.forestRegenBonus ? 2 : 0);
+        kingdom.forestDensity = Math.min(100, kingdom.forestDensity + regen);
+    }
+    
+    // пассивный доход от шахт
+    function mineProduction() {
+        if(kingdom.stoneMines > 0) {
+            let stoneGain = kingdom.stoneMines * 1;
+            let coalGain = kingdom.stoneMines * 2;
+            kingdom.stone += stoneGain;
+            kingdom.coal += coalGain;
+            if(stoneGain>0) addLog(`⛏️ Шахты дали +${stoneGain} камня, +${coalGain} угля`);
         }
-        
-        // Создание персонажа
-        function createFarmer() {
-            // Тело
-            const bodyGeometry = new THREE.BoxGeometry(0.4, 1, 0.2);
-            const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x4682B4 });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = 0.5;
-            
-            // Голова
-            const headGeometry = new THREE.SphereGeometry(0.2);
-            const headMaterial = new THREE.MeshStandardMaterial({ color: 0xFFD700 });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = 1.1;
-            
-            farmer = new THREE.Group();
-            farmer.add(body);
-            farmer.add(head);
-            farmer.castShadow = true;
-            scene.add(farmer);
+    }
+    
+    function calcFoodFromFarms() {
+        let base = kingdom.farms * 2.2;
+        let conquer = 1 + (kingdom.conqueredBonus / 100);
+        let happMod = 0.7 + (kingdom.happiness / 180);
+        let total = base * conquer * happMod;
+        if(kingdom.famineCounter > 0) {
+            total *= 0.4;
+            addLog(`🌾⚠️ НЕУРОЖАЙ! -60% урожая`, true);
+            kingdom.famineCounter--;
         }
-        
-        // Обработка кликов
-        function onFieldClick(event) {
-            const mouse = new THREE.Vector2(
-                (event.clientX / window.innerWidth) * 2 - 1,
-                -(event.clientY / window.innerHeight) * 2 + 1
-            );
-            
-            const raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(scene.children);
-            
-            if (intersects.length > 0 && intersects[0].object === scene.children[0]) {
-                const point = intersects[0].point;
-                const i = Math.floor((point.x + fieldSize/2) / cellSize);
-                const j = Math.floor((point.z + fieldSize/2) / cellSize);
-                
-                if (i >= 0 && i < grid.length && j >= 0 && j < grid[0].length) {
-                    const cell = grid[i][j];
-                    
-                    if (action === 'plant' && !cell.planted && seedsCount > 0) {
-                        plantGarlic(cell);
-                    } else if (action === 'harvest' && cell.planted && cell.growthStage === 3) {
-                        harvestGarlic(cell);
-                    } else if (action === 'move') {
-                        targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
-                        walking = true;
-                    }
-                }
-            }
+        return Math.floor(total);
+    }
+    
+    // ЦЕЛОЧИСЛЕННАЯ рождаемость
+    function calcBirth() {
+        let maxPop = kingdom.houses * 8 + 30;
+        if(kingdom.population >= maxPop) return 0;
+        let freeSpace = (maxPop - kingdom.population) / maxPop;
+        let rate = (kingdom.population * 0.022) + kingdom.birthBonus;
+        rate *= (0.7 + kingdom.happiness/150);
+        rate *= (0.5 + freeSpace*0.8);
+        let rawBirth = Math.floor(rate);
+        if(rawBirth < 1 && Math.random() < (rate - rawBirth)) rawBirth = 1;
+        return Math.min(rawBirth, 5);
+    }
+    
+    // потребление еды (целые)
+    function consumeFood() {
+        let needed = Math.floor(kingdom.population * 0.68);
+        if(kingdom.food >= needed) {
+            kingdom.food -= needed;
+            if(kingdom.happiness < 95) kingdom.happiness = Math.min(100, kingdom.happiness + 0.5);
+            return true;
+        } else {
+            let deficit = needed - kingdom.food;
+            let starve = Math.floor(deficit / 0.9);
+            starve = Math.min(starve, Math.floor(kingdom.population * 0.25));
+            kingdom.population = Math.max(4, kingdom.population - starve);
+            kingdom.food = 0;
+            kingdom.happiness = Math.max(0, kingdom.happiness - 12);
+            addLog(`💀 Голод! Умерло ${starve} жителей.`, true);
+            return false;
         }
+    }
+    
+    function gameTick() {
+        if(!gameActive) return;
+        kingdom.turnCount++;
+        if(Math.random() < 0.09 && kingdom.famineCounter === 0) kingdom.famineCounter = 1 + Math.floor(Math.random()*2);
         
-        // Посадка чеснока
-        function plantGarlic(cell) {
-            cell.planted = true;
-            seedsCount--;
-            updateUI();
-            
-            targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
-            walking = true;
-            
-            // Создаем растение
-            const plant = new THREE.Group();
-            plant.position.set(cell.x, 0, cell.z);
-            scene.add(plant);
-            cell.plant = plant;
-            
-            growPlant(cell);
-        }
+        let foodGain = calcFoodFromFarms();
+        kingdom.food += foodGain;
+        addLog(`🌾 Урожай: +${foodGain} еды`);
         
-        // Рост растения
-        function growPlant(cell) {
-            if (cell.growthStage >= 3) return;
-            
-            cell.growthStage++;
-            
-            // Очищаем предыдущую стадию
-            while(cell.plant.children.length) {
-                cell.plant.remove(cell.plant.children[0]);
-            }
-            
-            // Создаем новую стадию
-            const size = 0.1 * cell.growthStage;
-            const stemGeometry = new THREE.CylinderGeometry(size/4, size/4, size, 6);
-            const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x00aa00 });
-            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-            stem.position.y = size/2;
-            cell.plant.add(stem);
-            
-            if (cell.growthStage === 3) {
-                const garlicGeometry = new THREE.SphereGeometry(size/2, 8, 8);
-                const garlicMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-                const garlic = new THREE.Mesh(garlicGeometry, garlicMaterial);
-                garlic.position.y = size;
-                cell.plant.add(garlic);
-            }
-            
-            if (cell.growthStage < 3) {
-                setTimeout(() => growPlant(cell), 1000);
-            }
-        }
+        let goldIncome = kingdom.taxIncome + kingdom.marketIncome;
+        if(goldIncome > 0) { kingdom.gold += goldIncome; addLog(`💰 Доход: +${goldIncome} золота`); }
         
-        // Сбор урожая
-        function harvestGarlic(cell) {
-            targetPosition = new THREE.Vector3(cell.x, 0, cell.z);
-            walking = true;
-            
-            scene.remove(cell.plant);
-            cell.planted = false;
-            cell.plant = null;
-            cell.growthStage = 0;
-            
-            garlicCount += 3;
-            updateUI();
-        }
+        mineProduction();
+        let births = calcBirth();
+        if(births > 0) { kingdom.population += births; addLog(`👶 Родилось +${births} человек`); }
+        consumeFood();
+        regrowForest();
         
-        // Обновление интерфейса
-        function updateUI() {
-            document.getElementById('seeds-count').textContent = seedsCount;
-            document.getElementById('garlic-count').textContent = garlicCount;
-            
-            document.getElementById('plant-btn').disabled = seedsCount <= 0;
-            document.getElementById('harvest-btn').disabled = garlicCount <= 0;
-        }
+        if(kingdom.tradeReputation > 50) kingdom.tradeReputation -= 0.4;
+        if(kingdom.tradeReputation < 50) kingdom.tradeReputation += 0.3;
+        kingdom.tradeReputation = Math.min(95, Math.max(15, kingdom.tradeReputation));
         
-        // Управление кнопками
-        document.getElementById('move-btn').addEventListener('click', () => {
-            action = 'move';
-            updateButtonStyles();
-        });
+        kingdom.population = Math.min(kingdom.houses * 8 + 30, kingdom.population);
+        kingdom.food = Math.max(0, Math.floor(kingdom.food));
+        kingdom.wood = Math.max(0, Math.floor(kingdom.wood));
+        kingdom.stone = Math.max(0, Math.floor(kingdom.stone));
+        kingdom.coal = Math.max(0, Math.floor(kingdom.coal));
+        kingdom.gold = Math.max(0, Math.floor(kingdom.gold));
+        kingdom.happiness = Math.min(100, Math.max(0, kingdom.happiness));
         
-        document.getElementById('plant-btn').addEventListener('click', () => {
-            action = 'plant';
-            updateButtonStyles();
-        });
+        updateAllUI();
+        if(kingdom.population <= 2) { addLog("💀 КОРОЛЕВСТВО ПАЛО...",true); gameActive=false; clearInterval(intervalId); }
+    }
+    
+    // ========== ДЕЙСТВИЯ ==========
+    function gatherWoodAct() { let w = getWoodGather(); kingdom.wood += w; addLog(`🪵 Древесина +${w} (леса ${Math.floor(kingdom.forestDensity)}%)`); updateAllUI();}
+    function gatherStoneAct() { let s = getStoneGather(); kingdom.stone += s; addLog(`⛰️ Камень +${s}`); updateAllUI();}
+    function gatherCoalAct() { let c = getCoalGather(); kingdom.coal += c; addLog(`🪨 Уголь +${c}`); updateAllUI();}
+    function buildMine() { if(kingdom.wood>=40 && kingdom.stone>=20) { kingdom.wood-=40; kingdom.stone-=20; kingdom.stoneMines++; addLog(`⛏️ Шахта построена! +1 камень и +2 угля/ход`);} else addLog(`❌ Нужно 40 дерева, 20 камня`,true); updateAllUI();}
+    function buildFarm() { if(kingdom.wood>=25) { kingdom.wood-=25; kingdom.farms++; addLog(`🌾 Поле +1 (всего ${kingdom.farms})`);} else addLog(`Мало дерева`,true); updateAllUI();}
+    function buildHouse() { if(kingdom.wood>=30) { kingdom.wood-=30; kingdom.houses++; addLog(`🏠 Дом +1 (жилья +6)`);} else addLog(`Нужно 30 дерева`,true); updateAllUI();}
+    function expandLand() { if(kingdom.wood>=20) { kingdom.wood-=20; kingdom.landArea+=120; kingdom.farms++; addLog(`🗺️ Земли +120, новое поле`);} else addLog(`Мало дерева`,true); updateAllUI();}
+    function trainSoldier() { if(kingdom.food>=18) { kingdom.food-=18; kingdom.soldiers++; addLog(`🗡️ Воин +1`);} else addLog(`Не хватает еды`,true); updateAllUI();}
+    function raidAct() { if(kingdom.soldiers>=4) { kingdom.soldiers-=4; let loot=25+Math.floor(Math.random()*35); kingdom.food+=loot; addLog(`⚔️ Набег: +${loot} еды`); kingdom.happiness=Math.min(100,kingdom.happiness+3);} else addLog(`Нужно 4 воина`,true); updateAllUI();}
+    function conquerAct() { if(kingdom.soldiers>=10) { kingdom.soldiers-=10; kingdom.conqueredBonus+=20; kingdom.landArea+=150; addLog(`🏰 ЗАХВАТ! +20% урожая`); kingdom.happiness+=5;} else addLog(`Нужно 10 воинов`,true); updateAllUI();}
+    function sellWoodTrade() { if(kingdom.wood>=20) { kingdom.wood-=20; let price = 26 + Math.floor(Math.random()*10); kingdom.gold+=price; addLog(`Продано 20 дерева за ${price} золота`); kingdom.tradeReputation+=2;} else addLog(`Нет дерева`,true); updateAllUI();}
+    function sellStoneTrade() { if(kingdom.stone>=15) { kingdom.stone-=15; kingdom.gold+=30; addLog(`Продано 15 камня за 30 золота`); kingdom.tradeReputation+=1;} else addLog(`Мало камня`,true); updateAllUI();}
+    function buyFoodTrade() { if(kingdom.gold>=22) { let foodGet = 35 + Math.floor(Math.random()*5); kingdom.gold-=22; kingdom.food+=foodGet; addLog(`Куплено ${foodGet} еды`); kingdom.tradeReputation+=1;} else addLog(`Мало золота`,true); updateAllUI();}
+    function investTrade() { if(kingdom.gold>=45) { kingdom.gold-=45; kingdom.marketIncome+=5; addLog(`📈 Инвестиции +5 золота/ход`);} else addLog(`Нужно 45 золота`,true); updateAllUI();}
+    function upgradeLogging() { if(kingdom.gold>=60 && !kingdom.loggingUpgrade) { kingdom.gold-=60; kingdom.loggingUpgrade=true; addLog(`🪓 Лесопилка улучшена! +30% древесины`);} else if(kingdom.loggingUpgrade) addLog(`Уже улучшено`); else addLog(`Нужно 60 золота`,true); updateAllUI();}
+    function upgradeMining() { if(kingdom.gold>=70 && !kingdom.miningUpgrade) { kingdom.gold-=70; kingdom.miningUpgrade=true; addLog(`⛏️ Шахты улучшены! +25% ресурсов`);} else if(kingdom.miningUpgrade) addLog(`Уже улучшено`); else addLog(`Нужно 70 золота`,true); updateAllUI();}
+    function lawBirth() { if(kingdom.gold>=15) { kingdom.gold-=15; kingdom.birthBonus+=1; addLog(`👶 Рождаемость +1/ход`);} else addLog(`Не хватает золота`,true); updateAllUI();}
+    function lawTax() { if(kingdom.happiness>10) { kingdom.taxIncome+=6; kingdom.happiness-=4; addLog(`💰 Налоги +6 зол/ход`);} else addLog(`Счастье низкое`,true); updateAllUI();}
+    function lawForest() { if(kingdom.wood>=10) { kingdom.wood-=10; kingdom.forestRegenBonus=1; addLog(`🌳 Восстановление леса +8%`);} else addLog(`Мало дерева`,true); updateAllUI();}
+    function resetGame() { location.reload(); }
+    
+    function updateAllUI() {
+        document.getElementById('resPanel').innerHTML = `
+            <div class="res-card"><span>🍞</span> ${Math.floor(kingdom.food)}</div>
+            <div class="res-card"><span>🪵</span> ${Math.floor(kingdom.wood)}</div>
+            <div class="res-card"><span>⛰️</span> ${Math.floor(kingdom.stone)}</div>
+            <div class="res-card"><span>🪨</span> ${Math.floor(kingdom.coal)}</div>
+            <div class="res-card"><span>🪙</span> ${Math.floor(kingdom.gold)}</div>
+            <div class="res-card"><span>👥</span> ${Math.floor(kingdom.population)}/${kingdom.houses*8+30}</div>
+            <div class="res-card"><span>⚔️</span> ${kingdom.soldiers}</div>
+            <div class="res-card"><span>🏞️</span> ${Math.floor(kingdom.landArea)}</div>
+        `;
+        document.getElementById('quickStats').innerHTML = `
+            <div class="stat-badge">😊 ${Math.floor(kingdom.happiness)}%</div>
+            <div class="stat-badge">🌾 ${kingdom.farms} полей</div>
+            <div class="stat-badge">🏠 ${kingdom.houses} домов</div>
+            <div class="stat-badge">⛏️ шахт:${kingdom.stoneMines}</div>
+            <div class="stat-badge">🏆 +${kingdom.conqueredBonus}%</div>
+        `;
+        document.getElementById('woodDepletionFill').style.width = `${kingdom.forestDensity}%`;
+        document.getElementById('resourceStatus').innerHTML = `🌲 Леса: ${kingdom.forestDensity>60?"богатые":kingdom.forestDensity>30?"средние":"истощённые"} (${Math.floor(kingdom.forestDensity)}%) | 🪓 улучшение: ${kingdom.loggingUpgrade?"есть":"нет"} | ⛏️ шахты: ${kingdom.miningUpgrade?"улучш.":"обыч."}`;
+        document.getElementById('armyPowerSpan').innerText = Math.floor(kingdom.soldiers + kingdom.population*0.1);
+        document.getElementById('hapVal').innerText = Math.floor(kingdom.happiness);
+        document.getElementById('tradeReputation').innerHTML = `🤝 Репутация: ${Math.floor(kingdom.tradeReputation)}%`;
+        let full = document.getElementById('fullStats');
+        full.innerHTML = `
+            <div>🏰 ${kingdom.name}</div>
+            <div>🗺️ Площадь: ${Math.floor(kingdom.landArea)} км²</div>
+            <div>🏠 Дома: ${kingdom.houses} (макс.население ${kingdom.houses*8+30})</div>
+            <div>🌾 Поля: ${kingdom.farms} | Бонус захвата +${kingdom.conqueredBonus}%</div>
+            <div>⛏️ Шахт: ${kingdom.stoneMines} | Улучшение добычи: лес 🪓 ${kingdom.loggingUpgrade?"да":"нет"} / шахты ⛏️ ${kingdom.miningUpgrade?"да":"нет"}</div>
+            <div>📈 Доход/ход: налог ${kingdom.taxIncome} + рынок ${kingdom.marketIncome} = ${kingdom.taxIncome+kingdom.marketIncome} зол.</div>
+            <div>🌲 Лес: ${Math.floor(kingdom.forestDensity)}% | 👶 Рождаемость бонус: +${kingdom.birthBonus}</div>
+            <div>🍂 Неурожай: ${kingdom.famineCounter>0?"Да":"Нет"} | Ходов: ${kingdom.turnCount}</div>
+        `;
+    }
+    
+    function initModals() {
+        const modals = document.querySelectorAll('.modal');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const closeBtns = document.querySelectorAll('.close-modal');
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeAll() { modals.forEach(m => m.style.display = 'none'); }
+        navBtns.forEach(btn => { btn.onclick = () => { closeAll(); openModal(btn.dataset.modal); }; });
+        closeBtns.forEach(btn => { btn.onclick = () => closeAll(); });
+        window.onclick = (e) => { if(e.target.classList.contains('modal')) closeAll(); };
         
-        document.getElementById('harvest-btn').addEventListener('click', () => {
-            action = 'harvest';
-            updateButtonStyles();
-        });
+        document.getElementById('gatherWoodBtn').onclick = () => { gatherWoodAct(); closeAll(); };
+        document.getElementById('gatherStoneBtn').onclick = () => { gatherStoneAct(); closeAll(); };
+        document.getElementById('gatherCoalBtn').onclick = () => { gatherCoalAct(); closeAll(); };
+        document.getElementById('buildMineBtn').onclick = () => { buildMine(); closeAll(); };
+        document.getElementById('buildFarmBtn').onclick = () => { buildFarm(); closeAll(); };
+        document.getElementById('buildHouseBtn').onclick = () => { buildHouse(); closeAll(); };
+        document.getElementById('expandLandBtn').onclick = () => { expandLand(); closeAll(); };
+        document.getElementById('trainSoldierBtn').onclick = () => { trainSoldier(); closeAll(); };
+        document.getElementById('raidBtn').onclick = () => { raidAct(); closeAll(); };
+        document.getElementById('conquerBtn').onclick = () => { conquerAct(); closeAll(); };
+        document.getElementById('sellWoodTrade').onclick = () => { sellWoodTrade(); closeAll(); };
+        document.getElementById('sellStoneTrade').onclick = () => { sellStoneTrade(); closeAll(); };
+        document.getElementById('buyFoodTrade').onclick = () => { buyFoodTrade(); closeAll(); };
+        document.getElementById('investTradeBtn').onclick = () => { investTrade(); closeAll(); };
+        document.getElementById('upgradeLoggingBtn').onclick = () => { upgradeLogging(); closeAll(); };
+        document.getElementById('upgradeMiningBtn').onclick = () => { upgradeMining(); closeAll(); };
+        document.getElementById('lawBirthBtn').onclick = () => { lawBirth(); closeAll(); };
+        document.getElementById('lawTaxBtn').onclick = () => { lawTax(); closeAll(); };
+        document.getElementById('lawForestBtn').onclick = () => { lawForest(); closeAll(); };
+        document.getElementById('resetGameBtn').onclick = () => resetGame();
         
-        function updateButtonStyles() {
-            document.querySelectorAll('#controls button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`#${action}-btn`).classList.add('active');
-        }
-        
-        // Обработка событий
-        renderer.domElement.addEventListener('click', onFieldClick, false);
-        
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // Анимация
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            // Движение персонажа
-            if (targetPosition && farmer) {
-                const direction = new THREE.Vector3()
-                    .subVectors(targetPosition, farmer.position)
-                    .normalize()
-                    .multiplyScalar(0.05);
-                
-                if (farmer.position.distanceTo(targetPosition) > 0.1) {
-                    farmer.position.add(direction);
-                    farmer.lookAt(new THREE.Vector3(
-                        targetPosition.x,
-                        farmer.position.y,
-                        targetPosition.z
-                    ));
-                    
-                    // Анимация ходьбы
-                    if (!walking) walking = true;
-                    farmer.children[0].rotation.z = Math.sin(Date.now() * 0.01) * 0.2;
-                } else {
-                    walking = false;
-                }
-            }
-            
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        
-        // Инициализация
-        createField();
-        createFarmer();
-        updateUI();
-        updateButtonStyles();
-        animate();
-    </script>
+        const nameInput = document.getElementById('kingdomNameInput');
+        const applyBtn = document.getElementById('applyNameBtn');
+        applyBtn.onclick = () => { kingdom.name = nameInput.value.trim() || "Безымянное"; addLog(`📜 Отныне королевство зовётся ${kingdom.name}`); updateAllUI(); closeAll(); };
+    }
+    
+    function startLoop() { intervalId = setInterval(() => gameTick(), 11000); }
+    initModals();
+    startLoop();
+    updateAllUI();
+    addLog(`🏆 Добро пожаловать, правитель ${kingdom.name}! Добывай, строй, захватывай.`);
+</script>
 </body>
 </html>
