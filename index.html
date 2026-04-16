@@ -12,40 +12,16 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes glow {
-            0% { box-shadow: 0 0 5px rgba(255,215,0,0.5); }
-            100% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
-        }
-
-        @keyframes shake {
-            0%,100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
         body {
-            background: linear-gradient(135deg, #0a0f1a 0%, #0f1a2a 50%, #0a0f1a 100%);
-            font-family: 'Segoe UI', 'MedievalSharp', 'Georgia', serif;
-            padding: 12px;
-            padding-bottom: 85px;
+            touch-action: pan-y;
+            overscroll-behavior: none;
             min-height: 100vh;
+            background: #2a1f12;
             position: relative;
-            overflow-x: hidden;
         }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        /* Анимированный фон с узором "кожа" */
         body::before {
             content: '';
             position: fixed;
@@ -53,351 +29,368 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(100,50,20,0.1) 0%, transparent 70%);
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(80,55,35,0.15) 0px, rgba(80,55,35,0.15) 2px, transparent 2px, transparent 8px),
+                repeating-linear-gradient(135deg, rgba(60,40,20,0.1) 0px, rgba(60,40,20,0.1) 1px, transparent 1px, transparent 6px);
             pointer-events: none;
             z-index: 0;
+            animation: slowDrift 20s ease infinite;
         }
-
+        @keyframes slowDrift {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 100px 100px, -50px 50px; }
+        }
+        
+        /* Основной контейнер */
         .game-wrapper {
             max-width: 600px;
             margin: 0 auto;
-            background: rgba(30, 25, 45, 0.7);
-            backdrop-filter: blur(15px);
+            background: linear-gradient(145deg, #3d2a1a 0%, #2e1f12 100%);
             border-radius: 48px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,215,150,0.15);
             overflow: hidden;
-            padding: 18px;
-            border: 1px solid rgba(255,215,0,0.2);
+            padding: 20px 18px;
             position: relative;
             z-index: 1;
+            border: 1px solid rgba(210,170,100,0.4);
         }
-
+        
+        /* Герб с мерцанием */
+        .heraldic-glow {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(210,170,80,0.2) 0%, rgba(210,170,80,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+            animation: softPulse 6s ease-in-out infinite;
+        }
+        @keyframes softPulse {
+            0%,100% { opacity: 0.3; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.7; transform: translateX(-50%) scale(1.08); }
+        }
+        
         .kingdom-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
+            position: relative;
+            z-index: 3;
         }
-
         .kingdom-name-input {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,215,0,0.5);
-            padding: 8px 16px;
-            border-radius: 40px;
-            color: #ffefcf;
-            font-weight: bold;
+            background: rgba(20,12,6,0.7);
+            backdrop-filter: blur(4px);
+            border: 1px solid #c9a050;
+            padding: 10px 18px;
+            border-radius: 60px;
+            color: #f5e2c0;
+            font-weight: 600;
             font-size: 1rem;
-            width: 180px;
+            width: 200px;
             text-align: center;
-            backdrop-filter: blur(5px);
+            font-family: 'Playfair Display', serif;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
         .turn-counter {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            padding: 6px 14px;
-            border-radius: 40px;
-            color: #ffd966;
-            font-size: 0.8rem;
+            background: rgba(20,12,6,0.7);
+            backdrop-filter: blur(4px);
+            padding: 8px 18px;
+            border-radius: 60px;
+            color: #e8c894;
+            font-size: 0.85rem;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
-            border: 1px solid rgba(255,215,0,0.3);
+            font-weight: 600;
+            border: 1px solid #b8863b;
         }
-
         .pause-btn {
-            background: #5a3a1a;
+            background: #7a5a38;
             border: none;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
+            color: #f5e2c0;
+            padding: 5px 14px;
+            border-radius: 40px;
             cursor: pointer;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.15s;
         }
-
-        .pause-btn:active { transform: scale(0.95); }
-
+        .pause-btn:active { transform: scale(0.96); background: #9a7648; }
+        
         .resources-scroll {
             overflow-x: auto;
             white-space: nowrap;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
+            margin-bottom: 18px;
+            padding-bottom: 6px;
         }
-
         .resources-flex {
             display: inline-flex;
             gap: 10px;
         }
-
         .res-card {
-            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(30,20,40,0.8));
-            backdrop-filter: blur(10px);
+            background: rgba(25,16,8,0.8);
+            backdrop-filter: blur(4px);
             padding: 8px 16px;
             border-radius: 60px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #ffefcf;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 0.85rem;
-            border: 1px solid rgba(255,215,0,0.3);
-            transition: all 0.2s;
-            animation: float 3s ease-in-out infinite;
+            color: #f5e2c0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border: 1px solid rgba(200,150,70,0.5);
         }
-
         .res-card span:first-child { font-size: 1.3rem; }
-
+        
         .quick-stats {
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            background: rgba(30,18,8,0.6);
+            backdrop-filter: blur(8px);
             border-radius: 32px;
             padding: 12px 16px;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             gap: 8px;
-            font-size: 0.7rem;
-            border: 1px solid rgba(255,215,0,0.2);
+            font-size: 0.75rem;
+            border: 1px solid rgba(200,150,70,0.3);
         }
-
         .stat-badge {
-            background: rgba(255,215,0,0.15);
+            background: rgba(50,30,15,0.7);
             border-radius: 30px;
-            padding: 4px 12px;
+            padding: 5px 12px;
             display: flex;
             align-items: center;
             gap: 6px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #f0dbb8;
         }
-
+        
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(10,15,25,0.95);
+            background: rgba(20,12,5,0.95);
             backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-around;
-            padding: 10px 12px 20px;
-            border-top: 1px solid rgba(255,215,0,0.3);
+            padding: 10px 12px 22px;
+            border-top: 1px solid #b8863b;
             z-index: 100;
             max-width: 600px;
             margin: 0 auto;
             border-radius: 32px 32px 0 0;
             flex-wrap: wrap;
+            box-shadow: 0 -8px 25px rgba(0,0,0,0.4);
         }
-
         .nav-btn {
-            background: linear-gradient(135deg, #4a3020, #2a1a0a);
+            background: linear-gradient(145deg, #4a3520, #2e1f12);
             border: none;
-            color: #ffe2b5;
-            font-size: 0.55rem;
+            color: #f0dbb8;
+            font-size: 0.6rem;
             padding: 8px 6px;
             border-radius: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             flex: 1;
-            min-width: 55px;
+            min-width: 58px;
             margin: 2px;
             transition: all 0.1s;
-            box-shadow: 0 4px 0 #1a0a00;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border: 1px solid rgba(200,150,70,0.3);
         }
-
-        .nav-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #1a0a00;
-        }
-
-        .nav-btn span:first-child { font-size: 1.3rem; }
-
+        .nav-btn:active { transform: translateY(2px); background: #5a4530; }
+        .nav-btn span:first-child { font-size: 1.4rem; }
+        
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
             z-index: 200;
             align-items: center;
             justify-content: center;
             padding: 16px;
         }
-
         .modal-card {
-            background: linear-gradient(135deg, #2a2030, #1a1020);
+            background: linear-gradient(145deg, #3a2a1a, #2a1a0e);
             max-width: 500px;
             width: 100%;
             max-height: 85vh;
             border-radius: 48px;
-            padding: 20px;
+            padding: 22px;
             overflow-y: auto;
-            border: 1px solid rgba(255,215,0,0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid #c9a050;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
-
         .modal-card h3 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             margin-bottom: 16px;
-            background: linear-gradient(135deg, #ffd966, #ffaa33);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            border-left: 4px solid #ffaa33;
+            color: #e8c894;
+            font-family: 'Playfair Display', serif;
+            border-left: 4px solid #e0a860;
             padding-left: 16px;
         }
-
         .close-modal {
-            background: #8a3a2a;
+            background: #6a4a2a;
             float: right;
             border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            color: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #f0dbb8;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
-
-        .close-modal:active { transform: scale(0.95); }
-
         .action-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 16px;
+            margin-top: 18px;
         }
-
         .action-btn {
-            background: linear-gradient(135deg, #3a2a1a, #2a1a0a);
-            border: none;
+            background: rgba(50,32,16,0.8);
+            border: 1px solid #b8863b;
             padding: 12px 16px;
             border-radius: 60px;
-            font-weight: bold;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             font-size: 0.85rem;
             cursor: pointer;
-            color: #ffefcf;
+            color: #f5e2c0;
             transition: all 0.1s;
-            box-shadow: 0 3px 0 #1a0a00;
         }
-
-        .action-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #1a0a00;
-        }
-
+        .action-btn:active { transform: scale(0.98); background: #5a3e22; }
+        
         .event-log {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
+            background: rgba(20,10,4,0.7);
+            backdrop-filter: blur(8px);
             border-radius: 28px;
             padding: 12px;
-            color: #fbeccd;
-            font-size: 0.7rem;
+            color: #eeddbb;
+            font-size: 0.75rem;
             max-height: 150px;
             overflow-y: auto;
-            margin-top: 16px;
-            border: 1px solid rgba(255,215,0,0.2);
+            margin-top: 18px;
+            border: 1px solid #b8863b;
+            font-weight: 500;
         }
-
         .event-log p {
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,215,0,0.1);
-            animation: fadeIn 0.3s ease;
+            padding: 6px 0;
+            border-bottom: 1px solid #7a5a3a;
+            animation: fadeIn 0.25s ease;
         }
-
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-10px); }
+            from { opacity: 0; transform: translateX(-6px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
+        
         .stat-line {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid rgba(255,215,0,0.2);
+            border-bottom: 1px solid #7a5a3a;
             font-size: 0.85rem;
+            color: #f0dbb8;
         }
-
         .progress {
-            background: rgba(0,0,0,0.5);
+            background: #2a1a0e;
             border-radius: 20px;
             height: 8px;
-            margin: 10px 0;
+            margin: 12px 0;
         }
-
         .progress-fill {
-            background: linear-gradient(90deg, #ffaa33, #ffd966);
+            background: linear-gradient(90deg, #dba44a, #f0c070);
             width: 50%;
             height: 8px;
             border-radius: 20px;
-            transition: width 0.3s;
+            transition: width 0.2s;
         }
-
         .achievement {
-            background: linear-gradient(135deg, #2a5a2a, #1a3a1a);
+            background: rgba(50,35,15,0.8);
             border-radius: 20px;
             padding: 6px 12px;
             margin: 5px 0;
-            color: #ffefcf;
+            color: #f5e2c0;
             font-size: 0.7rem;
-            border: 1px solid #ffd966;
+            font-weight: 600;
+            border-left: 4px solid #e0a860;
         }
-
         .crisis-warning {
-            background: linear-gradient(135deg, #8a2a2a, #5a1a1a);
-            color: white;
+            background: rgba(100,40,20,0.9);
+            color: #ffcc88;
             padding: 10px;
-            border-radius: 20px;
+            border-radius: 28px;
             text-align: center;
-            font-weight: bold;
-            margin-top: 10px;
-            animation: pulse 1s infinite;
+            font-weight: 800;
+            margin-top: 12px;
+            border: 1px solid #ffaa55;
+            animation: crisisPulse 1s infinite;
         }
-
+        @keyframes crisisPulse {
+            0%,100% { background: rgba(120,40,20,0.9); }
+            50% { background: rgba(160,60,25,0.9); }
+        }
         footer {
-            font-size: 0.5rem;
+            font-size: 0.55rem;
             text-align: center;
             margin-top: 16px;
-            color: rgba(255,235,200,0.5);
+            color: #b89060;
         }
-
-        @keyframes resourceGain {
-            0% { transform: scale(1); color: #ffefcf; }
-            50% { transform: scale(1.1); color: #4cff4c; }
-            100% { transform: scale(1); color: #ffefcf; }
+        .tech-item {
+            background: rgba(40,25,12,0.8);
+            border-radius: 20px;
+            padding: 8px 12px;
+            margin: 6px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #f0dbb8;
         }
-
-        .gain-animation {
-            animation: resourceGain 0.3s ease;
+        button, .action-btn, .nav-btn, .close-modal, .pause-btn {
+            cursor: pointer;
         }
-
-        .loss-animation {
-            animation: resourceGain 0.3s ease reverse;
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2a1a0e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c9a050;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 <div class="game-wrapper">
+    <div class="heraldic-glow"></div>
     <div class="kingdom-header">
         <input type="text" id="kingdomNameInput" class="kingdom-name-input" value="Северный Престол" maxlength="25">
         <div class="turn-counter">📅 Ход: <span id="turnCount">0</span> <button id="pauseGameBtn" class="pause-btn">⏸️</button></div>
     </div>
-    <div class="resources-scroll">
-        <div class="resources-flex" id="resPanel"></div>
-    </div>
+    <div class="resources-scroll"><div class="resources-flex" id="resPanel"></div></div>
     <div class="quick-stats" id="quickStats"></div>
     <div id="crisisPanel"></div>
     <div id="achievementsPanel" style="margin-top:8px;"></div>
-    <div class="event-log" id="eventLog"><p>🏰 Добро пожаловать в королевство, повелитель!</p></div>
-    <footer>⚔️ Управляй королевством | 📦 Торгуй | 📜 Принимай законы | 🔬 Исследуй технологии</footer>
+    <div class="event-log" id="eventLog"><p>🏰 Добро пожаловать, правитель! Развивай королевство, торгуй, строй здания и переживай кризисы.</p></div>
+    <footer>⚔️ Управляй королевством | 📦 Торгуй | 📜 Законы | 🔬 Технологии | 🛠️ Здания</footer>
 </div>
 
 <div class="bottom-nav">
@@ -409,13 +402,12 @@
     <button class="nav-btn" data-modal="infoModal"><span>📊</span><span>Статистика</span></button>
 </div>
 
-<!-- МОДАЛЬНЫЕ ОКНА -->
 <div id="economyModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>🏭 Ресурсы и стройка</h3><div class="action-list">
     <button class="action-btn" id="gatherWoodBtn">🪵 Рубить лес (+8-16 дер)</button>
     <button class="action-btn" id="gatherStoneBtn">⛰️ Добыть камень (+5-10 кам)</button>
     <button class="action-btn" id="gatherCoalBtn">🪨 Добыть уголь (+4-8 угля)</button>
     <button class="action-btn" id="gatherIronBtn">⚙️ Добыть железо (+2-5 жел, сложно)</button>
-    <button class="action-btn" id="mineMithrilBtn">✨ Добыть мифрил (+0-2 миф, очень сложно)</button>
+    <button class="action-btn" id="mineMithrilBtn">✨ Добыть мифрил (+0-2 миф, очень редко)</button>
     <button class="action-btn" id="gatherManaBtn">🔮 Собрать ману (+1-3 маны, редко)</button>
     <button class="action-btn" id="buildFarmBtn">🌾 Построить поле (-35 дер, +1 поле)</button>
     <button class="action-btn" id="buildHouseBtn">🏠 Построить дом (-40 дер, +6 жилья)</button>
@@ -423,13 +415,13 @@
     <button class="action-btn" id="expandLandBtn">🗺️ Освоить земли (-30 дер, +120 площ, +1 поле)</button>
 </div>
 <div class="progress"><div class="progress-fill" id="woodDepletionFill"></div></div>
-<div id="resourceStatus"></div>
+<div id="resourceStatus" style="font-size:0.7rem; margin-top:6px; color:#dbb87a;"></div>
 </div></div>
 
 <div id="buildingsModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>🏛️ Специальные здания</h3><div class="action-list">
-    <button class="action-btn" id="buildMarketBtn">📊 Рынок (-80 дер, -40 кам, +6 золота/ход, +10% торговли)</button>
-    <button class="action-btn" id="buildTavernBtn">🍺 Таверна (-60 дер, -20 кам, +5 счастья/ход, тратит 8 еды)</button>
-    <button class="action-btn" id="buildForgeBtn">⚔️ Кузница (-100 дер, -50 жел, +20% к добыче ресурсов)</button>
+    <button class="action-btn" id="buildMarketBtn">📊 Рынок (-80 дер, -40 кам, +6 зол/ход)</button>
+    <button class="action-btn" id="buildTavernBtn">🍺 Таверна (-60 дер, -20 кам, -8 еды, +5 счастья/ход)</button>
+    <button class="action-btn" id="buildForgeBtn">⚔️ Кузница (-100 дер, -50 жел, +20% добычи)</button>
     <button class="action-btn" id="buildGuildBtn">🔮 Гильдия магов (-150 дер, -80 кам, -30 миф, +10 науки/ход)</button>
     <button class="action-btn" id="buildObservatoryBtn">🔭 Обсерватория (-70 дер, -35 кам, +6 науки/ход)</button>
 </div></div></div>
@@ -438,7 +430,7 @@
     <button class="action-btn" id="sellWoodTrade">🪵 Продать 20 дер → +24-30 зол</button>
     <button class="action-btn" id="sellStoneTrade">⛰️ Продать 15 кам → +28 зол</button>
     <button class="action-btn" id="sellCoalTrade">🪨 Продать 15 угля → +25 зол</button>
-    <button class="action-btn" id="sellIronTrade">⚙️ Продать 10 железа → +40 зол</button>
+    <button class="action-btn" id="sellIronTrade">⚙️ Продать 10 жел → +40 зол</button>
     <button class="action-btn" id="sellGemTrade">💎 Продать драгоценность → +60 зол</button>
     <button class="action-btn" id="buyFoodTrade">🍞 Купить 30 еды → -25 зол</button>
     <button class="action-btn" id="investTradeBtn">📈 Инвестиции (-50 зол, +4 зол/ход)</button>
@@ -456,21 +448,11 @@
 
 <div id="techModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📚 Технологии</h3><div id="techPanel"></div><div>🔬 Очки науки: <span id="sciencePoints">0</span></div></div></div>
 
-<div id="infoModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📊 Статистика</h3><div id="fullStats"></div><button id="resetGameBtn" style="background:#8a3a2a; margin-top:16px;">🔄 Переродить</button><button id="saveGameBtn" style="background:#2a5a2a; margin-top:8px;">💾 Сохранить</button><button id="loadGameBtn" style="background:#2a5a2a; margin-top:4px;">📀 Загрузить</button></div></div>
+<div id="infoModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📊 Статистика</h3><div id="fullStats"></div><button id="resetGameBtn" style="background:#7a5a38; margin-top:16px; border:none; padding:10px; border-radius:40px; font-weight:bold; color:#f5e2c0;">🔄 Переродить</button><button id="saveGameBtn" style="background:#5a6a3a; margin-top:8px; border:none; padding:10px; border-radius:40px; font-weight:bold; color:#f5e2c0;">💾 Сохранить</button><button id="loadGameBtn" style="background:#5a6a3a; margin-top:4px; border:none; padding:10px; border-radius:40px; font-weight:bold; color:#f5e2c0;">📀 Загрузить</button></div></div>
 
 <script>
-    // ЗВУКИ
-    const sounds = {
-        click: new Audio("data:audio/wav;base64,U3RlYWx0aCBzb3VuZA=="),
-        build: new Audio("data:audio/wav;base64,QnVpbGQgc291bmQ="),
-        gather: new Audio("data:audio/wav;base64,R2F0aGVyIHNvdW5k"),
-        event: new Audio("data:audio/wav;base64,RXZlbnQgc291bmQ="),
-        crisis: new Audio("data:audio/wav;base64,Q3Jpc2lzIHNvdW5k"),
-        achievement: new Audio("data:audio/wav;base64,QWNoaWV2ZW1lbnQgc291bmQ=")
-    };
-    function playSound(name) { try { if(sounds[name]) sounds[name].play(); } catch(e) {} }
-
-    // ИГРОВОЕ СОСТОЯНИЕ
+    const playSound = (name) => { try { if(window.Audio) { let a=new Audio(); a.volume=0; a.play(); } } catch(e){} };
+    
     let game = {
         name: "Северный Престол", turn: 0,
         food: 80, wood: 50, stone: 20, coal: 15, gold: 40,
@@ -494,26 +476,23 @@
         const logDiv = document.getElementById('eventLog');
         const p = document.createElement('p');
         p.innerHTML = `📜 ${msg}`;
-        if(isError) p.style.color = "#ff8866";
+        if(isError) p.style.color = "#ffaa77";
         logDiv.prepend(p);
         if(logDiv.children.length > 12) logDiv.removeChild(logDiv.lastChild);
-        if(!isError) playSound('event');
-        else playSound('crisis');
     }
     
     function checkAchievements() {
         let newAchiev = false;
-        if(game.houses >= 5 && !game.achievements.firstHouse) { game.achievements.firstHouse = true; addLog("🏆 Достижение: 5 домов!"); playSound('achievement'); newAchiev = true; }
-        if(game.farms >= 5 && !game.achievements.firstFarm) { game.achievements.firstFarm = true; addLog("🏆 Достижение: 5 полей!"); playSound('achievement'); newAchiev = true; }
-        if(game.mines >= 3 && !game.achievements.firstMine) { game.achievements.firstMine = true; addLog("🏆 Достижение: 3 шахты!"); playSound('achievement'); newAchiev = true; }
-        if(game.population >= 50 && !game.achievements.population50) { game.achievements.population50 = true; addLog("🏆 Достижение: 50 жителей!"); playSound('achievement'); newAchiev = true; }
-        if(game.science >= 100 && !game.achievements.science100) { game.achievements.science100 = true; addLog("🏆 Достижение: 100 науки!"); playSound('achievement'); newAchiev = true; }
-        if(game.gems >= 1 && !game.achievements.firstGem) { game.achievements.firstGem = true; addLog("💎 Достижение: Найдены драгоценности!"); playSound('achievement'); newAchiev = true; }
-        if(game.mithril >= 1 && !game.achievements.firstMithril) { game.achievements.firstMithril = true; addLog("✨ Достижение: Обнаружен мифрил!"); playSound('achievement'); newAchiev = true; }
+        if(game.houses >= 5 && !game.achievements.firstHouse) { game.achievements.firstHouse = true; addLog("🏆 Достижение: 5 домов!"); newAchiev = true; }
+        if(game.farms >= 5 && !game.achievements.firstFarm) { game.achievements.firstFarm = true; addLog("🏆 Достижение: 5 полей!"); newAchiev = true; }
+        if(game.mines >= 3 && !game.achievements.firstMine) { game.achievements.firstMine = true; addLog("🏆 Достижение: 3 шахты!"); newAchiev = true; }
+        if(game.population >= 50 && !game.achievements.population50) { game.achievements.population50 = true; addLog("🏆 Достижение: 50 жителей!"); newAchiev = true; }
+        if(game.science >= 100 && !game.achievements.science100) { game.achievements.science100 = true; addLog("🏆 Достижение: 100 науки!"); newAchiev = true; }
+        if(game.gems >= 1 && !game.achievements.firstGem) { game.achievements.firstGem = true; addLog("💎 Достижение: Найдены драгоценности!"); newAchiev = true; }
+        if(game.mithril >= 1 && !game.achievements.firstMithril) { game.achievements.firstMithril = true; addLog("✨ Достижение: Обнаружен мифрил!"); newAchiev = true; }
         if(newAchiev) updateUI();
     }
     
-    // ПРОИЗВОДСТВО
     function calcFoodProduction() {
         let base = game.farms * 1.2;
         if(game.techs.cropRotation || game.harvestLaw) base *= 1.1;
@@ -522,7 +501,6 @@
         if(game.crisis.active && game.crisis.type === "drought") base *= 0.3;
         return Math.floor(base * happinessMod);
     }
-    
     function calcWoodProduction() {
         let base = 3 + (game.forestDensity / 20);
         if(game.techs.sawmill || game.loggingUpgrade) base *= 1.25;
@@ -531,17 +509,15 @@
         if(game.crisis.active && game.crisis.type === "blight") gained = Math.floor(gained * 0.5);
         return Math.max(2, gained);
     }
-    
-    function calcStoneProduction() { let base = 2; if(game.mines>0) base += game.mines; if(game.crisis.active && game.crisis.type === "earthquake") base = Math.floor(base*0.5); return base; }
-    function calcCoalProduction() { let base = 2; if(game.mines>0) base += game.mines; return base; }
+    function calcStoneProduction() { let base = 2 + (game.mines>0?game.mines:0); if(game.crisis.active && game.crisis.type === "earthquake") base = Math.floor(base*0.5); return base; }
+    function calcCoalProduction() { return 2 + (game.mines>0?game.mines:0); }
     function calcIronProduction() { let base = game.mines + (Math.random() > 0.7 ? 1 : 0); if(game.forges>0) base = Math.floor(base*1.2); return Math.min(4, base); }
-    function calcGemProduction() { if(Math.random() > 0.9) return 1; return 0; }
-    function calcMithrilProduction() { if(game.mines>=3 && Math.random() > 0.95) return 1; return 0; }
-    function calcManaProduction() { let base = (game.guilds>0 ? 2 : 0) + (Math.random() > 0.85 ? 1 : 0); return base; }
+    function calcGemProduction() { if(Math.random() > 0.92) return 1; return 0; }
+    function calcMithrilProduction() { if(game.mines>=2 && Math.random() > 0.96) return 1; return 0; }
+    function calcManaProduction() { return (game.guilds>0?2:0) + (Math.random() > 0.85?1:0); }
     function calcScienceProduction() { return (game.observatories * 4) + (game.guilds * 5) + (game.techs.magic ? 3 : 0); }
     function regrowForest() { game.forestDensity = Math.min(100, game.forestDensity + (game.forestRegenBonus ? 4 : 2)); }
     
-    // КРИЗИСЫ
     function triggerCrisis() {
         if(game.crisis.active || Math.random() > 0.12) return;
         let crises = [
@@ -553,26 +529,19 @@
         let c = crises[Math.floor(Math.random()*crises.length)];
         game.crisis = { active: true, type: c.type, turnsLeft: c.duration };
         c.effect();
-        playSound('crisis');
         updateUI();
     }
-    
     function updateCrisis() {
         if(game.crisis.active) {
             game.crisis.turnsLeft--;
-            if(game.crisis.turnsLeft <= 0) {
-                game.crisis.active = false;
-                addLog(`✨ Кризис "${game.crisis.type}" завершился!`, false);
-            }
+            if(game.crisis.turnsLeft <= 0) { game.crisis.active = false; addLog(`✨ Кризис "${game.crisis.type}" завершился!`); }
         }
         triggerCrisis();
     }
     
-    // ХОД
     function gameTick() {
         if(!gameActive || gamePaused) return;
         game.turn++;
-        
         game.food += calcFoodProduction();
         game.wood += calcWoodProduction();
         game.stone += calcStoneProduction();
@@ -601,55 +570,50 @@
         if(Math.random() < 0.06 && game.famineCounter === 0) game.famineCounter = 1;
         
         game.population = Math.min(maxPopulation(), game.population);
-        game.food = Math.max(0, Math.floor(game.food));
-        game.wood = Math.max(0, Math.floor(game.wood));
-        game.stone = Math.max(0, Math.floor(game.stone));
-        game.coal = Math.max(0, Math.floor(game.coal));
-        game.gold = Math.max(0, Math.floor(game.gold));
-        game.iron = Math.max(0, Math.floor(game.iron));
-        game.gems = Math.max(0, Math.floor(game.gems));
-        game.mithril = Math.max(0, Math.floor(game.mithril));
+        game.food = Math.max(0, Math.floor(game.food)); game.wood = Math.max(0, Math.floor(game.wood));
+        game.stone = Math.max(0, Math.floor(game.stone)); game.coal = Math.max(0, Math.floor(game.coal));
+        game.gold = Math.max(0, Math.floor(game.gold)); game.iron = Math.max(0, Math.floor(game.iron));
+        game.gems = Math.max(0, Math.floor(game.gems)); game.mithril = Math.max(0, Math.floor(game.mithril));
         game.mana = Math.max(0, Math.floor(game.mana));
         game.tradeReputation = Math.min(90, Math.max(20, game.tradeReputation + (Math.random() - 0.5) * 1));
         
         checkAchievements();
         updateUI();
-        if(game.population <= 2) { addLog("💀 КОРОЛЕВСТВО ПАЛО!", true); clearInterval(gameInterval); gameActive = false; }
+        if(game.population <= 2) { addLog("💀 КОРОЛЕВСТВО ПАЛО! Обновите страницу.", true); clearInterval(gameInterval); gameActive = false; }
     }
     
-    // ДЕЙСТВИЯ
-    function gatherWood() { let g = 8+Math.floor(Math.random()*9); game.wood+=g; addLog(`🪵 +${g} дер`); playSound('gather'); updateUI(); }
-    function gatherStone() { let g = 5+Math.floor(Math.random()*6); game.stone+=g; addLog(`⛰️ +${g} кам`); playSound('gather'); updateUI(); }
-    function gatherCoal() { let g = 4+Math.floor(Math.random()*5); game.coal+=g; addLog(`🪨 +${g} угля`); playSound('gather'); updateUI(); }
-    function gatherIron() { let g = 2+Math.floor(Math.random()*4); game.iron+=g; addLog(`⚙️ +${g} железа`); playSound('gather'); updateUI(); }
-    function mineMithril() { if(Math.random()>0.7) { game.mithril++; addLog(`✨ Найден мифрил! +1`); playSound('achievement'); } else addLog(`❌ Мифрил не найден`,true); updateUI(); }
-    function gatherMana() { let g = 1+Math.floor(Math.random()*3); game.mana+=g; addLog(`🔮 +${g} маны`); playSound('gather'); updateUI(); }
-    function buildFarm() { if(game.wood>=35) { game.wood-=35; game.farms++; addLog(`🌾 Построено поле!`); playSound('build'); } else addLog(`❌ Нужно 35 дер`,true); updateUI(); }
-    function buildHouse() { if(game.wood>=40) { game.wood-=40; game.houses++; addLog(`🏠 Построен дом!`); playSound('build'); } else addLog(`❌ Нужно 40 дер`,true); updateUI(); }
-    function buildMine() { if(game.wood>=60 && game.stone>=25) { game.wood-=60; game.stone-=25; game.mines++; addLog(`⛏️ Шахта построена!`); playSound('build'); } else addLog(`❌ Нужно 60 дер, 25 кам`,true); updateUI(); }
-    function buildMarket() { if(game.wood>=80 && game.stone>=40) { game.wood-=80; game.stone-=40; game.markets++; game.marketIncome+=6; addLog(`📊 Рынок построен! +6 зол/ход`); playSound('build'); } else addLog(`❌ Нужно 80 дер, 40 кам`,true); updateUI(); }
-    function buildTavern() { if(game.wood>=60 && game.stone>=20 && game.food>=20) { game.wood-=60; game.stone-=20; game.food-=20; game.taverns++; addLog(`🍺 Таверна построена! Счастье +5/ход`); playSound('build'); } else addLog(`❌ Нужно 60 дер, 20 кам, 20 еды`,true); updateUI(); }
-    function buildForge() { if(game.wood>=100 && game.iron>=50) { game.wood-=100; game.iron-=50; game.forges++; addLog(`⚔️ Кузница построена! +20% добычи`); playSound('build'); } else addLog(`❌ Нужно 100 дер, 50 жел`,true); updateUI(); }
-    function buildGuild() { if(game.wood>=150 && game.stone>=80 && game.mithril>=30) { game.wood-=150; game.stone-=80; game.mithril-=30; game.guilds++; addLog(`🔮 Гильдия магов построена! +10 науки/ход`); playSound('build'); } else addLog(`❌ Нужно 150 дер, 80 кам, 30 миф`,true); updateUI(); }
-    function buildObservatory() { if(game.wood>=70 && game.stone>=35) { game.wood-=70; game.stone-=35; game.observatories++; addLog(`🔭 Обсерватория построена!`); playSound('build'); } else addLog(`❌ Нужно 70 дер, 35 кам`,true); updateUI(); }
-    function expandLand() { if(game.wood>=30) { game.wood-=30; game.landArea+=120; game.farms++; addLog(`🗺️ Земли расширены!`); playSound('build'); } else addLog(`❌ Нужно 30 дер`,true); updateUI(); }
+    function gatherWood() { let g = 8+Math.floor(Math.random()*9); game.wood+=g; addLog(`🪵 +${g} дер`); updateUI(); }
+    function gatherStone() { let g = 5+Math.floor(Math.random()*6); game.stone+=g; addLog(`⛰️ +${g} кам`); updateUI(); }
+    function gatherCoal() { let g = 4+Math.floor(Math.random()*5); game.coal+=g; addLog(`🪨 +${g} угля`); updateUI(); }
+    function gatherIron() { let g = 2+Math.floor(Math.random()*4); game.iron+=g; addLog(`⚙️ +${g} железа`); updateUI(); }
+    function mineMithril() { if(Math.random()>0.7) { game.mithril++; addLog(`✨ Найден мифрил! +1`); } else addLog(`❌ Мифрил не найден`,true); updateUI(); }
+    function gatherMana() { let g = 1+Math.floor(Math.random()*3); game.mana+=g; addLog(`🔮 +${g} маны`); updateUI(); }
+    function buildFarm() { if(game.wood>=35) { game.wood-=35; game.farms++; addLog(`🌾 Построено поле!`); } else addLog(`❌ Нужно 35 дер`,true); updateUI(); }
+    function buildHouse() { if(game.wood>=40) { game.wood-=40; game.houses++; addLog(`🏠 Построен дом!`); } else addLog(`❌ Нужно 40 дер`,true); updateUI(); }
+    function buildMine() { if(game.wood>=60 && game.stone>=25) { game.wood-=60; game.stone-=25; game.mines++; addLog(`⛏️ Шахта построена!`); } else addLog(`❌ Нужно 60 дер, 25 кам`,true); updateUI(); }
+    function buildMarket() { if(game.wood>=80 && game.stone>=40) { game.wood-=80; game.stone-=40; game.markets++; game.marketIncome+=6; addLog(`📊 Рынок построен! +6 зол/ход`); } else addLog(`❌ Нужно 80 дер, 40 кам`,true); updateUI(); }
+    function buildTavern() { if(game.wood>=60 && game.stone>=20 && game.food>=20) { game.wood-=60; game.stone-=20; game.food-=20; game.taverns++; addLog(`🍺 Таверна построена! Счастье +5/ход`); } else addLog(`❌ Нужно 60 дер, 20 кам, 20 еды`,true); updateUI(); }
+    function buildForge() { if(game.wood>=100 && game.iron>=50) { game.wood-=100; game.iron-=50; game.forges++; addLog(`⚔️ Кузница построена! +20% добычи`); } else addLog(`❌ Нужно 100 дер, 50 жел`,true); updateUI(); }
+    function buildGuild() { if(game.wood>=150 && game.stone>=80 && game.mithril>=30) { game.wood-=150; game.stone-=80; game.mithril-=30; game.guilds++; addLog(`🔮 Гильдия магов построена! +10 науки/ход`); } else addLog(`❌ Нужно 150 дер, 80 кам, 30 миф`,true); updateUI(); }
+    function buildObservatory() { if(game.wood>=70 && game.stone>=35) { game.wood-=70; game.stone-=35; game.observatories++; addLog(`🔭 Обсерватория построена!`); } else addLog(`❌ Нужно 70 дер, 35 кам`,true); updateUI(); }
+    function expandLand() { if(game.wood>=30) { game.wood-=30; game.landArea+=120; game.farms++; addLog(`🗺️ Земли расширены!`); } else addLog(`❌ Нужно 30 дер`,true); updateUI(); }
     
-    function sellWoodTrade() { if(game.wood>=20) { game.wood-=20; let p=24+Math.floor(Math.random()*7); game.gold+=p; addLog(`🪵 Продано 20 дер за ${p} зол`); playSound('click'); } else addLog(`Нет дерева`,true); updateUI(); }
-    function sellStoneTrade() { if(game.stone>=15) { game.stone-=15; game.gold+=28; addLog(`⛰️ Продано 15 кам за 28 зол`); playSound('click'); } else addLog(`Мало камня`,true); updateUI(); }
-    function sellCoalTrade() { if(game.coal>=15) { game.coal-=15; game.gold+=25; addLog(`🪨 Продано 15 угля за 25 зол`); playSound('click'); } else addLog(`Мало угля`,true); updateUI(); }
-    function sellIronTrade() { if(game.iron>=10) { game.iron-=10; game.gold+=40; addLog(`⚙️ Продано 10 жел за 40 зол`); playSound('click'); } else addLog(`Мало железа`,true); updateUI(); }
-    function sellGemTrade() { if(game.gems>=1) { game.gems--; game.gold+=60; addLog(`💎 Продана драгоценность за 60 зол`); playSound('click'); } else addLog(`Нет драгоценностей`,true); updateUI(); }
-    function buyFoodTrade() { if(game.gold>=25) { let f=30+Math.floor(Math.random()*5); game.gold-=25; game.food+=f; addLog(`🍞 Куплено ${f} еды`); playSound('click'); } else addLog(`Мало золота`,true); updateUI(); }
-    function investTrade() { if(game.gold>=50) { game.gold-=50; game.marketIncome+=4; addLog(`📈 Инвестиции +4 зол/ход`); playSound('click'); } else addLog(`Нужно 50 зол`,true); updateUI(); }
+    function sellWoodTrade() { if(game.wood>=20) { game.wood-=20; let p=24+Math.floor(Math.random()*7); game.gold+=p; addLog(`🪵 Продано 20 дер за ${p} зол`); } else addLog(`Нет дерева`,true); updateUI(); }
+    function sellStoneTrade() { if(game.stone>=15) { game.stone-=15; game.gold+=28; addLog(`⛰️ Продано 15 кам за 28 зол`); } else addLog(`Мало камня`,true); updateUI(); }
+    function sellCoalTrade() { if(game.coal>=15) { game.coal-=15; game.gold+=25; addLog(`🪨 Продано 15 угля за 25 зол`); } else addLog(`Мало угля`,true); updateUI(); }
+    function sellIronTrade() { if(game.iron>=10) { game.iron-=10; game.gold+=40; addLog(`⚙️ Продано 10 жел за 40 зол`); } else addLog(`Мало железа`,true); updateUI(); }
+    function sellGemTrade() { if(game.gems>=1) { game.gems--; game.gold+=60; addLog(`💎 Продана драгоценность за 60 зол`); } else addLog(`Нет драгоценностей`,true); updateUI(); }
+    function buyFoodTrade() { if(game.gold>=25) { let f=30+Math.floor(Math.random()*5); game.gold-=25; game.food+=f; addLog(`🍞 Куплено ${f} еды`); } else addLog(`Мало золота`,true); updateUI(); }
+    function investTrade() { if(game.gold>=50) { game.gold-=50; game.marketIncome+=4; addLog(`📈 Инвестиции +4 зол/ход`); } else addLog(`Нужно 50 зол`,true); updateUI(); }
     
-    function lawBirth() { if(game.gold>=15) { game.gold-=15; game.birthBonus+=0.8; addLog(`👶 Указ рождаемости!`); playSound('click'); } else addLog(`Нужно 15 зол`,true); updateUI(); }
-    function lawForest() { if(game.wood>=10) { game.wood-=10; game.forestRegenBonus=true; addLog(`🌳 Лесной указ!`); playSound('click'); } else addLog(`Нужно 10 дер`,true); updateUI(); }
-    function lawHarvest() { if(game.wood>=25 && !game.harvestLaw) { game.wood-=25; game.harvestLaw=true; addLog(`🌽 Севооборот +10% урожая`); playSound('click'); } else addLog(`Уже принят или нет дер`,true); updateUI(); }
+    function lawBirth() { if(game.gold>=15) { game.gold-=15; game.birthBonus+=0.8; addLog(`👶 Указ рождаемости!`); } else addLog(`Нужно 15 зол`,true); updateUI(); }
+    function lawForest() { if(game.wood>=10) { game.wood-=10; game.forestRegenBonus=true; addLog(`🌳 Лесной указ!`); } else addLog(`Нужно 10 дер`,true); updateUI(); }
+    function lawHarvest() { if(game.wood>=25 && !game.harvestLaw) { game.wood-=25; game.harvestLaw=true; addLog(`🌽 Севооборот +10% урожая`); } else addLog(`Уже принят или нет дер`,true); updateUI(); }
     
-    function updateTech(tech, cost, effect) { if(game.science>=cost && !game.techs[tech]) { game.science-=cost; game.techs[tech]=true; effect(); addLog(`📚 Изучено: ${tech}`); playSound('achievement'); updateUI(); } else addLog(`❌ Не хватает науки`, true); }
+    function updateTech(tech, cost, effect) { if(game.science>=cost && !game.techs[tech]) { game.science-=cost; game.techs[tech]=true; effect(); addLog(`📚 Изучено: ${tech}`); updateUI(); } else addLog(`❌ Не хватает науки`, true); }
     
-    function saveGame() { localStorage.setItem('kingdomSaveEpic', JSON.stringify(game)); addLog(`💾 Игра сохранена!`); playSound('click'); }
-    function loadGame() { let save = localStorage.getItem('kingdomSaveEpic'); if(save) { Object.assign(game, JSON.parse(save)); updateUI(); addLog(`📀 Игра загружена!`); playSound('click'); } else addLog(`❌ Нет сохранения`, true); }
+    function saveGame() { localStorage.setItem('kingdomSaveEpic', JSON.stringify(game)); addLog(`💾 Игра сохранена!`); }
+    function loadGame() { let save = localStorage.getItem('kingdomSaveEpic'); if(save) { Object.assign(game, JSON.parse(save)); updateUI(); addLog(`📀 Игра загружена!`); } else addLog(`❌ Нет сохранения`, true); }
     function resetGame() { location.reload(); }
     
     function updateUI() {
@@ -707,7 +671,7 @@
         const modals = document.querySelectorAll('.modal');
         const navBtns = document.querySelectorAll('.nav-btn');
         const closeBtns = document.querySelectorAll('.close-modal');
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; playSound('click'); }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeAll() { modals.forEach(m => m.style.display = 'none'); }
         navBtns.forEach(btn => { btn.onclick = () => { closeAll(); openModal(btn.dataset.modal); }; });
         closeBtns.forEach(btn => { btn.onclick = () => closeAll(); });
@@ -728,7 +692,6 @@
         document.getElementById('buildGuildBtn').onclick = () => { buildGuild(); closeAll(); };
         document.getElementById('buildObservatoryBtn').onclick = () => { buildObservatory(); closeAll(); };
         document.getElementById('expandLandBtn').onclick = () => { expandLand(); closeAll(); };
-        
         document.getElementById('sellWoodTrade').onclick = () => { sellWoodTrade(); closeAll(); };
         document.getElementById('sellStoneTrade').onclick = () => { sellStoneTrade(); closeAll(); };
         document.getElementById('sellCoalTrade').onclick = () => { sellCoalTrade(); closeAll(); };
@@ -736,25 +699,21 @@
         document.getElementById('sellGemTrade').onclick = () => { sellGemTrade(); closeAll(); };
         document.getElementById('buyFoodTrade').onclick = () => { buyFoodTrade(); closeAll(); };
         document.getElementById('investTradeBtn').onclick = () => { investTrade(); closeAll(); };
-        
         document.getElementById('lawBirthBtn').onclick = () => { lawBirth(); closeAll(); };
         document.getElementById('lawForestBtn').onclick = () => { lawForest(); closeAll(); };
         document.getElementById('lawHarvestBtn').onclick = () => { lawHarvest(); closeAll(); };
-        
         document.getElementById('resetGameBtn').onclick = () => resetGame();
         document.getElementById('saveGameBtn').onclick = () => { saveGame(); closeAll(); };
         document.getElementById('loadGameBtn').onclick = () => { loadGame(); closeAll(); };
-        document.getElementById('pauseGameBtn').onclick = () => { gamePaused = !gamePaused; document.getElementById('pauseGameBtn').innerText = gamePaused ? '▶️' : '⏸️'; addLog(gamePaused ? "⏸️ Пауза" : "▶️ Продолжение"); playSound('click'); };
-        
+        document.getElementById('pauseGameBtn').onclick = () => { gamePaused = !gamePaused; document.getElementById('pauseGameBtn').innerText = gamePaused ? '▶️' : '⏸️'; addLog(gamePaused ? "⏸️ Пауза" : "▶️ Продолжение"); };
         document.getElementById('kingdomNameInput').onchange = () => { game.name = document.getElementById('kingdomNameInput').value; updateUI(); };
-        
         window.updateTech = updateTech;
     }
     
     initModals();
     gameInterval = setInterval(() => gameTick(), 14000);
     updateUI();
-    addLog("🏆 Новые ресурсы! Железо, драгоценности, мифрил, мана. Кризисы могут уничтожить королевство!");
+    addLog("🏆 Новая эра! Строй, торгуй, исследуй магию и переживай кризисы!");
 </script>
 </body>
 </html>
