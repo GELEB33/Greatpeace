@@ -3,528 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Королевство: Песочница — Полная стратегия</title>
+    <title>Королевство: Песочница</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: #1a3a2a;
-            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-            padding: 12px;
-            padding-bottom: 85px;
-            min-height: 100vh;
-        }
-
-        .game-wrapper {
-            max-width: 550px;
-            margin: 0 auto;
-            background: #fef7e0;
-            background-image: radial-gradient(circle at 10% 20%, rgba(200,170,110,0.08) 2%, transparent 2.5%);
-            background-size: 24px 24px;
-            border-radius: 48px 32px 48px 32px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.4);
-            overflow: hidden;
-            padding: 18px 16px 20px;
-        }
-
-        /* заголовок с названием */
-        .kingdom-header {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .kingdom-name-input {
-            background: #2c241a;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 30px;
-            color: #ffefcf;
-            font-weight: bold;
-            font-size: 1rem;
-            width: 180px;
-            text-align: center;
-        }
-        .edit-name-btn {
-            background: #b97f44;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 30px;
-            color: white;
-            cursor: pointer;
-        }
-
-        .resources-scroll {
-            overflow-x: auto;
-            white-space: nowrap;
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-            scrollbar-width: thin;
-        }
-        .resources-flex {
-            display: inline-flex;
-            gap: 10px;
-            flex-wrap: nowrap;
-        }
-        .res-card {
-            background: #2c241ae6;
-            backdrop-filter: blur(4px);
-            padding: 6px 14px;
-            border-radius: 60px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #ffefcf;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: inset 0 0 0 1px #dbb46a, 0 4px 8px black;
-        }
-        .res-card span:first-child { font-size: 1.2rem; }
-
-        .quick-stats {
-            background: #e9dbbc;
-            border-radius: 28px;
-            padding: 10px 12px;
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 8px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-        .stat-badge {
-            background: #fff2df;
-            border-radius: 30px;
-            padding: 4px 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #1f2f1cee;
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 12px 18px;
-            border-top: 1px solid #e6c48b;
-            z-index: 100;
-            max-width: 550px;
-            margin: 0 auto;
-            border-radius: 32px 32px 0 0;
-        }
-        .nav-btn {
-            background: #4a3924;
-            border: none;
-            color: #ffe2b5;
-            font-size: 0.7rem;
-            padding: 6px 10px;
-            border-radius: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-            margin: 0 3px;
-        }
-        .nav-btn span:first-child { font-size: 1.4rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background: #1a3a2a; font-family: 'Segoe UI', system-ui, sans-serif; padding: 12px; padding-bottom: 85px; min-height: 100vh; }
+        .game-wrapper { max-width: 600px; margin: 0 auto; background: #fef7e0; border-radius: 48px 32px; box-shadow: 0 12px 28px rgba(0,0,0,0.4); overflow: hidden; padding: 16px; }
+        .kingdom-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+        .kingdom-name-input { background: #2c241a; border: none; padding: 6px 12px; border-radius: 30px; color: #ffefcf; font-weight: bold; font-size: 0.9rem; width: 160px; text-align: center; }
+        .turn-counter { background: #b97f44; padding: 6px 12px; border-radius: 30px; color: white; font-size: 0.75rem; display: flex; gap: 8px; align-items: center; }
+        .pause-btn { background: #6a4a2a; border: none; color: white; padding: 4px 10px; border-radius: 30px; cursor: pointer; }
+        .resources-scroll { overflow-x: auto; white-space: nowrap; margin-bottom: 12px; }
+        .resources-flex { display: inline-flex; gap: 8px; }
+        .res-card { background: #2c241ae6; padding: 5px 12px; border-radius: 40px; display: inline-flex; align-items: center; gap: 6px; color: #ffefcf; font-weight: bold; font-size: 0.8rem; }
+        .quick-stats { background: #e9dbbc; border-radius: 24px; padding: 8px 12px; margin-bottom: 12px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 0.7rem; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #1f2f1cee; backdrop-filter: blur(12px); display: flex; justify-content: space-around; padding: 8px 12px 18px; border-top: 1px solid #e6c48b; z-index: 100; max-width: 600px; margin: 0 auto; border-radius: 32px 32px 0 0; flex-wrap: wrap; }
+        .nav-btn { background: #4a3924; border: none; color: #ffe2b5; font-size: 0.55rem; padding: 5px 4px; border-radius: 40px; display: flex; flex-direction: column; align-items: center; gap: 2px; font-weight: bold; cursor: pointer; flex: 1; min-width: 55px; margin: 2px; }
+        .nav-btn span:first-child { font-size: 1.1rem; }
         .nav-btn:active { transform: scale(0.96); background: #6d4f30; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 200;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-card {
-            background: #fef2de;
-            max-width: 500px;
-            width: 100%;
-            max-height: 80vh;
-            border-radius: 48px;
-            padding: 20px;
-            overflow-y: auto;
-            box-shadow: 0 20px 35px black;
-            border: 1px solid #ebc28e;
-        }
-        .modal-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            border-left: 8px solid #b97f44;
-            padding-left: 16px;
-        }
-        .close-modal {
-            background: #a76f3c;
-            float: right;
-            border: none;
-            font-size: 1rem;
-            padding: 4px 12px;
-            border-radius: 30px;
-            color: white;
-        }
-        .action-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .action-btn {
-            background: #e4cfaa;
-            border: none;
-            padding: 10px;
-            border-radius: 60px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .event-log-sm {
-            background: #2f2a1f;
-            border-radius: 28px;
-            padding: 10px;
-            color: #fbeccd;
-            font-size: 0.7rem;
-            max-height: 160px;
-            overflow-y: auto;
-            margin-top: 12px;
-        }
-        .progress {
-            background: #6a5a44;
-            border-radius: 20px;
-            height: 8px;
-            margin: 8px 0;
-        }
-        .progress-fill {
-            background: #cd9f5a;
-            width: 50%;
-            height: 8px;
-            border-radius: 20px;
-        }
-        footer { font-size: 0.55rem; text-align: center; margin-top: 16px; color: #b48b54; }
-        .resource-detail { font-size: 0.7rem; margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+        .modal-card { background: #fef2de; max-width: 500px; width: 100%; max-height: 85vh; border-radius: 40px; padding: 18px; overflow-y: auto; }
+        .modal-card h3 { font-size: 1.3rem; margin-bottom: 12px; border-left: 6px solid #b97f44; padding-left: 12px; }
+        .close-modal { background: #a76f3c; float: right; border: none; padding: 4px 12px; border-radius: 30px; color: white; cursor: pointer; }
+        .action-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+        .action-btn { background: #e4cfaa; border: none; padding: 8px 12px; border-radius: 40px; font-weight: bold; display: flex; justify-content: space-between; font-size: 0.8rem; cursor: pointer; }
+        .event-log { background: #2f2a1f; border-radius: 24px; padding: 8px; color: #fbeccd; font-size: 0.7rem; max-height: 120px; overflow-y: auto; margin-top: 12px; }
+        .stat-line { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #d4b87a; font-size: 0.8rem; }
+        .progress { background: #6a5a44; border-radius: 20px; height: 8px; margin: 8px 0; }
+        .progress-fill { background: #cd9f5a; width: 50%; height: 8px; border-radius: 20px; }
+        .achievement { background: #4a6a3a; border-radius: 20px; padding: 5px 10px; margin: 5px 0; color: #ffefcf; font-size: 0.7rem; }
+        .canvas-container { background: #2f2a1f; border-radius: 16px; padding: 8px; margin-top: 12px; }
+        canvas { width: 100%; height: 100px; background: #1e1b16; border-radius: 12px; }
+        footer { font-size: 0.5rem; text-align: center; margin-top: 12px; color: #b48b54; }
     </style>
 </head>
 <body>
-<div class="game-wrapper" id="app">
+<div class="game-wrapper">
     <div class="kingdom-header">
-        <input type="text" id="kingdomNameInput" class="kingdom-name-input" placeholder="Название" maxlength="20" value="Северный Престол">
-        <button id="applyNameBtn" class="edit-name-btn">📜 Сменить</button>
+        <input type="text" id="kingdomNameInput" class="kingdom-name-input" value="Северный Престол" maxlength="25">
+        <div class="turn-counter">📅 Ход: <span id="turnCount">0</span> <button id="pauseGameBtn" class="pause-btn">⏸️</button></div>
     </div>
-    <div class="resources-scroll">
-        <div class="resources-flex" id="resPanel"></div>
-    </div>
+    <div class="resources-scroll"><div class="resources-flex" id="resPanel"></div></div>
     <div class="quick-stats" id="quickStats"></div>
-    <div class="event-log-sm" id="miniLog"><p>🏰 Добро пожаловать, правитель!</p></div>
+    <div class="canvas-container"><canvas id="resourceChart" width="500" height="100"></canvas></div>
+    <div id="achievementsPanel" class="action-list" style="margin-top:8px;"></div>
+    <div class="event-log" id="eventLog"><p>🏰 Добро пожаловать в королевство!</p></div>
 </div>
 
 <div class="bottom-nav">
     <button class="nav-btn" data-modal="economyModal"><span>🏭</span><span>Ресурсы</span></button>
-    <button class="nav-btn" data-modal="militaryModal"><span>⚔️</span><span>Война</span></button>
+    <button class="nav-btn" data-modal="workersModal"><span>👥</span><span>Рабочие</span></button>
     <button class="nav-btn" data-modal="tradeModal"><span>📦</span><span>Торговля</span></button>
     <button class="nav-btn" data-modal="lawsModal"><span>📜</span><span>Законы</span></button>
+    <button class="nav-btn" data-modal="techModal"><span>📚</span><span>Технологии</span></button>
     <button class="nav-btn" data-modal="infoModal"><span>📊</span><span>Статистика</span></button>
 </div>
 
 <!-- МОДАЛЬНЫЕ ОКНА -->
-<div id="economyModal" class="modal">
-    <div class="modal-card">
-        <button class="close-modal">✖️</button>
-        <h3>🏭 Добыча и стройка</h3>
-        <div class="action-list">
-            <button class="action-btn" id="gatherWoodBtn">🪵 Рубить лес (+8-18 древесины) <span>🌲</span></button>
-            <button class="action-btn" id="gatherStoneBtn">⛰️ Добыть камень (+5-12 камня)</button>
-            <button class="action-btn" id="gatherCoalBtn">🪨 Добыть уголь (+4-10 угля)</button>
-            <button class="action-btn" id="buildMineBtn">⛏️ Построить шахту (-40 дер, -20 камня) +2 угля/ход, +1 камня/ход</button>
-            <button class="action-btn" id="buildFarmBtn">🌾 Построить поле (-25 дер, +1 поле, +2 еды/ход)</button>
-            <button class="action-btn" id="buildHouseBtn">🏠 Построить дом (-30 дер, +6 жилья)</button>
-            <button class="action-btn" id="expandLandBtn">🗺️ Освоить земли (-20 дер, +120 площади, +1 поле)</button>
-        </div>
-        <div class="progress"><div class="progress-fill" id="woodDepletionFill" style="width:100%"></div></div>
-        <div id="resourceStatus" style="font-size:0.7rem;">🌲 Леса: богатые</div>
-    </div>
+<div id="economyModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>🏭 Ресурсы и стройка</h3><div class="action-list">
+    <button class="action-btn" id="gatherWoodBtn">🪵 Рубить лес (+8-16 дерева)</button>
+    <button class="action-btn" id="gatherStoneBtn">⛰️ Добыть камень (+5-10 камня)</button>
+    <button class="action-btn" id="gatherCoalBtn">🪨 Добыть уголь (+4-8 угля)</button>
+    <button class="action-btn" id="buildFarmBtn">🌾 Построить поле (-35 дер, +1 поле, +2 раб.места)</button>
+    <button class="action-btn" id="buildHouseBtn">🏠 Построить дом (-40 дер, +6 жилья)</button>
+    <button class="action-btn" id="buildMineBtn">⛏️ Шахта (-60 дер, -25 камня, +4 раб.места)</button>
+    <button class="action-btn" id="buildObservatoryBtn">🔭 Обсерватория (-70 дер, -35 камня, +3 учёных)</button>
+    <button class="action-btn" id="expandLandBtn">🗺️ Освоить земли (-30 дер, +120 площади, +1 поле)</button>
 </div>
+<div class="progress"><div class="progress-fill" id="woodDepletionFill" style="width:100%"></div></div>
+<div id="resourceStatus" style="font-size:0.7rem;">🌲 Леса: богатые</div>
+</div></div>
 
-<div id="militaryModal" class="modal">
-    <div class="modal-card">
-        <button class="close-modal">✖️</button>
-        <h3>⚔️ Армия</h3>
-        <div class="action-list">
-            <button class="action-btn" id="trainSoldierBtn">🗡️ Нанять воина (-18 еды) +1 воин</button>
-            <button class="action-btn" id="raidBtn">⚡ Набег (+25-55 еды, -4 воина)</button>
-            <button class="action-btn" id="conquerBtn">🏰 Захват (+20% урожая, -10 воинов, +150 площади)</button>
-        </div>
-        <div>⚔️ Сила: <span id="armyPowerSpan">0</span></div>
-    </div>
-</div>
+<div id="workersModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>👥 Распределение рабочих</h3>
+    <div id="workersPanel"></div>
+    <div>📊 Безработные: <span id="unemployedSpan">0</span></div>
+    <div class="action-list"><button class="action-btn" id="autoAssignBtn">🤖 Автораспределение</button></div>
+</div></div>
 
-<div id="tradeModal" class="modal">
-    <div class="modal-card">
-        <button class="close-modal">✖️</button>
-        <h3>📦 Торговля</h3>
-        <div class="action-list">
-            <button class="action-btn" id="sellWoodTrade">🪵 Продать 20 дерева → +26-34 золота</button>
-            <button class="action-btn" id="sellStoneTrade">⛰️ Продать 15 камня → +30 золота</button>
-            <button class="action-btn" id="buyFoodTrade">🍞 Купить 35 еды → -22 золота</button>
-            <button class="action-btn" id="investTradeBtn">📈 Инвестиции (-45 золота, +5 золота/ход)</button>
-            <button class="action-btn" id="upgradeLoggingBtn">🪓 Улучшить лесопилку (-60 зол, +30% добычи дерева)</button>
-            <button class="action-btn" id="upgradeMiningBtn">⛏️ Улучшить шахты (-70 зол, +25% добычи камня/угля)</button>
-        </div>
-        <div id="tradeReputation">🤝 Репутация: 50%</div>
+<div id="tradeModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📦 Торговля</h3>
+    <div class="action-list">
+        <button class="action-btn" id="sellWoodTrade">🪵 Продать 20 дерева → +24-30 золота</button>
+        <button class="action-btn" id="sellStoneTrade">⛰️ Продать 15 камня → +28 золота</button>
+        <button class="action-btn" id="sellCoalTrade">🪨 Продать 15 угля → +25 золота</button>
+        <button class="action-btn" id="buyFoodTrade">🍞 Купить 30 еды → -25 золота</button>
+        <button class="action-btn" id="investTradeBtn">📈 Инвестиции (-50 зол, +4 золота/ход)</button>
+        <button class="action-btn" id="upgradeLoggingBtn">🪓 Улучшить лесопилку (-70 зол, +25% добычи)</button>
+        <button class="action-btn" id="upgradeMiningBtn">⛏️ Улучшить шахты (-80 зол, +20% добычи)</button>
     </div>
-</div>
+    <div id="tradeReputation">🤝 Репутация: 50%</div>
+</div></div>
 
-<div id="lawsModal" class="modal">
-    <div class="modal-card">
-        <button class="close-modal">✖️</button>
-        <h3>📜 Законы</h3>
-        <div class="action-list">
-            <button class="action-btn" id="lawBirthBtn">👶 Указ рождаемости (+1 рождаемость/ход, -15 зол)</button>
-            <button class="action-btn" id="lawTaxBtn">💰 Налоги (+6 зол/ход, -4 счастья)</button>
-            <button class="action-btn" id="lawForestBtn">🌳 Лесной указ (+8% восстановления леса)</button>
-        </div>
-        <div>😊 Счастье: <span id="hapVal">70</span>%</div>
+<div id="lawsModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📜 Законы</h3>
+    <div class="action-list">
+        <button class="action-btn" id="lawBirthBtn">👶 Указ рождаемости (+0.8 рождаемость/ход, -15 зол)</button>
+        <button class="action-btn" id="lawForestBtn">🌳 Лесной указ (+8% восстановления леса, -10 дер)</button>
+        <button class="action-btn" id="lawHarvestBtn">🌽 Закон о севообороте (+10% урожая, -25 дер)</button>
     </div>
-</div>
+    <div>😊 Счастье: <span id="hapVal">70</span>%</div>
+</div></div>
 
-<div id="infoModal" class="modal">
-    <div class="modal-card">
-        <button class="close-modal">✖️</button>
-        <h3>📊 Статистика</h3>
-        <div id="fullStats"></div>
-        <button id="resetGameBtn" style="background:#b1624b; margin-top:16px;">🔄 Переродить</button>
-    </div>
-</div>
+<div id="techModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📚 Технологии</h3><div id="techPanel"></div><div>🔬 Очки науки: <span id="sciencePoints">0</span></div><div>🔭 Обсерваторий: <span id="observatoryCount">0</span></div></div></div>
+
+<div id="infoModal" class="modal"><div class="modal-card"><button class="close-modal">✖️</button><h3>📊 Полная статистика</h3><div id="fullStats"></div><button id="resetGameBtn" style="background:#b1624b; margin-top:16px;">🔄 Переродить королевство</button><button id="saveGameBtn" style="background:#4a6a3a; margin-top:8px;">💾 Сохранить игру</button><button id="loadGameBtn" style="background:#4a6a3a; margin-top:4px;">📀 Загрузить сохранение</button></div></div>
 
 <script>
-    // ========== ЦЕЛЫЕ ЧИСЛА, КАМЕНЬ, УГОЛЬ, УЛУЧШЕНИЯ ==========
-    let kingdom = {
+    // ==================== СОСТОЯНИЕ ИГРЫ ====================
+    let game = {
         name: "Северный Престол",
-        food: 220, wood: 150, stone: 45, coal: 30, gold: 80,
-        population: 48, soldiers: 12,
-        houses: 7, landArea: 620, farms: 5,
-        forestDensity: 85,
-        stoneMines: 0,        // шахты дают пассивно
-        conqueredBonus: 0,
-        birthBonus: 0,
-        taxIncome: 0,
-        happiness: 70,
-        marketIncome: 0,
-        forestRegenBonus: 0,
-        loggingUpgrade: false,   // +30% к сбору дерева
-        miningUpgrade: false,
-        famineCounter: 0,
+        turn: 0,
+        food: 80, wood: 50, stone: 20, coal: 15, gold: 40,
+        population: 10,
+        houses: 3, farms: 1, mines: 0, observatories: 0,
+        landArea: 300, forestDensity: 85, conqueredBonus: 0,
+        workers: { farmers: 0, lumberjacks: 0, miners: 0, scientists: 0, builders: 0, traders: 0 },
+        maxWorkers: { farmers: 2, lumberjacks: 6, miners: 0, scientists: 0, builders: 8, traders: 6 },
+        birthBonus: 0, marketIncome: 0, happiness: 70,
+        loggingUpgrade: false, miningUpgrade: false, forestRegenBonus: false, harvestLaw: false,
         tradeReputation: 50,
-        turnCount: 0
+        techs: { cropRotation: false, sawmill: false, miningPick: false, tradeRoutes: false, architecture: false, astronomy: false },
+        science: 0, famineCounter: 0,
+        achievements: { firstHouse: false, firstFarm: false, firstMine: false, population50: false, science100: false }
     };
     
     let gameActive = true;
-    let intervalId = null;
+    let gamePaused = false;
+    let gameInterval = null;
+    let resourceHistory = { food: [], wood: [], gold: [] };
+    
+    function maxPopulation() { return game.houses * 8 + 25; }
+    function updateMaxWorkers() {
+        game.maxWorkers.farmers = game.farms * 2;
+        game.maxWorkers.miners = game.mines * 4;
+        game.maxWorkers.scientists = game.observatories * 3;
+    }
+    function totalWorkers() { return Object.values(game.workers).reduce((a,b)=>a+b,0); }
+    function unemployed() { return Math.max(0, game.population - totalWorkers()); }
     
     function addLog(msg, isError = false) {
-        const logDiv = document.getElementById('miniLog');
+        const logDiv = document.getElementById('eventLog');
         const p = document.createElement('p');
-        p.innerHTML = `${new Date().toLocaleTimeString().slice(0,5)} — ${msg}`;
+        p.innerHTML = `📜 ${msg}`;
         if(isError) p.style.color = "#ffb28b";
         logDiv.prepend(p);
-        if(logDiv.children.length > 7) logDiv.removeChild(logDiv.lastChild);
+        if(logDiv.children.length > 10) logDiv.removeChild(logDiv.lastChild);
     }
     
-    // ДОБЫЧА с учетом улучшений и истощения леса
-    function getWoodGather() {
-        let base = 8 + Math.floor(Math.random() * 12);
-        let modifier = kingdom.forestDensity / 100;
-        let upgrade = kingdom.loggingUpgrade ? 1.3 : 1;
-        let gained = Math.floor(base * (0.5 + modifier * 0.9) * upgrade);
-        kingdom.forestDensity = Math.max(5, kingdom.forestDensity - (Math.random() * 7));
-        if(kingdom.forestDensity < 20) addLog("🌲 Леса истощаются! Древесины меньше.", true);
-        return Math.max(3, gained);
+    function checkAchievements() {
+        let newAchiev = false;
+        if(game.houses >= 5 && !game.achievements.firstHouse) { game.achievements.firstHouse = true; addLog("🏆 Достижение: 5 домов построено!"); newAchiev = true; }
+        if(game.farms >= 5 && !game.achievements.firstFarm) { game.achievements.firstFarm = true; addLog("🏆 Достижение: 5 полей возделано!"); newAchiev = true; }
+        if(game.mines >= 3 && !game.achievements.firstMine) { game.achievements.firstMine = true; addLog("🏆 Достижение: 3 шахты построено!"); newAchiev = true; }
+        if(game.population >= 50 && !game.achievements.population50) { game.achievements.population50 = true; addLog("🏆 Достижение: 50 жителей!"); newAchiev = true; }
+        if(game.science >= 100 && !game.achievements.science100) { game.achievements.science100 = true; addLog("🏆 Достижение: 100 очков науки!"); newAchiev = true; }
+        if(newAchiev) updateUI();
     }
     
-    function getStoneGather() {
-        let base = 4 + Math.floor(Math.random() * 9);
-        let upgrade = kingdom.miningUpgrade ? 1.25 : 1;
-        let gained = Math.floor(base * upgrade);
+    // производство
+    function calcFoodProduction() {
+        let workers = Math.min(game.workers.farmers, game.maxWorkers.farmers);
+        let base = workers * 2.2 + game.farms * 1.0;
+        let bonus = 1 + (game.conqueredBonus/100);
+        if(game.techs.cropRotation || game.harvestLaw) base *= 1.1;
+        let happinessMod = Math.max(0.4, 0.6 + (game.happiness/200));
+        if(game.famineCounter > 0) { base *= 0.4; game.famineCounter--; }
+        return Math.floor(base * bonus * happinessMod);
+    }
+    
+    function calcWoodProduction() {
+        let workers = Math.min(game.workers.lumberjacks, game.maxWorkers.lumberjacks);
+        let base = workers * 1.8;
+        if(game.techs.sawmill || game.loggingUpgrade) base *= 1.25;
+        let modifier = game.forestDensity / 100;
+        let gained = Math.floor(base * (0.5 + modifier * 0.8));
+        game.forestDensity = Math.max(5, game.forestDensity - (Math.random() * 4));
         return Math.max(2, gained);
     }
     
-    function getCoalGather() {
-        let base = 3 + Math.floor(Math.random() * 8);
-        let upgrade = kingdom.miningUpgrade ? 1.25 : 1;
-        return Math.max(2, Math.floor(base * upgrade));
+    function calcStoneCoalProduction() {
+        let workers = Math.min(game.workers.miners, game.maxWorkers.miners);
+        let stoneBase = workers * 1.0;
+        let coalBase = workers * 1.2;
+        if(game.techs.miningPick || game.miningUpgrade) { stoneBase *= 1.2; coalBase *= 1.2; }
+        return { stone: Math.floor(stoneBase), coal: Math.floor(coalBase) };
     }
     
-    function regrowForest() {
-        let regen = 3 + (kingdom.forestRegenBonus ? 2 : 0);
-        kingdom.forestDensity = Math.min(100, kingdom.forestDensity + regen);
+    function calcScienceProduction() {
+        let workers = Math.min(game.workers.scientists, game.maxWorkers.scientists);
+        let base = workers * 2 + game.observatories * 4;
+        if(game.techs.astronomy) base *= 1.2;
+        return Math.floor(base);
     }
     
-    // пассивный доход от шахт
-    function mineProduction() {
-        if(kingdom.stoneMines > 0) {
-            let stoneGain = kingdom.stoneMines * 1;
-            let coalGain = kingdom.stoneMines * 2;
-            kingdom.stone += stoneGain;
-            kingdom.coal += coalGain;
-            if(stoneGain>0) addLog(`⛏️ Шахты дали +${stoneGain} камня, +${coalGain} угля`);
+    function regrowForest() { game.forestDensity = Math.min(100, game.forestDensity + (game.forestRegenBonus ? 4 : 2)); }
+    
+    // случайные события с королевствами
+    function triggerRandomEvent() {
+        if(Math.random() > 0.2) return;
+        let events = [
+            { name: "🚚 Торговый караван", effect: () => { let goldGain = 25 + Math.floor(Math.random()*20); game.gold += goldGain; addLog(`🚚 Караван из соседнего королевства продал товары! +${goldGain} золота`); }, weight: 12 },
+            { name: "🤝 Посол королевства", effect: () => { let foodGain = 20 + Math.floor(Math.random()*15); game.food += foodGain; addLog(`🤝 Посол прислал дары! +${foodGain} еды`); }, weight: 10 },
+            { name: "⚔️ Набег кочевников", effect: () => { let loss = Math.floor(game.gold * 0.15); game.gold = Math.max(0, game.gold - loss); addLog(`⚔️ Набег кочевников! Потеряно ${loss} золота`, true); }, weight: 8 },
+            { name: "🎁 Королевский подарок", effect: () => { let woodGain = 25 + Math.floor(Math.random()*20); game.wood += woodGain; addLog(`🎁 Дружественное королевство прислало древесину! +${woodGain}`); }, weight: 9 },
+            { name: "💒 Королевская свадьба", effect: () => { game.happiness = Math.min(100, game.happiness+8); addLog(`💒 Свадьба с соседним принцем! Счастье +8`); }, weight: 7 },
+            { name: "🏰 Приют для беженцев", effect: () => { let refugees = 3 + Math.floor(Math.random()*5); game.population += refugees; addLog(`🏰 Беженцы из соседней страны прибыли! +${refugees} человек`); }, weight: 8 },
+            { name: "📜 Ультиматум", effect: () => { if(game.gold > 40) { game.gold -= 30; addLog(`📜 Соседи потребовали дань! -30 золота`, true); } else { addLog(`📜 Соседи угрожают, но у нас нет золота!`); } }, weight: 6 }
+        ];
+        let totalWeight = events.reduce((s,e)=>s+e.weight,0);
+        let rand = Math.random() * totalWeight;
+        let accum = 0;
+        for(let e of events) {
+            accum += e.weight;
+            if(rand <= accum) { e.effect(); break; }
         }
     }
     
-    function calcFoodFromFarms() {
-        let base = kingdom.farms * 2.2;
-        let conquer = 1 + (kingdom.conqueredBonus / 100);
-        let happMod = 0.7 + (kingdom.happiness / 180);
-        let total = base * conquer * happMod;
-        if(kingdom.famineCounter > 0) {
-            total *= 0.4;
-            addLog(`🌾⚠️ НЕУРОЖАЙ! -60% урожая`, true);
-            kingdom.famineCounter--;
-        }
-        return Math.floor(total);
-    }
-    
-    // ЦЕЛОЧИСЛЕННАЯ рождаемость
-    function calcBirth() {
-        let maxPop = kingdom.houses * 8 + 30;
-        if(kingdom.population >= maxPop) return 0;
-        let freeSpace = (maxPop - kingdom.population) / maxPop;
-        let rate = (kingdom.population * 0.022) + kingdom.birthBonus;
-        rate *= (0.7 + kingdom.happiness/150);
-        rate *= (0.5 + freeSpace*0.8);
-        let rawBirth = Math.floor(rate);
-        if(rawBirth < 1 && Math.random() < (rate - rawBirth)) rawBirth = 1;
-        return Math.min(rawBirth, 5);
-    }
-    
-    // потребление еды (целые)
-    function consumeFood() {
-        let needed = Math.floor(kingdom.population * 0.68);
-        if(kingdom.food >= needed) {
-            kingdom.food -= needed;
-            if(kingdom.happiness < 95) kingdom.happiness = Math.min(100, kingdom.happiness + 0.5);
-            return true;
-        } else {
-            let deficit = needed - kingdom.food;
-            let starve = Math.floor(deficit / 0.9);
-            starve = Math.min(starve, Math.floor(kingdom.population * 0.25));
-            kingdom.population = Math.max(4, kingdom.population - starve);
-            kingdom.food = 0;
-            kingdom.happiness = Math.max(0, kingdom.happiness - 12);
-            addLog(`💀 Голод! Умерло ${starve} жителей.`, true);
-            return false;
-        }
-    }
-    
+    // ход игры
     function gameTick() {
-        if(!gameActive) return;
-        kingdom.turnCount++;
-        if(Math.random() < 0.09 && kingdom.famineCounter === 0) kingdom.famineCounter = 1 + Math.floor(Math.random()*2);
+        if(!gameActive || gamePaused) return;
+        game.turn++;
+        updateMaxWorkers();
         
-        let foodGain = calcFoodFromFarms();
-        kingdom.food += foodGain;
-        addLog(`🌾 Урожай: +${foodGain} еды`);
+        let foodProd = calcFoodProduction();
+        let woodProd = calcWoodProduction();
+        let minerals = calcStoneCoalProduction();
+        let scienceProd = calcScienceProduction();
         
-        let goldIncome = kingdom.taxIncome + kingdom.marketIncome;
-        if(goldIncome > 0) { kingdom.gold += goldIncome; addLog(`💰 Доход: +${goldIncome} золота`); }
+        game.food += foodProd;
+        game.wood += woodProd;
+        game.stone += minerals.stone;
+        game.coal += minerals.coal;
+        game.science += scienceProd;
         
-        mineProduction();
-        let births = calcBirth();
-        if(births > 0) { kingdom.population += births; addLog(`👶 Родилось +${births} человек`); }
-        consumeFood();
+        game.gold += game.marketIncome;
+        
+        let consumption = Math.floor(game.population * 0.65);
+        if(game.food >= consumption) game.food -= consumption;
+        else { let starve = Math.floor((consumption - game.food) / 0.7); game.population = Math.max(3, game.population - starve); game.food = 0; addLog(`💀 Голод! -${starve} жителей`, true); }
+        
+        let birthRate = 0.025 + (game.birthBonus/100) + (game.happiness/1500);
+        let births = Math.min(Math.floor(game.population * birthRate), maxPopulation() - game.population);
+        if(births > 0) { game.population += births; addLog(`👶 Родилось +${births}`); }
+        
+        game.happiness = Math.min(100, Math.max(0, game.happiness - 0.3 + (game.food > game.population ? 0.6 : -0.8)));
+        if(game.happiness < 15) { addLog(`⚠️ НАРОД НЕДОВОЛЕН! Счастье критически низкое!`, true); }
+        if(game.happiness < 5) { let loss = Math.floor(game.population * 0.2); game.population = Math.max(3, game.population - loss); game.happiness = 20; addLog(`💀 МЯТЕЖ! Потеряно ${loss} человек!`, true); }
+        
         regrowForest();
+        triggerRandomEvent();
+        if(Math.random() < 0.07 && game.famineCounter === 0) game.famineCounter = 1;
         
-        if(kingdom.tradeReputation > 50) kingdom.tradeReputation -= 0.4;
-        if(kingdom.tradeReputation < 50) kingdom.tradeReputation += 0.3;
-        kingdom.tradeReputation = Math.min(95, Math.max(15, kingdom.tradeReputation));
+        game.population = Math.min(maxPopulation(), game.population);
+        game.food = Math.max(0, Math.floor(game.food));
+        game.wood = Math.max(0, Math.floor(game.wood));
+        game.stone = Math.max(0, Math.floor(game.stone));
+        game.coal = Math.max(0, Math.floor(game.coal));
+        game.gold = Math.max(0, Math.floor(game.gold));
+        game.tradeReputation = Math.min(90, Math.max(20, game.tradeReputation + (Math.random() - 0.5) * 1));
         
-        kingdom.population = Math.min(kingdom.houses * 8 + 30, kingdom.population);
-        kingdom.food = Math.max(0, Math.floor(kingdom.food));
-        kingdom.wood = Math.max(0, Math.floor(kingdom.wood));
-        kingdom.stone = Math.max(0, Math.floor(kingdom.stone));
-        kingdom.coal = Math.max(0, Math.floor(kingdom.coal));
-        kingdom.gold = Math.max(0, Math.floor(kingdom.gold));
-        kingdom.happiness = Math.min(100, Math.max(0, kingdom.happiness));
+        resourceHistory.food.push(game.food);
+        resourceHistory.wood.push(game.wood);
+        resourceHistory.gold.push(game.gold);
+        if(resourceHistory.food.length > 20) resourceHistory.food.shift();
+        if(resourceHistory.wood.length > 20) resourceHistory.wood.shift();
+        if(resourceHistory.gold.length > 20) resourceHistory.gold.shift();
         
-        updateAllUI();
-        if(kingdom.population <= 2) { addLog("💀 КОРОЛЕВСТВО ПАЛО...",true); gameActive=false; clearInterval(intervalId); }
+        checkAchievements();
+        updateUI();
+        drawChart();
+        if(game.population <= 2) { addLog("💀 КОРОЛЕВСТВО ПАЛО! Обновите страницу.", true); clearInterval(gameInterval); gameActive = false; }
     }
     
-    // ========== ДЕЙСТВИЯ ==========
-    function gatherWoodAct() { let w = getWoodGather(); kingdom.wood += w; addLog(`🪵 Древесина +${w} (леса ${Math.floor(kingdom.forestDensity)}%)`); updateAllUI();}
-    function gatherStoneAct() { let s = getStoneGather(); kingdom.stone += s; addLog(`⛰️ Камень +${s}`); updateAllUI();}
-    function gatherCoalAct() { let c = getCoalGather(); kingdom.coal += c; addLog(`🪨 Уголь +${c}`); updateAllUI();}
-    function buildMine() { if(kingdom.wood>=40 && kingdom.stone>=20) { kingdom.wood-=40; kingdom.stone-=20; kingdom.stoneMines++; addLog(`⛏️ Шахта построена! +1 камень и +2 угля/ход`);} else addLog(`❌ Нужно 40 дерева, 20 камня`,true); updateAllUI();}
-    function buildFarm() { if(kingdom.wood>=25) { kingdom.wood-=25; kingdom.farms++; addLog(`🌾 Поле +1 (всего ${kingdom.farms})`);} else addLog(`Мало дерева`,true); updateAllUI();}
-    function buildHouse() { if(kingdom.wood>=30) { kingdom.wood-=30; kingdom.houses++; addLog(`🏠 Дом +1 (жилья +6)`);} else addLog(`Нужно 30 дерева`,true); updateAllUI();}
-    function expandLand() { if(kingdom.wood>=20) { kingdom.wood-=20; kingdom.landArea+=120; kingdom.farms++; addLog(`🗺️ Земли +120, новое поле`);} else addLog(`Мало дерева`,true); updateAllUI();}
-    function trainSoldier() { if(kingdom.food>=18) { kingdom.food-=18; kingdom.soldiers++; addLog(`🗡️ Воин +1`);} else addLog(`Не хватает еды`,true); updateAllUI();}
-    function raidAct() { if(kingdom.soldiers>=4) { kingdom.soldiers-=4; let loot=25+Math.floor(Math.random()*35); kingdom.food+=loot; addLog(`⚔️ Набег: +${loot} еды`); kingdom.happiness=Math.min(100,kingdom.happiness+3);} else addLog(`Нужно 4 воина`,true); updateAllUI();}
-    function conquerAct() { if(kingdom.soldiers>=10) { kingdom.soldiers-=10; kingdom.conqueredBonus+=20; kingdom.landArea+=150; addLog(`🏰 ЗАХВАТ! +20% урожая`); kingdom.happiness+=5;} else addLog(`Нужно 10 воинов`,true); updateAllUI();}
-    function sellWoodTrade() { if(kingdom.wood>=20) { kingdom.wood-=20; let price = 26 + Math.floor(Math.random()*10); kingdom.gold+=price; addLog(`Продано 20 дерева за ${price} золота`); kingdom.tradeReputation+=2;} else addLog(`Нет дерева`,true); updateAllUI();}
-    function sellStoneTrade() { if(kingdom.stone>=15) { kingdom.stone-=15; kingdom.gold+=30; addLog(`Продано 15 камня за 30 золота`); kingdom.tradeReputation+=1;} else addLog(`Мало камня`,true); updateAllUI();}
-    function buyFoodTrade() { if(kingdom.gold>=22) { let foodGet = 35 + Math.floor(Math.random()*5); kingdom.gold-=22; kingdom.food+=foodGet; addLog(`Куплено ${foodGet} еды`); kingdom.tradeReputation+=1;} else addLog(`Мало золота`,true); updateAllUI();}
-    function investTrade() { if(kingdom.gold>=45) { kingdom.gold-=45; kingdom.marketIncome+=5; addLog(`📈 Инвестиции +5 золота/ход`);} else addLog(`Нужно 45 золота`,true); updateAllUI();}
-    function upgradeLogging() { if(kingdom.gold>=60 && !kingdom.loggingUpgrade) { kingdom.gold-=60; kingdom.loggingUpgrade=true; addLog(`🪓 Лесопилка улучшена! +30% древесины`);} else if(kingdom.loggingUpgrade) addLog(`Уже улучшено`); else addLog(`Нужно 60 золота`,true); updateAllUI();}
-    function upgradeMining() { if(kingdom.gold>=70 && !kingdom.miningUpgrade) { kingdom.gold-=70; kingdom.miningUpgrade=true; addLog(`⛏️ Шахты улучшены! +25% ресурсов`);} else if(kingdom.miningUpgrade) addLog(`Уже улучшено`); else addLog(`Нужно 70 золота`,true); updateAllUI();}
-    function lawBirth() { if(kingdom.gold>=15) { kingdom.gold-=15; kingdom.birthBonus+=1; addLog(`👶 Рождаемость +1/ход`);} else addLog(`Не хватает золота`,true); updateAllUI();}
-    function lawTax() { if(kingdom.happiness>10) { kingdom.taxIncome+=6; kingdom.happiness-=4; addLog(`💰 Налоги +6 зол/ход`);} else addLog(`Счастье низкое`,true); updateAllUI();}
-    function lawForest() { if(kingdom.wood>=10) { kingdom.wood-=10; kingdom.forestRegenBonus=1; addLog(`🌳 Восстановление леса +8%`);} else addLog(`Мало дерева`,true); updateAllUI();}
+    // действия
+    function gatherWood() { let gain = 8+Math.floor(Math.random()*9); game.wood += gain; addLog(`🪵 +${gain} дерева`); updateUI(); }
+    function gatherStone() { let gain = 5+Math.floor(Math.random()*6); game.stone += gain; addLog(`⛰️ +${gain} камня`); updateUI(); }
+    function gatherCoal() { let gain = 4+Math.floor(Math.random()*5); game.coal += gain; addLog(`🪨 +${gain} угля`); updateUI(); }
+    function buildFarm() { if(game.wood>=35) { game.wood-=35; game.farms++; updateMaxWorkers(); addLog(`🌾 Построено поле!`); } else addLog(`❌ Нужно 35 дерева`,true); updateUI(); }
+    function buildHouse() { if(game.wood>=40) { game.wood-=40; game.houses++; addLog(`🏠 Построен дом! +6 жилья`); } else addLog(`❌ Нужно 40 дерева`,true); updateUI(); }
+    function buildMine() { if(game.wood>=60 && game.stone>=25) { game.wood-=60; game.stone-=25; game.mines++; updateMaxWorkers(); addLog(`⛏️ Шахта построена!`); } else addLog(`❌ Нужно 60 дерева, 25 камня`,true); updateUI(); }
+    function buildObservatory() { if(game.wood>=70 && game.stone>=35) { game.wood-=70; game.stone-=35; game.observatories++; updateMaxWorkers(); addLog(`🔭 Обсерватория построена!`); } else addLog(`❌ Нужно 70 дерева, 35 камня`,true); updateUI(); }
+    function expandLand() { if(game.wood>=30) { game.wood-=30; game.landArea+=120; game.farms++; addLog(`🗺️ Земли расширены! +120 площади, +1 поле`); } else addLog(`❌ Нужно 30 дерева`,true); updateUI(); }
+    
+    function assignWorker(type, delta) { let unemp = unemployed(); let newVal = game.workers[type] + delta; if(delta>0 && unemp<=0) { addLog(`❌ Нет свободных рабочих`,true); return; } if(newVal<0) newVal=0; if(newVal > game.maxWorkers[type]) { addLog(`❌ Слишком много`,true); return; } game.workers[type] = newVal; updateUI(); }
+    function autoAssign() { let unemp = unemployed(); for(let t of ['farmers','lumberjacks','miners','scientists','builders','traders']) { let free = game.maxWorkers[t] - game.workers[t]; if(free>0 && unemp>0) { let add = Math.min(free, unemp); game.workers[t] += add; unemp -= add; } } addLog(`🤖 Автораспределение`); updateUI(); }
+    
+    function sellWoodTrade() { if(game.wood>=20) { game.wood-=20; let price = 24+Math.floor(Math.random()*7); game.gold+=price; addLog(`Продано 20 дерева за ${price} золота`); } else addLog(`Нет дерева`,true); updateUI(); }
+    function sellStoneTrade() { if(game.stone>=15) { game.stone-=15; game.gold+=28; addLog(`Продано 15 камня за 28 золота`); } else addLog(`Мало камня`,true); updateUI(); }
+    function sellCoalTrade() { if(game.coal>=15) { game.coal-=15; game.gold+=25; addLog(`Продано 15 угля за 25 золота`); } else addLog(`Мало угля`,true); updateUI(); }
+    function buyFoodTrade() { if(game.gold>=25) { let foodGet = 30+Math.floor(Math.random()*5); game.gold-=25; game.food+=foodGet; addLog(`Куплено ${foodGet} еды`); } else addLog(`Мало золота`,true); updateUI(); }
+    function investTrade() { if(game.gold>=50) { game.gold-=50; game.marketIncome+=4; addLog(`📈 Инвестиции +4 золота/ход`); } else addLog(`Нужно 50 золота`,true); updateUI(); }
+    function upgradeLogging() { if(game.gold>=70 && !game.loggingUpgrade) { game.gold-=70; game.loggingUpgrade=true; addLog(`🪓 Лесопилка улучшена! +25% добычи`); } else addLog(`Нужно 70 золота`,true); updateUI(); }
+    function upgradeMining() { if(game.gold>=80 && !game.miningUpgrade) { game.gold-=80; game.miningUpgrade=true; addLog(`⛏️ Шахты улучшены! +20% добычи`); } else addLog(`Нужно 80 золота`,true); updateUI(); }
+    
+    function lawBirth() { if(game.gold>=15) { game.gold-=15; game.birthBonus+=0.8; addLog(`👶 Указ рождаемости! +0.8 рождаемости`); } else addLog(`Нужно 15 золота`,true); updateUI(); }
+    function lawForest() { if(game.wood>=10) { game.wood-=10; game.forestRegenBonus=true; addLog(`🌳 Лесной указ! +8% восстановления`); } else addLog(`Нужно 10 дерева`,true); updateUI(); }
+    function lawHarvest() { if(game.wood>=25 && !game.harvestLaw) { game.wood-=25; game.harvestLaw=true; addLog(`🌽 Севооборот +10% урожая`); } else addLog(`Уже принят или нет дерева`,true); updateUI(); }
+    
+    function updateTech(tech, cost, effect) { if(game.science>=cost && !game.techs[tech]) { game.science-=cost; game.techs[tech]=true; effect(); addLog(`📚 Изучено: ${tech}`); updateUI(); } else addLog(`❌ Не хватает науки`, true); }
+    
+    function saveGame() { localStorage.setItem('kingdomSave', JSON.stringify(game)); addLog(`💾 Игра сохранена!`); }
+    function loadGame() { let save = localStorage.getItem('kingdomSave'); if(save) { Object.assign(game, JSON.parse(save)); updateMaxWorkers(); updateUI(); addLog(`📀 Игра загружена! Ход ${game.turn}`); } else addLog(`❌ Нет сохранения`, true); }
     function resetGame() { location.reload(); }
     
-    function updateAllUI() {
+    function drawChart() {
+        let canvas = document.getElementById('resourceChart');
+        let ctx = canvas.getContext('2d');
+        let w = canvas.clientWidth, h = canvas.clientHeight;
+        canvas.width = w; canvas.height = h;
+        ctx.fillStyle = '#1e1b16'; ctx.fillRect(0,0,w,h);
+        if(resourceHistory.food.length<2) return;
+        let maxVal = Math.max(...resourceHistory.food, ...resourceHistory.wood, ...resourceHistory.gold, 100);
+        let stepX = w / 20;
+        ctx.beginPath(); ctx.strokeStyle = '#cd9f5a'; ctx.lineWidth = 2;
+        for(let i=0;i<resourceHistory.food.length;i++) { let x = i*stepX; let y = h - (resourceHistory.food[i]/maxVal)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+        ctx.beginPath(); ctx.strokeStyle = '#6f9e4f'; ctx.lineWidth = 2;
+        for(let i=0;i<resourceHistory.wood.length;i++) { let x = i*stepX; let y = h - (resourceHistory.wood[i]/maxVal)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+        ctx.beginPath(); ctx.strokeStyle = '#c97e5a'; ctx.lineWidth = 2;
+        for(let i=0;i<resourceHistory.gold.length;i++) { let x = i*stepX; let y = h - (resourceHistory.gold[i]/maxVal)*h; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } ctx.stroke();
+    }
+    
+    function updateUI() {
         document.getElementById('resPanel').innerHTML = `
-            <div class="res-card"><span>🍞</span> ${Math.floor(kingdom.food)}</div>
-            <div class="res-card"><span>🪵</span> ${Math.floor(kingdom.wood)}</div>
-            <div class="res-card"><span>⛰️</span> ${Math.floor(kingdom.stone)}</div>
-            <div class="res-card"><span>🪨</span> ${Math.floor(kingdom.coal)}</div>
-            <div class="res-card"><span>🪙</span> ${Math.floor(kingdom.gold)}</div>
-            <div class="res-card"><span>👥</span> ${Math.floor(kingdom.population)}/${kingdom.houses*8+30}</div>
-            <div class="res-card"><span>⚔️</span> ${kingdom.soldiers}</div>
-            <div class="res-card"><span>🏞️</span> ${Math.floor(kingdom.landArea)}</div>
+            <div class="res-card">🍞 ${Math.floor(game.food)}</div>
+            <div class="res-card">🪵 ${Math.floor(game.wood)}</div>
+            <div class="res-card">⛰️ ${Math.floor(game.stone)}</div>
+            <div class="res-card">🪨 ${Math.floor(game.coal)}</div>
+            <div class="res-card">🪙 ${Math.floor(game.gold)}</div>
+            <div class="res-card">👥 ${Math.floor(game.population)}/${maxPopulation()}</div>
+            <div class="res-card">🔬 ${Math.floor(game.science)}</div>
         `;
-        document.getElementById('quickStats').innerHTML = `
-            <div class="stat-badge">😊 ${Math.floor(kingdom.happiness)}%</div>
-            <div class="stat-badge">🌾 ${kingdom.farms} полей</div>
-            <div class="stat-badge">🏠 ${kingdom.houses} домов</div>
-            <div class="stat-badge">⛏️ шахт:${kingdom.stoneMines}</div>
-            <div class="stat-badge">🏆 +${kingdom.conqueredBonus}%</div>
-        `;
-        document.getElementById('woodDepletionFill').style.width = `${kingdom.forestDensity}%`;
-        document.getElementById('resourceStatus').innerHTML = `🌲 Леса: ${kingdom.forestDensity>60?"богатые":kingdom.forestDensity>30?"средние":"истощённые"} (${Math.floor(kingdom.forestDensity)}%) | 🪓 улучшение: ${kingdom.loggingUpgrade?"есть":"нет"} | ⛏️ шахты: ${kingdom.miningUpgrade?"улучш.":"обыч."}`;
-        document.getElementById('armyPowerSpan').innerText = Math.floor(kingdom.soldiers + kingdom.population*0.1);
-        document.getElementById('hapVal').innerText = Math.floor(kingdom.happiness);
-        document.getElementById('tradeReputation').innerHTML = `🤝 Репутация: ${Math.floor(kingdom.tradeReputation)}%`;
-        let full = document.getElementById('fullStats');
-        full.innerHTML = `
-            <div>🏰 ${kingdom.name}</div>
-            <div>🗺️ Площадь: ${Math.floor(kingdom.landArea)} км²</div>
-            <div>🏠 Дома: ${kingdom.houses} (макс.население ${kingdom.houses*8+30})</div>
-            <div>🌾 Поля: ${kingdom.farms} | Бонус захвата +${kingdom.conqueredBonus}%</div>
-            <div>⛏️ Шахт: ${kingdom.stoneMines} | Улучшение добычи: лес 🪓 ${kingdom.loggingUpgrade?"да":"нет"} / шахты ⛏️ ${kingdom.miningUpgrade?"да":"нет"}</div>
-            <div>📈 Доход/ход: налог ${kingdom.taxIncome} + рынок ${kingdom.marketIncome} = ${kingdom.taxIncome+kingdom.marketIncome} зол.</div>
-            <div>🌲 Лес: ${Math.floor(kingdom.forestDensity)}% | 👶 Рождаемость бонус: +${kingdom.birthBonus}</div>
-            <div>🍂 Неурожай: ${kingdom.famineCounter>0?"Да":"Нет"} | Ходов: ${kingdom.turnCount}</div>
+        document.getElementById('quickStats').innerHTML = `<span>😊 ${Math.floor(game.happiness)}%</span><span>🌾 ${game.farms} полей</span><span>🏠 ${game.houses} домов</span><span>⛏️ ${game.mines} шахт</span><span>🔭 ${game.observatories}</span><span>🏆 +${game.conqueredBonus}%</span>`;
+        document.getElementById('turnCount').innerText = game.turn;
+        document.getElementById('sciencePoints').innerText = Math.floor(game.science);
+        document.getElementById('unemployedSpan').innerText = unemployed();
+        document.getElementById('hapVal').innerText = Math.floor(game.happiness);
+        document.getElementById('tradeReputation').innerHTML = `🤝 Репутация: ${Math.floor(game.tradeReputation)}%`;
+        document.getElementById('woodDepletionFill').style.width = `${game.forestDensity}%`;
+        document.getElementById('observatoryCount').innerText = game.observatories;
+        document.getElementById('resourceStatus').innerHTML = `🌲 Леса: ${game.forestDensity>60?"богатые":game.forestDensity>30?"средние":"истощённые"} (${Math.floor(game.forestDensity)}%) | 🪓 ${game.loggingUpgrade?"улучш.":"обыч."} | ⛏️ ${game.miningUpgrade?"улучш.":"обыч."}`;
+        
+        let workersHtml = `<div class="action-list">`;
+        workersHtml += `<div>🌾 Фермеры: ${game.workers.farmers}/${game.maxWorkers.farmers} <button class="action-btn" onclick="assignWorker('farmers',1)">+</button> <button onclick="assignWorker('farmers',-1)">-</button></div>`;
+        workersHtml += `<div>🪵 Лесорубы: ${game.workers.lumberjacks}/${game.maxWorkers.lumberjacks} <button onclick="assignWorker('lumberjacks',1)">+</button> <button onclick="assignWorker('lumberjacks',-1)">-</button></div>`;
+        workersHtml += `<div>⛏️ Шахтёры: ${game.workers.miners}/${game.maxWorkers.miners} <button onclick="assignWorker('miners',1)">+</button> <button onclick="assignWorker('miners',-1)">-</button></div>`;
+        workersHtml += `<div>🔭 Учёные: ${game.workers.scientists}/${game.maxWorkers.scientists} <button onclick="assignWorker('scientists',1)">+</button> <button onclick="assignWorker('scientists',-1)">-</button></div>`;
+        workersHtml += `<div>🏗️ Строители: ${game.workers.builders}/${game.maxWorkers.builders} <button onclick="assignWorker('builders',1)">+</button> <button onclick="assignWorker('builders',-1)">-</button></div>`;
+        workersHtml += `<div>📦 Торговцы: ${game.workers.traders}/${game.maxWorkers.traders} <button onclick="assignWorker('traders',1)">+</button> <button onclick="assignWorker('traders',-1)">-</button></div>`;
+        workersHtml += `</div>`;
+        document.getElementById('workersPanel').innerHTML = workersHtml;
+        
+        let techHtml = `
+            <div class="tech-item">🌾 Севооборот (35 н) <button onclick="updateTech('cropRotation',35,()=>{})">Изучить</button>${game.techs.cropRotation?'✅':''}</div>
+            <div class="tech-item">🪵 Лесопилка (45 н) <button onclick="updateTech('sawmill',45,()=>{})">Изучить</button>${game.techs.sawmill?'✅':''}</div>
+            <div class="tech-item">⛏️ Улучш. кирки (50 н) <button onclick="updateTech('miningPick',50,()=>{})">Изучить</button>${game.techs.miningPick?'✅':''}</div>
+            <div class="tech-item">📦 Торг. пути (60 н) <button onclick="updateTech('tradeRoutes',60,()=>{ game.marketIncome+=3; addLog('📦 +3 золота/ход'); updateUI(); })">Изучить</button>${game.techs.tradeRoutes?'✅':''}</div>
+            <div class="tech-item">🏛️ Архитектура (70 н) <button onclick="updateTech('architecture',70,()=>{ addLog('🏛️ Стройка ускорена'); })">Изучить</button>${game.techs.architecture?'✅':''}</div>
+            <div class="tech-item">🔭 Астрономия (80 н) <button onclick="updateTech('astronomy',80,()=>{ addLog('🔭 Наука +20%'); updateUI(); })">Изучить</button>${game.techs.astronomy?'✅':''}</div>`;
+        document.getElementById('techPanel').innerHTML = techHtml;
+        
+        let achievementsHtml = '';
+        for(let [key, val] of Object.entries(game.achievements)) { if(val) { let names = {firstHouse:'🏠 5 домов', firstFarm:'🌾 5 полей', firstMine:'⛏️ 3 шахты', population50:'👥 50 жителей', science100:'🔬 100 науки'}; achievementsHtml += `<div class="achievement">✅ ${names[key]}</div>`; } }
+        document.getElementById('achievementsPanel').innerHTML = achievementsHtml || '<div class="achievement">⭐ Нет достижений</div>';
+        
+        document.getElementById('fullStats').innerHTML = `
+            <div class="stat-line">🏰 ${game.name}</div>
+            <div class="stat-line">🗺️ Площадь: ${Math.floor(game.landArea)} км²</div>
+            <div class="stat-line">🏠 Дома: ${game.houses} (макс.население ${maxPopulation()})</div>
+            <div class="stat-line">🌾 Поля: ${game.farms} | ⛏️ Шахт: ${game.mines} | 🔭 Обсерваторий: ${game.observatories}</div>
+            <div class="stat-line">🏆 Бонус захвата: +${game.conqueredBonus}%</div>
+            <div class="stat-line">📈 Доход/ход: рынок ${game.marketIncome} зол.</div>
+            <div class="stat-line">🌲 Лес: ${Math.floor(game.forestDensity)}% | 👶 Рождаемость бонус: +${game.birthBonus.toFixed(1)}</div>
+            <div class="stat-line">🍂 Неурожай: ${game.famineCounter>0?"Да":"Нет"} | Ходов: ${game.turn}</div>
+            <div class="stat-line">📚 Технологий: ${Object.values(game.techs).filter(v=>v===true).length}/6</div>
+            <div class="stat-line">🔬 Наука/ход: ${calcScienceProduction()}</div>
         `;
     }
     
@@ -538,37 +387,46 @@
         closeBtns.forEach(btn => { btn.onclick = () => closeAll(); });
         window.onclick = (e) => { if(e.target.classList.contains('modal')) closeAll(); };
         
-        document.getElementById('gatherWoodBtn').onclick = () => { gatherWoodAct(); closeAll(); };
-        document.getElementById('gatherStoneBtn').onclick = () => { gatherStoneAct(); closeAll(); };
-        document.getElementById('gatherCoalBtn').onclick = () => { gatherCoalAct(); closeAll(); };
-        document.getElementById('buildMineBtn').onclick = () => { buildMine(); closeAll(); };
+        document.getElementById('gatherWoodBtn').onclick = () => { gatherWood(); closeAll(); };
+        document.getElementById('gatherStoneBtn').onclick = () => { gatherStone(); closeAll(); };
+        document.getElementById('gatherCoalBtn').onclick = () => { gatherCoal(); closeAll(); };
         document.getElementById('buildFarmBtn').onclick = () => { buildFarm(); closeAll(); };
         document.getElementById('buildHouseBtn').onclick = () => { buildHouse(); closeAll(); };
+        document.getElementById('buildMineBtn').onclick = () => { buildMine(); closeAll(); };
+        document.getElementById('buildObservatoryBtn').onclick = () => { buildObservatory(); closeAll(); };
         document.getElementById('expandLandBtn').onclick = () => { expandLand(); closeAll(); };
-        document.getElementById('trainSoldierBtn').onclick = () => { trainSoldier(); closeAll(); };
-        document.getElementById('raidBtn').onclick = () => { raidAct(); closeAll(); };
-        document.getElementById('conquerBtn').onclick = () => { conquerAct(); closeAll(); };
+        document.getElementById('autoAssignBtn').onclick = () => { autoAssign(); closeAll(); };
         document.getElementById('sellWoodTrade').onclick = () => { sellWoodTrade(); closeAll(); };
         document.getElementById('sellStoneTrade').onclick = () => { sellStoneTrade(); closeAll(); };
+        document.getElementById('sellCoalTrade').onclick = () => { sellCoalTrade(); closeAll(); };
         document.getElementById('buyFoodTrade').onclick = () => { buyFoodTrade(); closeAll(); };
         document.getElementById('investTradeBtn').onclick = () => { investTrade(); closeAll(); };
         document.getElementById('upgradeLoggingBtn').onclick = () => { upgradeLogging(); closeAll(); };
         document.getElementById('upgradeMiningBtn').onclick = () => { upgradeMining(); closeAll(); };
         document.getElementById('lawBirthBtn').onclick = () => { lawBirth(); closeAll(); };
-        document.getElementById('lawTaxBtn').onclick = () => { lawTax(); closeAll(); };
         document.getElementById('lawForestBtn').onclick = () => { lawForest(); closeAll(); };
+        document.getElementById('lawHarvestBtn').onclick = () => { lawHarvest(); closeAll(); };
         document.getElementById('resetGameBtn').onclick = () => resetGame();
+        document.getElementById('saveGameBtn').onclick = () => { saveGame(); closeAll(); };
+        document.getElementById('loadGameBtn').onclick = () => { loadGame(); closeAll(); };
+        document.getElementById('pauseGameBtn').onclick = () => { gamePaused = !gamePaused; document.getElementById('pauseGameBtn').innerText = gamePaused ? '▶️' : '⏸️'; addLog(gamePaused ? "⏸️ Игра на паузе" : "▶️ Игра продолжена"); };
         
-        const nameInput = document.getElementById('kingdomNameInput');
-        const applyBtn = document.getElementById('applyNameBtn');
-        applyBtn.onclick = () => { kingdom.name = nameInput.value.trim() || "Безымянное"; addLog(`📜 Отныне королевство зовётся ${kingdom.name}`); updateAllUI(); closeAll(); };
+        window.assignWorker = assignWorker;
+        window.updateTech = updateTech;
+        
+        document.getElementById('kingdomNameInput').onchange = () => { game.name = document.getElementById('kingdomNameInput').value; updateUI(); };
     }
     
-    function startLoop() { intervalId = setInterval(() => gameTick(), 11000); }
+    updateMaxWorkers();
+    game.workers.farmers = Math.min(2, game.maxWorkers.farmers);
+    game.workers.lumberjacks = 2;
+    game.workers.miners = 0;
+    game.workers.scientists = 0;
     initModals();
-    startLoop();
-    updateAllUI();
-    addLog(`🏆 Добро пожаловать, правитель ${kingdom.name}! Добывай, строй, захватывай.`);
+    gameInterval = setInterval(() => gameTick(), 14000);
+    updateUI();
+    drawChart();
+    addLog("🏆 Начинай с малого: 3 дома, 10 человек, 1 поле. Развивай королевство медленно и мудро!");
 </script>
 </body>
 </html>
